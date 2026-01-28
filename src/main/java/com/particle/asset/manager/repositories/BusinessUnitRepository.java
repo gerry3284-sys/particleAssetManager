@@ -12,4 +12,7 @@ public interface BusinessUnitRepository extends JpaRepository<BusinessUnit, Long
 
     // TODO: Da togliere e usare findByName ?
     boolean existsByName(String name);
+
+    // Trova la BusinessUnit più recente. Restituisce NULL se non trova nulla
+    BusinessUnit findTopByOrderByIdDesc();
 }

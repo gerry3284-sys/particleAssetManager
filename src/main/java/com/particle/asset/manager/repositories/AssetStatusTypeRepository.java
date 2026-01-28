@@ -6,4 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface AssetStatusTypeRepository extends JpaRepository<AssetStatusType, Long>
 {
     boolean existsByName(String name);
+
+    // Trova l'AssetStatusType più recente. Restituisce NULL se non trova nulla
+    AssetStatusType findTopByOrderByIdDesc();
 }

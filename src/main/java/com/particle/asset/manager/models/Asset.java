@@ -33,8 +33,7 @@ public class Asset
     @Column(nullable = false)
     private LocalDateTime creationDate = LocalDateTime.now();
 
-    @Column(nullable = false)
-    private LocalDateTime updateDate = LocalDateTime.now();
+    private LocalDateTime updateDate;
 
     private Short ram; // RAM in Giga
 
@@ -51,6 +50,9 @@ public class Asset
     @ManyToOne
     @JoinColumn(name = "status_id", nullable = false)
     private AssetStatusType assetStatusType;
+
+    @Column(nullable = false, unique = true)
+    private String code; // Codice univoco per ogni record "primi due caratteri + id"
 
     // "mappedBy = *nome*" --> nome del lato di chi passa la chiave
     // "cascade = CascadeType.ALL" --> salva/aggiorna/cancella anche i figli

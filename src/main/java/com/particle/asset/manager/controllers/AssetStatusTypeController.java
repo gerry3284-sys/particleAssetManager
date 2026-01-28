@@ -69,7 +69,7 @@ public class AssetStatusTypeController
         AssetStatusType searchedAssetStatusType = service.getAssetStatusTypeById(id);
 
         return searchedAssetStatusType != null ?ResponseEntity.ok(searchedAssetStatusType)
-                :ResponseEntity.status(HttpStatus.BAD_REQUEST).body(SwaggerResponses.BAD_REQUEST);
+                :ResponseEntity.status(HttpStatus.NOT_FOUND).body(SwaggerResponses.NOT_FOUND);
     }
 
     @PostMapping

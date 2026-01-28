@@ -87,13 +87,43 @@ public class AssetStatusTypeService
     public AssetStatusType createAssetStatusType(AssetTypeBusinessUnitAssetStatusTypeRequestBodyDTO assetStatusTypeDTO)
     {
         if(assetStatusTypeDTO == null || assetStatusTypeDTO.getName() == null ||
-                repository.existsByName(assetStatusTypeDTO.getName()))
+                assetStatusTypeDTO.getName().trim().isEmpty())
+            return null;
+
+        // Normalizzazione del nome (se necessario)
+        assetStatusTypeDTO.setName(normalizeName(assetStatusTypeDTO.getName()));
+
+        if(repository.existsByName(assetStatusTypeDTO.getName()))
             return null;
 
         AssetStatusType assetStatusType = new AssetStatusType();
         assetStatusType.setName(assetStatusTypeDTO.getName());
+        Long recentId = repository.findTopByOrderByIdDesc().getId();
+
+        String nameWithoutSpaces = assetStatusType.getName().replaceAll("\\s+", "");
+        assetStatusType.setCode(nameWithoutSpaces.toUpperCase()
+                .substring(0, Math.min(2, nameWithoutSpaces.length())) + (recentId != null ?recentId+1 :1L));
 
         return repository.save(assetStatusType);
+    }
+
+    private String normalizeName(String name)
+    {
+        if (name == null || name.trim().isEmpty())
+            return name;
+
+        String trimmed = name.trim();
+
+        // Verifica se è già nel formato corretto
+        if (trimmed.length() > 0 &&
+                Character.isUpperCase(trimmed.charAt(0)) &&
+                trimmed.substring(1).equals(trimmed.substring(1).toLowerCase()))
+            return trimmed; // Già corretto, restituisce così com'è
+
+
+        // Altrimenti normalizza
+        return trimmed.substring(0, 1).toUpperCase() +
+                trimmed.substring(1).toLowerCase();
     }
 
     // Aggiorna un AssetStatusType (reset cache)

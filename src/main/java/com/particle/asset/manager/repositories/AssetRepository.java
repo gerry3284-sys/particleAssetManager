@@ -7,4 +7,7 @@ public interface AssetRepository extends JpaRepository<Asset, Long>
 {
     // Ritorna true o false, se trova il SerialNumber nella tabella asset
     boolean existsBySerialNumber(String serialNumber);
+
+    // Trova l'Asset più recente. Restituisce NULL se non trova nulla
+    Asset findTopByOrderByIdDesc();
 }

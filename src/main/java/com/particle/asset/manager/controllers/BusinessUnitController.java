@@ -70,7 +70,7 @@ public class BusinessUnitController
         BusinessUnit searchedBusinessUnit = service.getBusinessUnitById(id);
 
         return searchedBusinessUnit != null ?ResponseEntity.ok(searchedBusinessUnit)
-                :ResponseEntity.status(HttpStatus.BAD_REQUEST).body(SwaggerResponses.BAD_REQUEST);
+                :ResponseEntity.status(HttpStatus.NOT_FOUND).body(SwaggerResponses.NOT_FOUND);
     }
 
     @PostMapping

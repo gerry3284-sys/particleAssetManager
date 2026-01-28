@@ -68,6 +68,11 @@ public class AssetService
         asset.setRam(assetDTO.getRam());
         asset.setHardDisk(assetDTO.getHardDisk());
         asset.setAssetStatusType(assetStatusTypeById.get());
+        Long recentId = assetRepository.findTopByOrderByIdDesc().getId();
+
+        String nameWithoutSpaces = asset.getSerialNumber().replaceAll("\\s+", "");
+        asset.setCode(nameWithoutSpaces.toUpperCase()
+                .substring(0, Math.min(2, nameWithoutSpaces.length())) + (recentId != null ?recentId+1 :1L));
 
         return assetRepository.save(asset);
     }

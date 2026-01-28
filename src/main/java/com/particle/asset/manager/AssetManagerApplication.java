@@ -10,6 +10,7 @@ public class AssetManagerApplication
 {
 	// http://localhost:8080/swagger-ui/index.html --> Swagger
 	// https://www.base64decode.org/ → Sito per verificare la firma dei token
+	// Versione JDK: ms 21
 	// mvn clean install (su terminale) --> per effettuare i test
 	// package "config" e "H2ConsoleConfig.java" --> Cancellati
 	// "MariaDbController.java" --> Cancellato
@@ -17,7 +18,7 @@ public class AssetManagerApplication
 	// Business Unit base = {Particle, Value, Ask, Kite}
 	// Errori 401 e 403 gestiti in SecurityConfig.java
 	// Errore 500 gestito in "GlobalExceptionHandler.java"
-	// Le GET, per adesso, tengono l'errore 400 (successivamente potrebbe essere tolto)
+	// "application-prod.properties" e "application-dev.properties" --> Cancellati
 
 	// TODO: Creare i DTO per i RequestBody (Farlo anche per movement e users ?)
 	// TODO: Creare la CRUD anche per users ?
@@ -28,7 +29,7 @@ public class AssetManagerApplication
 	// TODO: Per il nome dell'hard disk usare un enum (inserire più tipi)
 	// TODO: Implementare la creazione del token attraverso l'Office 365 (token SDK)
 	// TODO: Cancellare la creazione del token attraverso il database
-	// TODO: Togliere NOT NULL in "update_date"
+	// TODO: Modificare i body response non dia indietro tutti i dati
 
 	public static void main(String[] args) {
 		SpringApplication.run(AssetManagerApplication.class, args);

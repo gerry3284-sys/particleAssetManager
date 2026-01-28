@@ -28,8 +28,10 @@ public class BusinessUnit
     @Column(nullable = false)
     private LocalDateTime creationDate = LocalDateTime.now();
 
-    @Column(nullable = false)
-    private LocalDateTime updateDate = LocalDateTime.now();
+    private LocalDateTime updateDate;
+
+    @Column(nullable = false, unique = true)
+    private String code; // Codice univoco per ogni record "primi due caratteri + id"
 
     // "mappedBy = *nome*" --> nome del lato di chi passa la chiave
     // "cascade = CascadeType.ALL" --> salva/aggiorna/cancella anche i figli

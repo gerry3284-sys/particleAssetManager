@@ -5,6 +5,7 @@ import com.particle.asset.manager.enumerations.StatusForControllerOperations;
 import com.particle.asset.manager.models.BusinessUnit;
 import com.particle.asset.manager.repositories.BusinessUnitRepository;
 import com.particle.asset.manager.results.Result;
+import jakarta.transaction.Transactional;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
@@ -82,18 +83,48 @@ public class BusinessUnitService
     // Crea una businessUnit (reset cache)
     // @CacheEvict → Quando si crea/aggiorna/disattiva un record, la cache viene
     //               completamente svuotata (clear). Alla prossima chiamata GET,
-    //               i dati verrano caricati direttamente dal database.
+    //               i dati verranno caricati direttamente dal database.
     @CacheEvict(value = "businessUnits", allEntries = true)
     public BusinessUnit createBusinessUnit(AssetTypeBusinessUnitAssetStatusTypeRequestBodyDTO businessUnitDTO)
     {
         if(businessUnitDTO == null || businessUnitDTO.getName() == null ||
-                repository.existsByName(businessUnitDTO.getName()))
+                businessUnitDTO.getName().trim().isEmpty())
+            return null;
+
+        // Normalizzazione del nome (se necessario)
+        businessUnitDTO.setName(normalizeName(businessUnitDTO.getName()));
+
+        if(repository.existsByName(businessUnitDTO.getName()))
             return null;
 
         BusinessUnit businessUnit = new BusinessUnit();
         businessUnit.setName(businessUnitDTO.getName());
+        Long recentId = repository.findTopByOrderByIdDesc().getId();
+
+        String nameWithoutSpaces = businessUnit.getName().replaceAll("\\s+", "");
+        businessUnit.setCode(nameWithoutSpaces.toUpperCase()
+                .substring(0, Math.min(2, nameWithoutSpaces.length())) + (recentId != null ?recentId+1 :1L));
 
         return repository.save(businessUnit);
+    }
+
+    private String normalizeName(String name)
+    {
+        if (name == null || name.trim().isEmpty())
+            return name;
+
+        String trimmed = name.trim();
+
+        // Verifica se è già nel formato corretto
+        if (trimmed.length() > 0 &&
+                Character.isUpperCase(trimmed.charAt(0)) &&
+                trimmed.substring(1).equals(trimmed.substring(1).toLowerCase()))
+            return trimmed; // Già corretto, restituisce così com'è
+
+
+        // Altrimenti normalizza
+        return trimmed.substring(0, 1).toUpperCase() +
+                trimmed.substring(1).toLowerCase();
     }
 
     // Aggiorna un BusinessUnit (reset cache)
