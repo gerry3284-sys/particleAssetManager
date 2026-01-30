@@ -1,6 +1,7 @@
 package com.particle.asset.manager.services;
 
-import com.particle.asset.manager.DTO.AssetTypeBusinessUnitAssetStatusTypeRequestBodyDTO;
+import com.particle.asset.manager.DTO.AssetTypeBusinessUnitAssetStatusTypeActiveDeactiveBodyDTO;
+import com.particle.asset.manager.DTO.AssetTypeBusinessUnitAssetStatusTypeBodyDTO;
 import com.particle.asset.manager.enumerations.StatusForControllerOperations;
 import com.particle.asset.manager.models.AssetStatusType;
 import com.particle.asset.manager.repositories.AssetStatusTypeRepository;
@@ -84,7 +85,8 @@ public class AssetStatusTypeService
     //               completamente svuotata (clear). Alla prossima chiamata GET,
     //               i dati verrano caricati direttamente dal database.
     @CacheEvict(value = "assetStatusTypes", allEntries = true)
-    public AssetStatusType createAssetStatusType(AssetTypeBusinessUnitAssetStatusTypeRequestBodyDTO assetStatusTypeDTO)
+    public AssetTypeBusinessUnitAssetStatusTypeBodyDTO createAssetStatusType(
+            AssetTypeBusinessUnitAssetStatusTypeBodyDTO assetStatusTypeDTO)
     {
         if(assetStatusTypeDTO == null || assetStatusTypeDTO.getName() == null ||
                 assetStatusTypeDTO.getName().trim().isEmpty())
@@ -98,13 +100,14 @@ public class AssetStatusTypeService
 
         AssetStatusType assetStatusType = new AssetStatusType();
         assetStatusType.setName(assetStatusTypeDTO.getName());
-        Long recentId = repository.findTopByOrderByIdDesc().getId();
 
         String nameWithoutSpaces = assetStatusType.getName().replaceAll("\\s+", "");
         assetStatusType.setCode(nameWithoutSpaces.toUpperCase()
-                .substring(0, Math.min(2, nameWithoutSpaces.length())) + (recentId != null ?recentId+1 :1L));
+                .substring(0, Math.min(2, nameWithoutSpaces.length())) + (repository.count()+1));
 
-        return repository.save(assetStatusType);
+        repository.save(assetStatusType);
+
+        return assetStatusTypeDTO;
     }
 
     private String normalizeName(String name)
@@ -128,33 +131,38 @@ public class AssetStatusTypeService
 
     // Aggiorna un AssetStatusType (reset cache)
     @CacheEvict(value = "assetStatusTypes", allEntries = true)
-    public Result.AssetStatusTypeResult updateAssetStatusType(Long id,
-                                             AssetTypeBusinessUnitAssetStatusTypeRequestBodyDTO assetStatusTypeDTO)
+    public Result.AssetTypeBusinessUnitAssetStatusTypeBodyDTOPatchResult updateAssetStatusType(Long id,
+                                             AssetTypeBusinessUnitAssetStatusTypeBodyDTO assetStatusTypeDTO)
     {
-        if(assetStatusTypeDTO == null || assetStatusTypeDTO.getName() == null ||
-                repository.existsByName(assetStatusTypeDTO.getName()))
-            return new Result.AssetStatusTypeResult(StatusForControllerOperations.BAD_REQUEST, null);
+        if(assetStatusTypeDTO == null || assetStatusTypeDTO.getName() == null)
+            return new Result.AssetTypeBusinessUnitAssetStatusTypeBodyDTOPatchResult(StatusForControllerOperations.BAD_REQUEST, null);
+
+        // Normalizzazione del nome (se necessario)
+        assetStatusTypeDTO.setName(normalizeName(assetStatusTypeDTO.getName()));
+        if(repository.existsByName(assetStatusTypeDTO.getName()))
+            return new Result.AssetTypeBusinessUnitAssetStatusTypeBodyDTOPatchResult(StatusForControllerOperations.BAD_REQUEST, null);
 
         Optional<AssetStatusType> assetStatusTypeById = repository.findById(id);
 
         if(assetStatusTypeById.isEmpty())
-            return new Result.AssetStatusTypeResult(StatusForControllerOperations.NOT_FOUND, null);
+            return new Result.AssetTypeBusinessUnitAssetStatusTypeBodyDTOPatchResult(StatusForControllerOperations.NOT_FOUND, null);
 
         AssetStatusType updatedAssetStatusType = assetStatusTypeById.get();
 
         if(!(updatedAssetStatusType.getName().equals(assetStatusTypeDTO.getName())) &&
                 repository.existsByName(assetStatusTypeDTO.getName()))
-            return new Result.AssetStatusTypeResult(StatusForControllerOperations.BAD_REQUEST, null);
+            return new Result.AssetTypeBusinessUnitAssetStatusTypeBodyDTOPatchResult(StatusForControllerOperations.BAD_REQUEST, null);
 
         updatedAssetStatusType.setName(assetStatusTypeDTO.getName());
         updatedAssetStatusType.setUpdateDate(LocalDateTime.now());
+        repository.save(updatedAssetStatusType);
 
-        return new Result.AssetStatusTypeResult(StatusForControllerOperations.OK, repository.save(updatedAssetStatusType));
+        return new Result.AssetTypeBusinessUnitAssetStatusTypeBodyDTOPatchResult(StatusForControllerOperations.OK, assetStatusTypeDTO);
     }
 
     // Attiva o Disattiva un AssetStatusType (reset cache)
     @CacheEvict(value = "assetStatusTypes", allEntries = true)
-    public AssetStatusType activateDeactivateAssetStatusType(Long id)
+    public AssetTypeBusinessUnitAssetStatusTypeActiveDeactiveBodyDTO activateDeactivateAssetStatusType(Long id)
     {
         Optional<AssetStatusType> assetStatusTypeById = repository.findById(id);
 
@@ -165,7 +173,9 @@ public class AssetStatusTypeService
 
         activatedDeactivatedAssetStatusType.setActive(!activatedDeactivatedAssetStatusType.isActive());
         activatedDeactivatedAssetStatusType.setUpdateDate(LocalDateTime.now());
+        repository.save(activatedDeactivatedAssetStatusType);
 
-        return repository.save(activatedDeactivatedAssetStatusType);
+        return new AssetTypeBusinessUnitAssetStatusTypeActiveDeactiveBodyDTO(
+                activatedDeactivatedAssetStatusType.getName(), activatedDeactivatedAssetStatusType.isActive());
     }
 }

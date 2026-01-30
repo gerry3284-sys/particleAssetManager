@@ -27,7 +27,7 @@ public class Movement
     private String note;
 
     @ManyToOne
-    @JoinColumn(name = "asset_id", nullable = false)
+    @JoinColumn(name = "asset_code", referencedColumnName = "code", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Asset asset;
 

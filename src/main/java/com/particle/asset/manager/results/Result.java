@@ -1,5 +1,7 @@
 package com.particle.asset.manager.results;
 
+import com.particle.asset.manager.DTO.AssetBodyDTO;
+import com.particle.asset.manager.DTO.AssetTypeBusinessUnitAssetStatusTypeBodyDTO;
 import com.particle.asset.manager.enumerations.StatusForControllerOperations;
 import com.particle.asset.manager.models.Asset;
 import com.particle.asset.manager.models.AssetStatusType;
@@ -40,5 +42,21 @@ public class Result
     {
         private StatusForControllerOperations status;
         private Asset asset;
+    }
+
+    @AllArgsConstructor
+    @Getter
+    public static class AssetTypeBusinessUnitAssetStatusTypeBodyDTOPatchResult
+    {
+        private StatusForControllerOperations status;
+        private AssetTypeBusinessUnitAssetStatusTypeBodyDTO patchResponse;
+    }
+
+    @AllArgsConstructor
+    @Getter
+    public static class AssetBodyDTOResult
+    {
+        private StatusForControllerOperations status;
+        private AssetBodyDTO patchResponse;
     }
 }

@@ -1,6 +1,7 @@
 package com.particle.asset.manager.controllers;
 
-import com.particle.asset.manager.DTO.AssetTypeBusinessUnitAssetStatusTypeRequestBodyDTO;
+import com.particle.asset.manager.DTO.AssetTypeBusinessUnitAssetStatusTypeActiveDeactiveBodyDTO;
+import com.particle.asset.manager.DTO.AssetTypeBusinessUnitAssetStatusTypeBodyDTO;
 import com.particle.asset.manager.models.BusinessUnit;
 import com.particle.asset.manager.models.Error;
 import com.particle.asset.manager.results.Result;
@@ -78,7 +79,7 @@ public class BusinessUnitController
     @ApiResponses({
             @ApiResponse(responseCode = "201",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = BusinessUnit.class))),
+                            schema = @Schema(implementation = AssetTypeBusinessUnitAssetStatusTypeBodyDTO.class))),
             @ApiResponse(responseCode = "400", description = "Business Error",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
@@ -96,9 +97,9 @@ public class BusinessUnitController
                             schema = @Schema(implementation = Error.class),
                             examples = @ExampleObject(value = SwaggerResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
     public ResponseEntity<?> createAssetBusinessUnit(
-            @RequestBody AssetTypeBusinessUnitAssetStatusTypeRequestBodyDTO businessUnitDTO)
+            @RequestBody AssetTypeBusinessUnitAssetStatusTypeBodyDTO businessUnitDTO)
     {
-        BusinessUnit createdBusinessUnit = service.createBusinessUnit(businessUnitDTO);
+        AssetTypeBusinessUnitAssetStatusTypeBodyDTO createdBusinessUnit = service.createBusinessUnit(businessUnitDTO);
 
         return createdBusinessUnit != null ?ResponseEntity.ok(createdBusinessUnit)
                 :ResponseEntity.status(HttpStatus.BAD_REQUEST).body(SwaggerResponses.BAD_REQUEST);
@@ -109,7 +110,7 @@ public class BusinessUnitController
     @ApiResponses({
             @ApiResponse(responseCode = "200",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = BusinessUnit.class))),
+                            schema = @Schema(implementation = AssetTypeBusinessUnitAssetStatusTypeBodyDTO.class))),
             @ApiResponse(responseCode = "400", description = "Business Error",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
@@ -131,13 +132,13 @@ public class BusinessUnitController
                             schema = @Schema(implementation = Error.class),
                             examples = @ExampleObject(value = SwaggerResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
     public ResponseEntity<?> updateBusinessUnitById(@PathVariable Long id,
-                                    @RequestBody AssetTypeBusinessUnitAssetStatusTypeRequestBodyDTO businessUnitDTO)
+                                    @RequestBody AssetTypeBusinessUnitAssetStatusTypeBodyDTO businessUnitDTO)
     {
-        Result.BusinessUnitResult updatedBusinessUnit = service.updateBusinessUnitById(id, businessUnitDTO);
+        Result.AssetTypeBusinessUnitAssetStatusTypeBodyDTOPatchResult updatedBusinessUnit = service.updateBusinessUnitById(id, businessUnitDTO);
 
         return switch(updatedBusinessUnit.getStatus())
         {
-            case OK -> ResponseEntity.ok(updatedBusinessUnit.getBusinessUnit());
+            case OK -> ResponseEntity.ok(updatedBusinessUnit.getPatchResponse());
             case NOT_FOUND -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(SwaggerResponses.NOT_FOUND);
             case BAD_REQUEST -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body(SwaggerResponses.BAD_REQUEST);
         };
@@ -148,7 +149,7 @@ public class BusinessUnitController
     @ApiResponses({
             @ApiResponse(responseCode = "200",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = BusinessUnit.class))),
+                            schema = @Schema(implementation = AssetTypeBusinessUnitAssetStatusTypeActiveDeactiveBodyDTO.class))),
             @ApiResponse(responseCode = "401", description = "Not Authorized",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
@@ -167,7 +168,8 @@ public class BusinessUnitController
                             examples = @ExampleObject(value = SwaggerResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
     public ResponseEntity<?> activateDeactivateBusinessUnitById(@PathVariable Long id)
     {
-        BusinessUnit activatedDeactivatedBusinessUnit = service.activateDeactivateBusinessUnitById(id);
+        AssetTypeBusinessUnitAssetStatusTypeActiveDeactiveBodyDTO activatedDeactivatedBusinessUnit =
+                service.activateDeactivateBusinessUnitById(id);
 
         return activatedDeactivatedBusinessUnit != null ?ResponseEntity.ok(activatedDeactivatedBusinessUnit)
                 :ResponseEntity.status(HttpStatus.NOT_FOUND).body(SwaggerResponses.NOT_FOUND);

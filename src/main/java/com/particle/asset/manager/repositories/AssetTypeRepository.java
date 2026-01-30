@@ -16,4 +16,6 @@ public interface AssetTypeRepository extends JpaRepository<AssetType, Long>
 
     // Trova l'AssetType più recente. Restituisce NULL se non trova nulla
     AssetType findTopByOrderByIdDesc();
+
+    Optional<AssetType> findByCode(String code);
 }

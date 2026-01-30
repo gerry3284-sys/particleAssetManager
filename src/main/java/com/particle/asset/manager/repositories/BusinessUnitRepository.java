@@ -15,4 +15,6 @@ public interface BusinessUnitRepository extends JpaRepository<BusinessUnit, Long
 
     // Trova la BusinessUnit più recente. Restituisce NULL se non trova nulla
     BusinessUnit findTopByOrderByIdDesc();
+
+    Optional<BusinessUnit> findByCode(String code);
 }

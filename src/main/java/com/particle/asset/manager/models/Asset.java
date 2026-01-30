@@ -40,15 +40,15 @@ public class Asset
     private String hardDisk; // *tipo Hard Disk* + spazio
 
     @ManyToOne
-    @JoinColumn(name = "business_unit_id", nullable = false)
+    @JoinColumn(name = "business_unit_code", referencedColumnName = "code", nullable = false)
     private BusinessUnit businessUnit;
 
     @ManyToOne
-    @JoinColumn(name = "type_id", nullable = false)
+    @JoinColumn(name = "type_code", referencedColumnName = "code", nullable = false)
     private AssetType assetType;
 
     @ManyToOne
-    @JoinColumn(name = "status_id", nullable = false)
+    @JoinColumn(name = "status_code", referencedColumnName = "code", nullable = false)
     private AssetStatusType assetStatusType;
 
     @Column(nullable = false, unique = true)

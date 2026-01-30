@@ -1,9 +1,6 @@
 package com.particle.asset.manager.services;
 
-import com.particle.asset.manager.DTO.AssetRequestBodyDTO;
-import com.particle.asset.manager.DTO.AssetSummaryDTO;
-import com.particle.asset.manager.DTO.MovementSummaryDTO;
-import com.particle.asset.manager.DTO.UserSummaryDTO;
+import com.particle.asset.manager.DTO.*;
 import com.particle.asset.manager.enumerations.StatusForControllerOperations;
 import com.particle.asset.manager.models.*;
 import com.particle.asset.manager.repositories.*;
@@ -42,19 +39,19 @@ public class AssetService
     public List<Asset> getAllAssets() { return assetRepository.findAll(); }
 
     // Crea un asset
-    public Asset createAsset(AssetRequestBodyDTO assetDTO)
+    public AssetBodyDTO createAsset(AssetBodyDTO assetDTO)
     {
         // Un Asset è automaticamente di una BU ?
-        if(assetDTO == null || assetDTO.getAssetType() == null || assetDTO.getBrand() == null ||
-                assetDTO.getModel() == null || assetDTO.getBusinessUnit() == null ||
-                assetDTO.getSerialNumber() == null || assetDTO.getAssetStatusType() == null ||
+        if(assetDTO == null || assetDTO.getAssetTypeCode() == null || assetDTO.getBrand() == null ||
+                assetDTO.getModel() == null || assetDTO.getBusinessUnitCode() == null ||
+                assetDTO.getSerialNumber() == null || assetDTO.getAssetStatusTypeCode() == null ||
                 assetDTO.getRam() == null || assetDTO.getHardDisk() == null ||
                 assetRepository.existsBySerialNumber(assetDTO.getSerialNumber()))
             return null;
 
-        Optional<AssetType> assetTypeById = assetTypeRepository.findById(assetDTO.getAssetType());
-        Optional<BusinessUnit> businessUnitById = businessUnitRepository.findById(assetDTO.getBusinessUnit());
-        Optional<AssetStatusType> assetStatusTypeById = assetStatusTypeRepository.findById(assetDTO.getAssetStatusType());
+        Optional<AssetType> assetTypeById = assetTypeRepository.findByCode(assetDTO.getAssetTypeCode());
+        Optional<BusinessUnit> businessUnitById = businessUnitRepository.findByCode(assetDTO.getBusinessUnitCode());
+        Optional<AssetStatusType> assetStatusTypeById = assetStatusTypeRepository.findByCode(assetDTO.getAssetStatusTypeCode());
 
         if(assetTypeById.isEmpty() || businessUnitById.isEmpty() || assetStatusTypeById.isEmpty())
             return null;
@@ -68,40 +65,43 @@ public class AssetService
         asset.setRam(assetDTO.getRam());
         asset.setHardDisk(assetDTO.getHardDisk());
         asset.setAssetStatusType(assetStatusTypeById.get());
-        Long recentId = assetRepository.findTopByOrderByIdDesc().getId();
 
         String nameWithoutSpaces = asset.getSerialNumber().replaceAll("\\s+", "");
         asset.setCode(nameWithoutSpaces.toUpperCase()
-                .substring(0, Math.min(2, nameWithoutSpaces.length())) + (recentId != null ?recentId+1 :1L));
+                .substring(0, Math.min(2, nameWithoutSpaces.length())) + (assetRepository.count()+1));
 
-        return assetRepository.save(asset);
+        assetRepository.save(asset);
+
+        return assetDTO;
     }
 
     // Ottiene un asset tramite l'id
     public Asset getAssetById(Long id) { return assetRepository.findById(id).orElse(null); }
 
     // Aggiorna l'asset, tramite l'id
-    public Result.AssetResult updateAssetById(Long id, AssetRequestBodyDTO assetDTO)
+    public Result.AssetBodyDTOResult updateAssetById(Long id, AssetBodyDTO assetDTO)
     {
-        if(assetDTO == null || assetDTO.getAssetType() == null || assetDTO.getBrand() == null ||
-                assetDTO.getModel() == null || assetDTO.getBusinessUnit() == null ||
-                assetDTO.getAssetStatusType() == null || assetDTO.getSerialNumber() == null)
-            return new Result.AssetResult(StatusForControllerOperations.BAD_REQUEST, null);
+        if(assetDTO == null || assetDTO.getAssetTypeCode() == null || assetDTO.getBrand() == null ||
+                assetDTO.getModel() == null || assetDTO.getBusinessUnitCode() == null ||
+                assetDTO.getAssetStatusTypeCode() == null || assetDTO.getSerialNumber() == null)
+            return new Result.AssetBodyDTOResult(StatusForControllerOperations.BAD_REQUEST, null);
 
         Optional<Asset> assetById = assetRepository.findById(id);
-        Optional<AssetType> assetTypeById = assetTypeRepository.findById(assetDTO.getAssetType());
-        Optional<BusinessUnit> businessUnitById = businessUnitRepository.findById(assetDTO.getBusinessUnit());
-        Optional<AssetStatusType> assetStatusTypeById = assetStatusTypeRepository.findById(assetDTO.getAssetStatusType());
+        Optional<AssetType> assetTypeById = assetTypeRepository.findByCode(assetDTO.getAssetTypeCode());
+        Optional<BusinessUnit> businessUnitById = businessUnitRepository.findByCode(assetDTO.getBusinessUnitCode());
+        Optional<AssetStatusType> assetStatusTypeById = assetStatusTypeRepository.findByCode(assetDTO.getAssetStatusTypeCode());
 
-        if(assetById.isEmpty() || assetTypeById.isEmpty() ||
-                businessUnitById.isEmpty() || assetStatusTypeById.isEmpty())
-            return new Result.AssetResult(StatusForControllerOperations.NOT_FOUND, null);
+        if(assetById.isEmpty())
+            return new Result.AssetBodyDTOResult(StatusForControllerOperations.NOT_FOUND, null);
+
+        if(assetTypeById.isEmpty() || businessUnitById.isEmpty() || assetStatusTypeById.isEmpty())
+            return new Result.AssetBodyDTOResult(StatusForControllerOperations.BAD_REQUEST, null);
 
         Asset updatedAsset = assetById.get();
 
         if(!(updatedAsset.getSerialNumber().equals(assetDTO.getSerialNumber())) &&
                 assetRepository.existsBySerialNumber(assetDTO.getSerialNumber()))
-            return new Result.AssetResult(StatusForControllerOperations.BAD_REQUEST, null);
+            return new Result.AssetBodyDTOResult(StatusForControllerOperations.BAD_REQUEST, null);
 
         updatedAsset.setModel(assetDTO.getModel());
         updatedAsset.setBrand(assetDTO.getBrand());
@@ -113,8 +113,9 @@ public class AssetService
         updatedAsset.setRam(assetDTO.getRam());
         updatedAsset.setHardDisk(assetDTO.getHardDisk());
         updatedAsset.setUpdateDate(LocalDateTime.now());
+        assetRepository.save(updatedAsset);
 
-        return new Result.AssetResult(StatusForControllerOperations.OK, assetRepository.save(updatedAsset));
+        return new Result.AssetBodyDTOResult(StatusForControllerOperations.OK, assetDTO);
     }
 
     // Ottiene tutti i movimenti di un certo asset
