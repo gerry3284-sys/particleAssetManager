@@ -45,33 +45,33 @@ public class AssetTypeService
         return types;
     }
 
-    public AssetType getAssetTypeById(Long id) {
+    public AssetType getAssetTypeById(String code) {
         Cache cache = cacheManager.getCache("assetTypes");
 
         // 1. Cerca prima nella cache del singolo ID
-        Cache.ValueWrapper idWrapper = cache != null ? cache.get("id::" + id) : null;
+        Cache.ValueWrapper idWrapper = cache != null ? cache.get("id::" + code) : null;
         if (idWrapper != null) {
-            System.out.println(">>> getAssetTypeById(" + id + ") - CACHE (singolo ID)");
+            System.out.println(">>> getAssetTypeById(" + code + ") - CACHE (singolo ID)");
             return (AssetType) idWrapper.get();
         }
 
         // 2. Se non c'è, cerca nella cache "all"
         Cache.ValueWrapper allWrapper = cache != null ? cache.get("all") : null;
         if (allWrapper != null) {
-            System.out.println(">>> getAssetTypeById(" + id + ") - CACHE (filtrato da 'all')");
+            System.out.println(">>> getAssetTypeById(" + code + ") - CACHE (filtrato da 'all')");
             @SuppressWarnings("unchecked")
             List<AssetType> allAssetTypes = (List<AssetType>) allWrapper.get();
             return allAssetTypes.stream()
-                    .filter(type -> type.getId().equals(id))
+                    .filter(type -> type.getCode().equals(code))
                     .findFirst()
                     .orElse(null);
         }
 
         // 3. Cache vuota - va al DB e salva SOLO questo ID
-        System.out.println(">>> getAssetTypeById(" + id + ") - DATABASE (salvando singolo ID in cache)");
-        AssetType assetType = repository.findById(id).orElse(null);
+        System.out.println(">>> getAssetTypeById(" + code + ") - DATABASE (salvando singolo ID in cache)");
+        AssetType assetType = repository.findByCode(code).orElse(null);
         if (cache != null && assetType != null)
-            cache.put("id::" + id, assetType);
+            cache.put("id::" + code, assetType);
 
         return assetType;
     }
@@ -127,7 +127,7 @@ public class AssetTypeService
 
     // Aggiorna un Type (reset cache)
     @CacheEvict(value = "assetTypes", allEntries = true)
-    public Result.AssetTypeBusinessUnitAssetStatusTypeBodyDTOPatchResult updateTypeById(Long id,
+    public Result.AssetTypeBusinessUnitAssetStatusTypeBodyDTOPatchResult updateTypeById(String code,
                                                                                         AssetTypeBusinessUnitAssetStatusTypeBodyDTO assetTypeDTO)
     {
         if(assetTypeDTO == null || assetTypeDTO.getName() == null)
@@ -138,7 +138,7 @@ public class AssetTypeService
         if(repository.existsByName(assetTypeDTO.getName()))
             return new Result.AssetTypeBusinessUnitAssetStatusTypeBodyDTOPatchResult(StatusForControllerOperations.BAD_REQUEST, null);
 
-        Optional<AssetType> typeById = repository.findById(id);
+        Optional<AssetType> typeById = repository.findByCode(code);
 
         if(typeById.isEmpty())
             return new Result.AssetTypeBusinessUnitAssetStatusTypeBodyDTOPatchResult(StatusForControllerOperations.NOT_FOUND, null);
@@ -159,9 +159,9 @@ public class AssetTypeService
 
     // Attiva o Disattiva un Type (resetCache)
     @CacheEvict(value = "assetTypes", allEntries = true)
-    public AssetTypeBusinessUnitAssetStatusTypeActiveDeactiveBodyDTO activateDeactivateTypeById(Long id)
+    public AssetTypeBusinessUnitAssetStatusTypeActiveDeactiveBodyDTO activateDeactivateTypeById(String code)
     {
-        Optional<AssetType> typeById = repository.findById(id);
+        Optional<AssetType> typeById = repository.findByCode(code);
 
         if(typeById.isEmpty())
             return null;

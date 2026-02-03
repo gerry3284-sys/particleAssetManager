@@ -17,7 +17,6 @@ public class AssetManagerApplication
 	// Errore 500 gestito in "GlobalExceptionHandler.java"
 	// RefreshTokenService.java --> cancellato
 
-	// TODO: Creare i DTO per i RequestBody (Farlo anche per movement e users ?)
 	// TODO: Continuare la gestione degli errori (controllandoli per bene)
 	// TODO: Mostrare l'errore corretto per diversi codici d'errore
 	// TODO: Tradurre gli errori
@@ -27,8 +26,6 @@ public class AssetManagerApplication
 	// TODO: Modificare le PUT in PATCH
 	// TODO: Controllare i vari errori quando ci sono sia i 400 che i 404 (vedere quale errore mostrare prima)
 	// TODO: Creare una tabella PDF per le ricevute
-	// TODO: Far si che nel pathVariable ci sia il code invece dell'id
-	// TODO: Modificare il post di movement
 
 	public static void main(String[] args) {
 		SpringApplication.run(AssetManagerApplication.class, args);

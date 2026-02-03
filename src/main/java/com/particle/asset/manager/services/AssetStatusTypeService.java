@@ -47,34 +47,34 @@ public class AssetStatusTypeService
         return types;
     }
 
-    public AssetStatusType getAssetStatusTypeById(Long id)
+    public AssetStatusType getAssetStatusTypeById(String code)
     {
         Cache cache = cacheManager.getCache("assetStatusTypes");
 
         // 1. Cerca prima nella cache del singolo ID
-        Cache.ValueWrapper idWrapper = cache != null ? cache.get("id::" + id) : null;
+        Cache.ValueWrapper idWrapper = cache != null ? cache.get("id::" + code) : null;
         if (idWrapper != null) {
-            System.out.println(">>> getAssetStatusTypeById(" + id + ") - CACHE (singolo ID)");
+            System.out.println(">>> getAssetStatusTypeById(" + code + ") - CACHE (singolo ID)");
             return (AssetStatusType) idWrapper.get();
         }
 
         // 2. Se non c'è, cerca nella cache "all"
         Cache.ValueWrapper allWrapper = cache != null ? cache.get("all") : null;
         if (allWrapper != null) {
-            System.out.println(">>> getAssetStatusTypeById(" + id + ") - CACHE (filtrato da 'all')");
+            System.out.println(">>> getAssetStatusTypeById(" + code + ") - CACHE (filtrato da 'all')");
             @SuppressWarnings("unchecked")
             List<AssetStatusType> allAssetStatusTypes = (List<AssetStatusType>) allWrapper.get();
             return allAssetStatusTypes.stream()
-                    .filter(type -> type.getId().equals(id))
+                    .filter(type -> type.getCode().equals(code))
                     .findFirst()
                     .orElse(null);
         }
 
         // 3. Cache vuota - va al DB e salva SOLO questo ID
-        System.out.println(">>> getAssetStatusTypeById(" + id + ") - DATABASE (salvando singolo ID in cache)");
-        AssetStatusType assetStatusType = repository.findById(id).orElse(null);
+        System.out.println(">>> getAssetStatusTypeById(" + code + ") - DATABASE (salvando singolo ID in cache)");
+        AssetStatusType assetStatusType = repository.findByCode(code).orElse(null);
         if (cache != null && assetStatusType != null)
-            cache.put("id::" + id, assetStatusType);
+            cache.put("id::" + code, assetStatusType);
 
 
         return assetStatusType;
@@ -131,7 +131,7 @@ public class AssetStatusTypeService
 
     // Aggiorna un AssetStatusType (reset cache)
     @CacheEvict(value = "assetStatusTypes", allEntries = true)
-    public Result.AssetTypeBusinessUnitAssetStatusTypeBodyDTOPatchResult updateAssetStatusType(Long id,
+    public Result.AssetTypeBusinessUnitAssetStatusTypeBodyDTOPatchResult updateAssetStatusType(String code,
                                              AssetTypeBusinessUnitAssetStatusTypeBodyDTO assetStatusTypeDTO)
     {
         if(assetStatusTypeDTO == null || assetStatusTypeDTO.getName() == null)
@@ -142,7 +142,7 @@ public class AssetStatusTypeService
         if(repository.existsByName(assetStatusTypeDTO.getName()))
             return new Result.AssetTypeBusinessUnitAssetStatusTypeBodyDTOPatchResult(StatusForControllerOperations.BAD_REQUEST, null);
 
-        Optional<AssetStatusType> assetStatusTypeById = repository.findById(id);
+        Optional<AssetStatusType> assetStatusTypeById = repository.findByCode(code);
 
         if(assetStatusTypeById.isEmpty())
             return new Result.AssetTypeBusinessUnitAssetStatusTypeBodyDTOPatchResult(StatusForControllerOperations.NOT_FOUND, null);
@@ -162,9 +162,9 @@ public class AssetStatusTypeService
 
     // Attiva o Disattiva un AssetStatusType (reset cache)
     @CacheEvict(value = "assetStatusTypes", allEntries = true)
-    public AssetTypeBusinessUnitAssetStatusTypeActiveDeactiveBodyDTO activateDeactivateAssetStatusType(Long id)
+    public AssetTypeBusinessUnitAssetStatusTypeActiveDeactiveBodyDTO activateDeactivateAssetStatusType(String code)
     {
-        Optional<AssetStatusType> assetStatusTypeById = repository.findById(id);
+        Optional<AssetStatusType> assetStatusTypeById = repository.findByCode(code);
 
         if(assetStatusTypeById.isEmpty())
             return null;

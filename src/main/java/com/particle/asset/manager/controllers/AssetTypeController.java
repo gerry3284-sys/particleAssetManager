@@ -47,8 +47,8 @@ public class AssetTypeController
     public ResponseEntity<List<AssetType>> getAllTypes() { return ResponseEntity.ok(service.getAllTypes()); }
 
     // Stampa un AssetType tramite un dato id
-    @GetMapping("/{id}")
-    @Operation(summary = "Get a specific AssetType through its ID")
+    @GetMapping("/{code}")
+    @Operation(summary = "Get a specific AssetType through its code")
     @ApiResponses({
             @ApiResponse(responseCode = "200",
                     content = @Content(mediaType = "application/json",
@@ -65,9 +65,9 @@ public class AssetTypeController
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
                             examples = @ExampleObject(value = SwaggerResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
-    public ResponseEntity<?> getTypeByID(@PathVariable Long id)
+    public ResponseEntity<?> getTypeByID(@PathVariable String code)
     {
-        AssetType searchedAssetType = service.getAssetTypeById(id);
+        AssetType searchedAssetType = service.getAssetTypeById(code);
 
         return searchedAssetType != null ?ResponseEntity.ok(searchedAssetType)
                 :ResponseEntity.status(HttpStatus.NOT_FOUND).body(SwaggerResponses.NOT_FOUND);
@@ -103,8 +103,8 @@ public class AssetTypeController
                 :ResponseEntity.status(HttpStatus.BAD_REQUEST).body(SwaggerResponses.BAD_REQUEST);
     }
 
-    @PutMapping("/{id}")
-    @Operation(summary = "Update a specific Type through its ID")
+    @PutMapping("/{code}")
+    @Operation(summary = "Update a specific Type through its code")
     @ApiResponses({
             @ApiResponse(responseCode = "200",
                     content = @Content(mediaType = "application/json",
@@ -129,10 +129,10 @@ public class AssetTypeController
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
                             examples = @ExampleObject(value = SwaggerResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
-    public ResponseEntity<?> updateTypeById(@PathVariable Long id,
+    public ResponseEntity<?> updateTypeById(@PathVariable String code,
                                             @RequestBody AssetTypeBusinessUnitAssetStatusTypeBodyDTO assetTypeDTO)
     {
-        Result.AssetTypeBusinessUnitAssetStatusTypeBodyDTOPatchResult updatedAssetType = service.updateTypeById(id, assetTypeDTO);
+        Result.AssetTypeBusinessUnitAssetStatusTypeBodyDTOPatchResult updatedAssetType = service.updateTypeById(code, assetTypeDTO);
 
         return switch(updatedAssetType.getStatus())
         {
@@ -142,8 +142,8 @@ public class AssetTypeController
         };
     }
 
-    @PutMapping("/activateDeactivate/{id}")
-    @Operation(summary = "Activate or Deactivate a specific Type through its ID")
+    @PutMapping("/activateDeactivate/{code}")
+    @Operation(summary = "Activate or Deactivate a specific Type through its code")
     @ApiResponses({
             @ApiResponse(responseCode = "200",
                     content = @Content(mediaType = "application/json",
@@ -164,10 +164,10 @@ public class AssetTypeController
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
                             examples = @ExampleObject(value = SwaggerResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
-    public ResponseEntity<?> activateDeactivateTypeById(@PathVariable Long id)
+    public ResponseEntity<?> activateDeactivateTypeById(@PathVariable String code)
     {
         AssetTypeBusinessUnitAssetStatusTypeActiveDeactiveBodyDTO activatedDeactivatedAssetType =
-                service.activateDeactivateTypeById(id);
+                service.activateDeactivateTypeById(code);
 
         return activatedDeactivatedAssetType != null ?ResponseEntity.ok(activatedDeactivatedAssetType)
                 :ResponseEntity.status(HttpStatus.NOT_FOUND).body(SwaggerResponses.NOT_FOUND);

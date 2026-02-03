@@ -47,8 +47,8 @@ public class AssetStatusTypeController
     public ResponseEntity<List<AssetStatusType>> getAllAssetStatusTypes() { return ResponseEntity.ok(service.getAllAssetStatusType()); }
 
     // Stampa un AssetStatusType tramite un dato id
-    @GetMapping("/{id}")
-    @Operation(summary = "Get a specific AssetStatusTypes through its ID")
+    @GetMapping("/{code}")
+    @Operation(summary = "Get a specific AssetStatusTypes through its code")
     @ApiResponses({
             @ApiResponse(responseCode = "200",
                     content = @Content(mediaType = "application/json",
@@ -65,9 +65,9 @@ public class AssetStatusTypeController
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
                             examples = @ExampleObject(value = SwaggerResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
-    public ResponseEntity<?> getAssetStatusTypeById(@PathVariable Long id)
+    public ResponseEntity<?> getAssetStatusTypeById(@PathVariable String code)
     {
-        AssetStatusType searchedAssetStatusType = service.getAssetStatusTypeById(id);
+        AssetStatusType searchedAssetStatusType = service.getAssetStatusTypeById(code);
 
         return searchedAssetStatusType != null ?ResponseEntity.ok(searchedAssetStatusType)
                 :ResponseEntity.status(HttpStatus.NOT_FOUND).body(SwaggerResponses.NOT_FOUND);
@@ -105,8 +105,8 @@ public class AssetStatusTypeController
                 :ResponseEntity.status(HttpStatus.BAD_REQUEST).body(SwaggerResponses.BAD_REQUEST);
     }
 
-    @PutMapping("/{id}")
-    @Operation(summary = "Update a specific AssetStatusType through its ID")
+    @PutMapping("/{code}")
+    @Operation(summary = "Update a specific AssetStatusType through its code")
     @ApiResponses({
             @ApiResponse(responseCode = "200",
                     content = @Content(mediaType = "application/json",
@@ -131,10 +131,11 @@ public class AssetStatusTypeController
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
                             examples = @ExampleObject(value = SwaggerResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
-    public ResponseEntity<?> updateAssetStatusTypeById(@PathVariable Long id,
+    public ResponseEntity<?> updateAssetStatusTypeById(@PathVariable String code,
                                    @RequestBody AssetTypeBusinessUnitAssetStatusTypeBodyDTO assetStatusTypeDTO)
     {
-        Result.AssetTypeBusinessUnitAssetStatusTypeBodyDTOPatchResult updatedAssetStatusType = service.updateAssetStatusType(id, assetStatusTypeDTO);
+        Result.AssetTypeBusinessUnitAssetStatusTypeBodyDTOPatchResult updatedAssetStatusType =
+                service.updateAssetStatusType(code, assetStatusTypeDTO);
 
         return switch(updatedAssetStatusType.getStatus())
         {
@@ -144,7 +145,7 @@ public class AssetStatusTypeController
         };
     }
 
-    @PutMapping("/activateDeactivate/{id}")
+    @PutMapping("/activateDeactivate/{code}")
     @Operation(summary = "Activate or Deactivate a specific AssetStatusType through its ID")
     @ApiResponses({
             @ApiResponse(responseCode = "200",
@@ -166,10 +167,10 @@ public class AssetStatusTypeController
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
                             examples = @ExampleObject(value = SwaggerResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
-    public ResponseEntity<?> activateDeactivateAssetStatusTypeById(@PathVariable Long id)
+    public ResponseEntity<?> activateDeactivateAssetStatusTypeById(@PathVariable String code)
     {
         AssetTypeBusinessUnitAssetStatusTypeActiveDeactiveBodyDTO activatedDeactivatedAssetStatusType =
-                service.activateDeactivateAssetStatusType(id);
+                service.activateDeactivateAssetStatusType(code);
 
         return activatedDeactivatedAssetStatusType != null ? ResponseEntity.ok(activatedDeactivatedAssetStatusType)
                 : ResponseEntity.status(HttpStatus.NOT_FOUND).body(SwaggerResponses.NOT_FOUND);

@@ -31,7 +31,8 @@ public class CacheConfig
         CaffeineCacheManager cacheManager = new CaffeineCacheManager(
                 "assetTypes",
                 "businessUnits",
-                "assetStatusTypes"
+                "assetStatusTypes",
+                "assets"
         );
 
         cacheManager.setCaffeine(Caffeine.newBuilder()

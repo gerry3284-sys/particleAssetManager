@@ -5,6 +5,10 @@ import com.particle.asset.manager.enumerations.StatusForControllerOperations;
 import com.particle.asset.manager.models.*;
 import com.particle.asset.manager.repositories.*;
 import com.particle.asset.manager.results.Result;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -21,11 +25,13 @@ public class AssetService
     private final AssetTypeRepository assetTypeRepository;
     private final BusinessUnitRepository businessUnitRepository;
     private final AssetStatusTypeRepository assetStatusTypeRepository;
+    private final CacheManager cacheManager;
 
     public AssetService(AssetRepository assetRepository, MovementRepository movementRepository,
                         UserRepository userRepository, AssetTypeRepository assetTypeRepository,
                         BusinessUnitRepository businessUnitRepository,
-                        AssetStatusTypeRepository assetStatusTypeRepository)
+                        AssetStatusTypeRepository assetStatusTypeRepository,
+                        CacheManager cacheManager)
     {
         this.assetRepository = assetRepository;
         this.movementRepository = movementRepository;
@@ -33,12 +39,33 @@ public class AssetService
         this.assetTypeRepository = assetTypeRepository;
         this.businessUnitRepository = businessUnitRepository;
         this.assetStatusTypeRepository = assetStatusTypeRepository;
+        this.cacheManager = cacheManager;
     }
 
-    // Mostra tutti gli asset
-    public List<Asset> getAllAssets() { return assetRepository.findAll(); }
+    // Mostra tutti gli asset (con cache)
+    // @Cacheable → Quando si chiama "getAllAssets()" la prima volta, i dati vengono recuperati
+    //              dal database e salvati in cache con la chiave "all". Le chiamate successive
+    //              leggono direttamente dalla cache per 8 ore.
+    @Cacheable(value = "assets", key = "'all'")
+    public List<Asset> getAllAssets()
+    {
+        System.out.println(">>> Fetching ALL Assets from database...");
 
-    // Crea un asset
+        List<Asset> assets = assetRepository.findAll();
+
+        // Popola anche le cache per singoli ID
+        Cache cache = cacheManager.getCache("assets");
+        if (cache != null)
+            assets.forEach(asset -> cache.put("id::" + asset.getCode(), asset));
+
+        return assets;
+    }
+
+    // Crea un asset (reset cache)
+    // @CacheEvict → Quando si crea/aggiorna un record, la cache viene
+    //               completamente svuotata (clear). Alla prossima chiamata GET,
+    //               i dati verranno caricati direttamente dal database.
+    @CacheEvict(value = "assets", allEntries = true)
     public AssetBodyDTO createAsset(AssetBodyDTO assetDTO)
     {
         // Un Asset è automaticamente di una BU ?
@@ -75,18 +102,49 @@ public class AssetService
         return assetDTO;
     }
 
-    // Ottiene un asset tramite l'id
-    public Asset getAssetById(Long id) { return assetRepository.findById(id).orElse(null); }
+    // Ottiene un asset tramite il code
+    public Asset getAssetById(String code)
+    {
+        Cache cache = cacheManager.getCache("assets");
 
-    // Aggiorna l'asset, tramite l'id
-    public Result.AssetBodyDTOResult updateAssetById(Long id, AssetBodyDTO assetDTO)
+        // 1. Cerca prima nella cache del singolo ID
+        Cache.ValueWrapper idWrapper = cache != null ? cache.get("id::" + code) : null;
+        if (idWrapper != null) {
+            System.out.println(">>> getAssetById(" + code + ") - CACHE (singolo ID)");
+            return (Asset) idWrapper.get();
+        }
+
+        // 2. Se non c'è, cerca nella cache "all"
+        Cache.ValueWrapper allWrapper = cache != null ? cache.get("all") : null;
+        if (allWrapper != null) {
+            System.out.println(">>> getAssetById(" + code + ") - CACHE (filtrato da 'all')");
+            @SuppressWarnings("unchecked")
+            List<Asset> allAssets = (List<Asset>) allWrapper.get();
+            return allAssets.stream()
+                    .filter(asset -> asset.getCode().equals(code))
+                    .findFirst()
+                    .orElse(null);
+        }
+
+        // 3. Cache vuota - va al DB e salva SOLO questo ID
+        System.out.println(">>> getAssetById(" + code + ") - DATABASE (salvando singolo ID in cache)");
+        Asset asset = assetRepository.findByCode(code).orElse(null);
+        if (cache != null && asset != null)
+            cache.put("id::" + code, asset);
+
+        return asset;
+    }
+
+    // Aggiorna l'asset, tramite il code (reset cache)
+    @CacheEvict(value = "assets", allEntries = true)
+    public Result.AssetBodyDTOResult updateAssetById(String code, AssetBodyDTO assetDTO)
     {
         if(assetDTO == null || assetDTO.getAssetTypeCode() == null || assetDTO.getBrand() == null ||
                 assetDTO.getModel() == null || assetDTO.getBusinessUnitCode() == null ||
                 assetDTO.getAssetStatusTypeCode() == null || assetDTO.getSerialNumber() == null)
             return new Result.AssetBodyDTOResult(StatusForControllerOperations.BAD_REQUEST, null);
 
-        Optional<Asset> assetById = assetRepository.findById(id);
+        Optional<Asset> assetById = assetRepository.findByCode(code);
         Optional<AssetType> assetTypeById = assetTypeRepository.findByCode(assetDTO.getAssetTypeCode());
         Optional<BusinessUnit> businessUnitById = businessUnitRepository.findByCode(assetDTO.getBusinessUnitCode());
         Optional<AssetStatusType> assetStatusTypeById = assetStatusTypeRepository.findByCode(assetDTO.getAssetStatusTypeCode());
@@ -119,12 +177,12 @@ public class AssetService
     }
 
     // Ottiene tutti i movimenti di un certo asset
-    public List<MovementSummaryDTO> getAssetMovementDTO(Long assetId)
+    public List<MovementSummaryDTO> getAssetMovementDTO(String assetCode)
     {
-        if(!assetRepository.existsById(assetId))
+        if(!(assetRepository.existsByCode(assetCode) && movementRepository.existsByAssetCode(assetCode)))
             return null;
 
-        List<Movement> movements = movementRepository.findByAssetId(assetId);
+        List<Movement> movements = movementRepository.findByAssetCode(assetCode);
 
         return movements.stream().map(this::convertToDTO).collect(Collectors.toList());
     }
@@ -157,53 +215,50 @@ public class AssetService
         return dto;
     }
 
-    // Assegna/Restituisce/Dismette un asset
-    public Movement assignReturnedDismissAsset(Long assetId, Movement movement)
+    // Assegna/Restituisce/Dismette un asset (reset cache)
+    @CacheEvict(value = "assets", allEntries = true)
+    public Result.MovementBodyDTOResult assignReturnedDismissAsset(String assetCode, MovementRequestBodyDTO movementDTO)
     {
         // Se l'id della path e quello dell'input sono diversi --> null
-        if(!(movement.getAsset().getId().equals(assetId)) ||
-            !(movement.getMovementType().equals("Returned") ||
-                    movement.getMovementType().equals("Assigned") ||
-                movement.getMovementType().equals("Dismissed")))
-            return null;
+        if(!(assetRepository.existsByCode(assetCode)) ||
+                !(movementDTO.getMovementType().equals("Returned") ||
+                        movementDTO.getMovementType().equals("Assigned") ||
+                        movementDTO.getMovementType().equals("Dismissed")))
+            return new Result.MovementBodyDTOResult(StatusForControllerOperations.BAD_REQUEST, null);
 
         // assetId == movement.getAsset().getId()
-        Optional<Asset> assetOpt = assetRepository.findById(assetId);
+        Optional<Asset> assetOpt = assetRepository.findByCode(assetCode);
         if(assetOpt.isEmpty())
-            return null;
-        else
-            movement.setAsset(assetOpt.get());
+            return new Result.MovementBodyDTOResult(StatusForControllerOperations.NOT_FOUND, null);
 
-        Optional<User> userOpt = userRepository.findById(movement.getUsers().getId());
+        Optional<User> userOpt = userRepository.findById(movementDTO.getUser());
         if(userOpt.isEmpty())
-            return null;
-        else
-            movement.setUsers(userOpt.get());
+            return new Result.MovementBodyDTOResult(StatusForControllerOperations.NOT_FOUND, null);
 
-        Optional<Movement> lastMovement = movementRepository.findFirstByAssetIdOrderByDateDesc(assetId);
+        Optional<Movement> lastMovement = movementRepository.findFirstByAssetCodeOrderByDateDesc(assetCode);
 
         // Se sto facendo "Assigned"
-        if(movement.getMovementType().equals("Assigned"))
+        if(movementDTO.getMovementType().equals("Assigned"))
         {
             // Blocca se l'ultimo movimento è già "Assigned"
             if(lastMovement.isPresent() &&
                     lastMovement.get().getMovementType().equals("Assigned"))
-                return null; // Asset già assegnato!
+                return new Result.MovementBodyDTOResult(StatusForControllerOperations.BAD_REQUEST, null); // Asset già assegnato!
 
             if(lastMovement.isPresent() &&
                     lastMovement.get().getMovementType().equals("Dismissed"))
-                return null; // Asset già dismesso
+                return new Result.MovementBodyDTOResult(StatusForControllerOperations.BAD_REQUEST, null); // Asset già dismesso
         }
 
         // Se sto facendo "Returned" (riconsegna)
-        if(movement.getMovementType().equals("Returned"))
+        if(movementDTO.getMovementType().equals("Returned"))
         {
             // Blocca se NON c'è nessun movimento precedente
             if(lastMovement.isEmpty())
-                return null; // Non puoi restituire se non è mai stato assegnato
+                return new Result.MovementBodyDTOResult(StatusForControllerOperations.BAD_REQUEST, null); // Non puoi restituire se non è mai stato assegnato
 
             if(lastMovement.get().getMovementType().equals("Dismissed"))
-                return null; // Asset già Dismesso
+                return new Result.MovementBodyDTOResult(StatusForControllerOperations.BAD_REQUEST, null); // Asset già Dismesso
 
             // Blocca se l'ultimo movimento NON è "Assigned"
             /*if (!lastMovement.get().getMovementType().equals("Assigned"))
@@ -211,7 +266,7 @@ public class AssetService
 
         }
 
-        if(movement.getMovementType().equals("Dismissed") && lastMovement.isPresent())
+        if(movementDTO.getMovementType().equals("Dismissed") && lastMovement.isPresent())
         {
             if(lastMovement.get().getMovementType().equals("Dismissed"))
                 return null; // Non si può effettuare la dismissione un asset già dismesso
@@ -220,6 +275,15 @@ public class AssetService
                 return null; // L'asset può essere dismesso solo se non è assegnato
         }
 
-        return movementRepository.save(movement);
+        Movement addedMovement = new Movement();
+        addedMovement.setMovementType(movementDTO.getMovementType());
+        addedMovement.setAsset(assetOpt.get());
+        addedMovement.setUsers(userOpt.get());
+        addedMovement.setNote(movementDTO.getNote());
+        movementRepository.save(addedMovement);
+
+        return new Result.MovementBodyDTOResult(StatusForControllerOperations.OK,
+                new MovementResponseBodyDTO(assetCode, movementDTO.getUser(),
+                        movementDTO.getMovementType(), movementDTO.getNote()));
     }
 }

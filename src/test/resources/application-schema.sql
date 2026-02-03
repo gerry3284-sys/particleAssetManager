@@ -53,10 +53,10 @@ CREATE TABLE users (
     phone_number VARCHAR(255) NOT NULL,
     surname VARCHAR(255) NOT NULL,
     user_type ENUM('ADMIN', 'USER') NOT NULL,
-    business_unit_id BIGINT(20) NOT NULL,
+    business_unit_code VARCHAR(255) NOT NULL,
     PRIMARY KEY (id),
-    KEY (business_unit_id),
-    CONSTRAINT fk_users_business_unit FOREIGN KEY (business_unit_id) REFERENCES business_unit(id)
+    KEY (business_unit_code),
+    CONSTRAINT fk_users_business_unit FOREIGN KEY (business_unit_code) REFERENCES business_unit(code)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Tabella asset (modificata per usare code invece di id)
@@ -72,7 +72,7 @@ CREATE TABLE asset (
     update_date DATETIME(6) DEFAULT NULL,
     status_code VARCHAR(255) NOT NULL,           -- Cambiato da status_id
     type_code VARCHAR(255) NOT NULL,             -- Cambiato da type_id
-    business_unit_code VARCHAR(255) NOT NULL,    -- Cambiato da business_unit_id
+    business_unit_code VARCHAR(255) NOT NULL,    -- Cambiato da business_unit_code
     code VARCHAR(255) NOT NULL,
     PRIMARY KEY (id),
     UNIQUE KEY (serial_number),

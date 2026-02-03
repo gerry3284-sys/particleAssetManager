@@ -48,7 +48,7 @@ public class BusinessUnitController
     public ResponseEntity<List<BusinessUnit>> getAllBusinessUnits() { return ResponseEntity.ok(service.getAllBusinessUnits()); }
 
     // Stampa una businessUnit tramite un dato ID
-    @GetMapping("/{id}")
+    @GetMapping("/{code}")
     @Operation(summary = "Get a specific BusinessUnits through its ID")
     @ApiResponses({
             @ApiResponse(responseCode = "200",
@@ -66,9 +66,9 @@ public class BusinessUnitController
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
                             examples = @ExampleObject(value = SwaggerResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
-    public ResponseEntity<?> getBusinessUnitById(@PathVariable Long id)
+    public ResponseEntity<?> getBusinessUnitById(@PathVariable String code)
     {
-        BusinessUnit searchedBusinessUnit = service.getBusinessUnitById(id);
+        BusinessUnit searchedBusinessUnit = service.getBusinessUnitById(code);
 
         return searchedBusinessUnit != null ?ResponseEntity.ok(searchedBusinessUnit)
                 :ResponseEntity.status(HttpStatus.NOT_FOUND).body(SwaggerResponses.NOT_FOUND);
@@ -105,7 +105,7 @@ public class BusinessUnitController
                 :ResponseEntity.status(HttpStatus.BAD_REQUEST).body(SwaggerResponses.BAD_REQUEST);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{code}")
     @Operation(summary = "Update a specific BusinessUnit through its ID")
     @ApiResponses({
             @ApiResponse(responseCode = "200",
@@ -131,10 +131,11 @@ public class BusinessUnitController
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
                             examples = @ExampleObject(value = SwaggerResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
-    public ResponseEntity<?> updateBusinessUnitById(@PathVariable Long id,
+    public ResponseEntity<?> updateBusinessUnitById(@PathVariable String code,
                                     @RequestBody AssetTypeBusinessUnitAssetStatusTypeBodyDTO businessUnitDTO)
     {
-        Result.AssetTypeBusinessUnitAssetStatusTypeBodyDTOPatchResult updatedBusinessUnit = service.updateBusinessUnitById(id, businessUnitDTO);
+        Result.AssetTypeBusinessUnitAssetStatusTypeBodyDTOPatchResult updatedBusinessUnit =
+                service.updateBusinessUnitById(code, businessUnitDTO);
 
         return switch(updatedBusinessUnit.getStatus())
         {
@@ -144,8 +145,8 @@ public class BusinessUnitController
         };
     }
 
-    @PutMapping("/activateDeactivate/{id}")
-    @Operation(summary = "Activate or Deactivate a specific BusinessUnit through its ID")
+    @PutMapping("/activateDeactivate/{code}")
+    @Operation(summary = "Activate or Deactivate a specific BusinessUnit through its code")
     @ApiResponses({
             @ApiResponse(responseCode = "200",
                     content = @Content(mediaType = "application/json",
@@ -166,10 +167,10 @@ public class BusinessUnitController
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
                             examples = @ExampleObject(value = SwaggerResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
-    public ResponseEntity<?> activateDeactivateBusinessUnitById(@PathVariable Long id)
+    public ResponseEntity<?> activateDeactivateBusinessUnitById(@PathVariable String code)
     {
         AssetTypeBusinessUnitAssetStatusTypeActiveDeactiveBodyDTO activatedDeactivatedBusinessUnit =
-                service.activateDeactivateBusinessUnitById(id);
+                service.activateDeactivateBusinessUnitById(code);
 
         return activatedDeactivatedBusinessUnit != null ?ResponseEntity.ok(activatedDeactivatedBusinessUnit)
                 :ResponseEntity.status(HttpStatus.NOT_FOUND).body(SwaggerResponses.NOT_FOUND);

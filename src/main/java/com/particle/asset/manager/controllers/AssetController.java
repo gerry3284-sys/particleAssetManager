@@ -1,6 +1,7 @@
 package com.particle.asset.manager.controllers;
 
 import com.particle.asset.manager.DTO.AssetBodyDTO;
+import com.particle.asset.manager.DTO.MovementRequestBodyDTO;
 import com.particle.asset.manager.DTO.MovementSummaryDTO;
 import com.particle.asset.manager.models.Asset;
 import com.particle.asset.manager.models.Error;
@@ -49,8 +50,8 @@ public class AssetController
     public ResponseEntity<List<Asset>> getAllAssets() { return ResponseEntity.ok(service.getAllAssets()); }
 
     // Stampa i valori di un asset dato il suo id
-    @GetMapping("/{id}")
-    @Operation(summary = "Get a specific Asset through its ID")
+    @GetMapping("/{code}")
+    @Operation(summary = "Get a specific Asset through its code")
     @ApiResponses({
             @ApiResponse(responseCode = "200",
                     content = @Content(mediaType = "application/json",
@@ -67,9 +68,9 @@ public class AssetController
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
                             examples = @ExampleObject(value = SwaggerResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
-    public ResponseEntity<?> getAssetById(@PathVariable Long id)
+    public ResponseEntity<?> getAssetById(@PathVariable String code)
     {
-        Asset assetById = service.getAssetById(id);
+        Asset assetById = service.getAssetById(code);
 
         return assetById != null ?ResponseEntity.ok(assetById)
                 :ResponseEntity.status(HttpStatus.NOT_FOUND).body(SwaggerResponses.NOT_FOUND);
@@ -107,8 +108,8 @@ public class AssetController
     }
 
     // Aggiorna i valori di un asset dato il suo id
-    @PutMapping("/{id}")
-    @Operation(summary = "Update a specific Asset through its ID")
+    @PutMapping("/{code}")
+    @Operation(summary = "Update a specific Asset through its code")
     @ApiResponses({
             @ApiResponse(responseCode = "200",
                     content = @Content(mediaType = "application/json",
@@ -133,9 +134,9 @@ public class AssetController
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
                             examples = @ExampleObject(value = SwaggerResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
-    public ResponseEntity<?> UpdateAssetById(@PathVariable Long id, @RequestBody AssetBodyDTO assetDTO)
+    public ResponseEntity<?> UpdateAssetById(@PathVariable String code, @RequestBody AssetBodyDTO assetDTO)
     {
-        Result.AssetBodyDTOResult updatedAsset = service.updateAssetById(id, assetDTO);
+        Result.AssetBodyDTOResult updatedAsset = service.updateAssetById(code, assetDTO);
 
         return switch(updatedAsset.getStatus())
         {
@@ -146,7 +147,7 @@ public class AssetController
     }
 
     // Stampa i movimenti di un asset dato il suo id
-    @GetMapping("/{id}/movement")
+    @GetMapping("/{code}/movement")
     @Operation(summary = "Get all the Movements for a specific Asset through its ID")
     @ApiResponses({
             @ApiResponse(responseCode = "200",
@@ -168,17 +169,17 @@ public class AssetController
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
                             examples = @ExampleObject(value = SwaggerResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
-    public ResponseEntity<?> getAssetMovements(@PathVariable Long id)
+    public ResponseEntity<?> getAssetMovements(@PathVariable String code)
     {
-        List<MovementSummaryDTO> movements = service.getAssetMovementDTO(id);
+        List<MovementSummaryDTO> movements = service.getAssetMovementDTO(code);
 
         return movements != null ?ResponseEntity.ok(movements)
                 :ResponseEntity.status(HttpStatus.NOT_FOUND).body(SwaggerResponses.NOT_FOUND);
     }
 
     // Inserisci un movimento di un asset dato il suo id
-    @PostMapping("{id}/movement")
-    @Operation(summary = "Assign/Return/Dismiss a specific Asset through its ID")
+    @PostMapping("{code}/movement")
+    @Operation(summary = "Assign/Return/Dismiss a specific Asset through its code")
     @ApiResponses({
             @ApiResponse(responseCode = "201",
                     content = @Content(mediaType = "application/json",
@@ -203,9 +204,16 @@ public class AssetController
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
                             examples = @ExampleObject(value = SwaggerResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
-    public ResponseEntity<?> assignReturnedDismissAsset(@PathVariable Long id, @RequestBody Movement movement)
+    public ResponseEntity<?> assignReturnedDismissAsset(@PathVariable String code,
+                                                        @RequestBody MovementRequestBodyDTO movementDTO)
     {
-        return service.assignReturnedDismissAsset(id, movement) != null ?ResponseEntity.ok(movement)
-                : ResponseEntity.status(HttpStatus.BAD_REQUEST).body(SwaggerResponses.BAD_REQUEST);
+        Result.MovementBodyDTOResult movementOperation = service.assignReturnedDismissAsset(code, movementDTO);
+
+        return switch(movementOperation.getStatus())
+        {
+            case OK -> ResponseEntity.ok(movementOperation.getPatchResponse());
+            case NOT_FOUND -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(SwaggerResponses.NOT_FOUND);
+            case BAD_REQUEST -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body(SwaggerResponses.BAD_REQUEST);
+        };
     }
 }

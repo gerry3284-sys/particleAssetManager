@@ -27,12 +27,12 @@ INSERT INTO asset (brand, model, note, serial_number, type_code, business_unit_c
 ('Samsung', 'Galaxy S23', NULL, 'IMEI123456', 'SM4', 'PA1', NOW(), NULL, 'AV1', 'IM4');
 
 -- Users (rimane con business_unit_id)
-INSERT INTO users (name, surname, email, phone_number, user_type, business_unit_id) VALUES
-('Leon', 'Kennedy', 'leon.kennedy@example.it', '19982004', 'ADMIN', 1),
-('Marco', 'Rossi', 'marco.rossi@example.com', '3331112222', 'USER', 1),
-('Luca', 'Bianchi', 'luca.bianchi@example.com', '3332223333', 'USER', 2),
-('Sara', 'Verdi', 'sara.verdi@example.com', '3333334444', 'ADMIN', 2),
-('Giulia', 'Neri', 'giulia.neri@example.com', '3334445555', 'ADMIN', 4);
+INSERT INTO users (name, surname, email, phone_number, user_type, business_unit_code) VALUES
+('Leon', 'Kennedy', 'leon.kennedy@example.it', '19982004', 'ADMIN', 'PA1'),
+('Marco', 'Rossi', 'marco.rossi@example.com', '3331112222', 'USER', 'PA1'),
+('Luca', 'Bianchi', 'luca.bianchi@example.com', '3332223333', 'USER', 'VA2'),
+('Sara', 'Verdi', 'sara.verdi@example.com', '3333334444', 'ADMIN', 'VA2'),
+('Giulia', 'Neri', 'giulia.neri@example.com', '3334445555', 'ADMIN', 'KI4');
 
 -- Movement usando asset_code (prime 2 lettere del serial_number + posizione)
 INSERT INTO movement (date, movement_type, note, asset_code, users_id) VALUES

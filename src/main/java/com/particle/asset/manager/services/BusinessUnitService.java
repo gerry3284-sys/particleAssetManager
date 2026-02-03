@@ -47,34 +47,34 @@ public class BusinessUnitService
         return businessUnits;
     }
 
-    public BusinessUnit getBusinessUnitById(Long id)
+    public BusinessUnit getBusinessUnitById(String code)
     {
         Cache cache = cacheManager.getCache("businessUnits");
 
         // 1. Cerca prima nella cache del singolo ID
-        Cache.ValueWrapper idWrapper = cache != null ? cache.get("id::" + id) : null;
+        Cache.ValueWrapper idWrapper = cache != null ? cache.get("id::" + code) : null;
         if (idWrapper != null) {
-            System.out.println(">>> getBusinessUnitById(" + id + ") - CACHE (singolo ID)");
+            System.out.println(">>> getBusinessUnitById(" + code + ") - CACHE (singolo ID)");
             return (BusinessUnit) idWrapper.get();
         }
 
         // 2. Se non c'è, cerca nella cache "all"
         Cache.ValueWrapper allWrapper = cache != null ? cache.get("all") : null;
         if (allWrapper != null) {
-            System.out.println(">>> getBusinessUnitById(" + id + ") - CACHE (filtrato da 'all')");
+            System.out.println(">>> getBusinessUnitById(" + code + ") - CACHE (filtrato da 'all')");
             @SuppressWarnings("unchecked")
             List<BusinessUnit> allBusinessUnits = (List<BusinessUnit>) allWrapper.get();
             return allBusinessUnits.stream()
-                    .filter(type -> type.getId().equals(id))
+                    .filter(type -> type.getCode().equals(code))
                     .findFirst()
                     .orElse(null);
         }
 
         // 3. Cache vuota - va al DB e salva SOLO questo ID
-        System.out.println(">>> getBusinessUnitById(" + id + ") - DATABASE (salvando singolo ID in cache)");
-        BusinessUnit businessUnit = repository.findById(id).orElse(null);
+        System.out.println(">>> getBusinessUnitById(" + code + ") - DATABASE (salvando singolo ID in cache)");
+        BusinessUnit businessUnit = repository.findByCode(code).orElse(null);
         if (cache != null && businessUnit != null)
-            cache.put("id::" + id, businessUnit);
+            cache.put("id::" + code, businessUnit);
 
 
         return businessUnit;
@@ -131,7 +131,7 @@ public class BusinessUnitService
 
     // Aggiorna un BusinessUnit (reset cache)
     @CacheEvict(value = "businessUnits", allEntries = true)
-    public Result.AssetTypeBusinessUnitAssetStatusTypeBodyDTOPatchResult updateBusinessUnitById(Long id,
+    public Result.AssetTypeBusinessUnitAssetStatusTypeBodyDTOPatchResult updateBusinessUnitById(String code,
                                                                                                 AssetTypeBusinessUnitAssetStatusTypeBodyDTO businessUnitDTO)
     {
         if(businessUnitDTO == null || businessUnitDTO.getName() == null)
@@ -142,7 +142,7 @@ public class BusinessUnitService
         if(repository.existsByName(businessUnitDTO.getName()))
             return new Result.AssetTypeBusinessUnitAssetStatusTypeBodyDTOPatchResult(StatusForControllerOperations.BAD_REQUEST, null);
 
-        Optional<BusinessUnit> businessUnitById = repository.findById(id);
+        Optional<BusinessUnit> businessUnitById = repository.findByCode(code);
 
         if(businessUnitById.isEmpty())
             return new Result.AssetTypeBusinessUnitAssetStatusTypeBodyDTOPatchResult(StatusForControllerOperations.NOT_FOUND, null);
@@ -163,9 +163,9 @@ public class BusinessUnitService
 
     // Attiva o Disattiva un Type (reset Cache)
     @CacheEvict(value = "businessUnits", allEntries = true)
-    public AssetTypeBusinessUnitAssetStatusTypeActiveDeactiveBodyDTO activateDeactivateBusinessUnitById(Long id)
+    public AssetTypeBusinessUnitAssetStatusTypeActiveDeactiveBodyDTO activateDeactivateBusinessUnitById(String code)
     {
-        Optional<BusinessUnit> businessUnitById = repository.findById(id);
+        Optional<BusinessUnit> businessUnitById = repository.findByCode(code);
 
         if(businessUnitById.isEmpty())
             return null;

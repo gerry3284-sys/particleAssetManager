@@ -12,13 +12,16 @@ public interface MovementRepository extends JpaRepository<Movement, Long>
     List<Movement> findByUsersId(Long userId);
 
     // Ritorna una List<> se l'assetId combacia con quello della tabella movement
-    List<Movement> findByAssetId(Long assetId);
+    //List<Movement> findByAssetId(Long assetId);
+    List<Movement> findByAssetCode(String code);
 
-    //boolean existsByAssetId(Long assetId);
+    boolean existsByAssetCode(String assetCode);
 
     // "findFirst" --> solo il primo risultato
     // "ByAssetId" --> filtra dove asset.id = assetId
     // "OrderByDateDesc" --> ordina per date in ordine decrescente
     // Ritorna Optional<> se l'assetId combacia con quello del primo risultato della tabella movement
-    Optional<Movement> findFirstByAssetIdOrderByDateDesc(Long assetId);
+    //Optional<Movement> findFirstByAssetIdOrderByDateDesc(Long assetId);
+
+    Optional<Movement> findFirstByAssetCodeOrderByDateDesc(String assetCode);
 }

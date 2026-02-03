@@ -54,7 +54,7 @@ public class SecurityConfig
                         .requestMatchers(new AntPathRequestMatcher("/assetStatusType/**", HttpMethod.PUT.name())).hasRole("ADMIN")
 
                         // Proteggi le POST
-                        .requestMatchers(new AntPathRequestMatcher("/asset", HttpMethod.POST.name())).hasRole("ADMIN")
+                        .requestMatchers(new AntPathRequestMatcher("/asset/**", HttpMethod.POST.name())).hasRole("ADMIN")
                         .requestMatchers(new AntPathRequestMatcher("/assetType", HttpMethod.POST.name())).hasRole("ADMIN")
                         .requestMatchers(new AntPathRequestMatcher("/businessUnit", HttpMethod.POST.name())).hasRole("ADMIN")
                         .requestMatchers(new AntPathRequestMatcher("/assetStatusType", HttpMethod.POST.name())).hasRole("ADMIN")
