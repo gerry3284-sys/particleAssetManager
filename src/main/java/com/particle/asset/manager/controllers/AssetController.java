@@ -2,8 +2,10 @@ package com.particle.asset.manager.controllers;
 
 import com.particle.asset.manager.DTO.AssetBodyDTO;
 import com.particle.asset.manager.DTO.MovementRequestBodyDTO;
+import com.particle.asset.manager.DTO.MovementResponseBodyDTO;
 import com.particle.asset.manager.DTO.MovementSummaryDTO;
 import com.particle.asset.manager.models.Asset;
+import com.particle.asset.manager.models.AssetListRowDTO;
 import com.particle.asset.manager.models.Error;
 import com.particle.asset.manager.models.Movement;
 import com.particle.asset.manager.results.Result;
@@ -175,6 +177,25 @@ public class AssetController
 
         return movements != null ?ResponseEntity.ok(movements)
                 :ResponseEntity.status(HttpStatus.NOT_FOUND).body(SwaggerResponses.NOT_FOUND);
+    }
+
+    @GetMapping("/list")
+    @Operation(summary = "Get the Asset List")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = AssetListRowDTO.class))),
+            @ApiResponse(responseCode = "401", description = "Not Authorized",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Error.class),
+                            examples = @ExampleObject(value = SwaggerResponses.UNAUTHORIZED_ACCESS_EXAMPLE))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Error.class),
+                            examples = @ExampleObject(value = SwaggerResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
+    public ResponseEntity<List<AssetListRowDTO>> getAllAssetList()
+    {
+        return ResponseEntity.ok(service.getAssetList());
     }
 
     // Inserisci un movimento di un asset dato il suo id

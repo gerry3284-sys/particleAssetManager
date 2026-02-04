@@ -36,7 +36,7 @@ INSERT INTO users (name, surname, email, phone_number, user_type, business_unit_
 
 -- Movement usando asset_code (prime 2 lettere del serial_number + posizione)
 INSERT INTO movement (date, movement_type, note, asset_code, users_id) VALUES
-(TIMESTAMP '2024-01-10 09:00:00', 'Assegnazione', 'Assegnato notebook a Marco', 'SN1', 1),
-(TIMESTAMP '2024-01-15 14:30:00', 'Assegnazione', NULL, 'SN2', 2),
-(TIMESTAMP '2024-02-01 11:00:00', 'Riconsegna', 'Monitor inviato in manutenzione', 'SN3', 3),
-(TIMESTAMP '2024-02-05 16:00:00', 'Dismissione', 'Smartphone dismesso', 'IM4', 4);
+(TIMESTAMP '2024-01-10 09:00:00', 'Assigned', 'Assegnato notebook a Marco', 'SN1', 1),
+(TIMESTAMP '2024-01-15 14:30:00', 'Assigned', NULL, 'SN2', 2),
+(TIMESTAMP '2024-02-01 11:00:00', 'Returned', 'Monitor inviato in manutenzione', 'SN3', 3),
+(TIMESTAMP '2024-02-05 16:00:00', 'Dismissed', 'Smartphone dismesso', 'IM4', 4);

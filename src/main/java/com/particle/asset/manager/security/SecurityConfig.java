@@ -38,6 +38,11 @@ public class SecurityConfig
                 .authorizeHttpRequests(auth -> auth
                         // Endpoint di autenticazione - PUBBLICI
                         .requestMatchers(new AntPathRequestMatcher("/auth/**")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/asset/**")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/assetType/**")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/businessUnit/**")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/assetStatusType/**")).permitAll()
+
 
                         // Console H2 - SOLO ADMIN (con AntPathRequestMatcher esplicito)
                         .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()

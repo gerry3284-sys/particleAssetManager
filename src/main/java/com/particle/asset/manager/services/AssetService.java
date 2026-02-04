@@ -61,6 +61,40 @@ public class AssetService
         return assets;
     }
 
+    public List<AssetListRowDTO> getAssetList()
+    {
+        List<Asset> assets = assetRepository.findAll();
+
+        return assets.stream()
+                .map(asset -> {
+                    Optional<Movement> lastMovement =
+                            movementRepository.findFirstByAssetCodeOrderByDateDesc(asset.getCode());
+
+                    String assignedUser = "-";
+                    LocalDateTime assignmentDate = null;
+
+                    if (lastMovement.isPresent()
+                            && "Assigned".equals(lastMovement.get().getMovementType()))
+                    {
+                        User u = lastMovement.get().getUsers();
+                        assignedUser = u.getName() + " " + u.getSurname();
+                        assignmentDate = lastMovement.get().getDate();
+                    }
+
+                    return new AssetListRowDTO(
+                            asset.getAssetStatusType().getName(),
+                            asset.getBrand(),
+                            asset.getModel(),
+                            asset.getSerialNumber(),
+                            assignedUser,
+                            asset.getBusinessUnit().getName(),
+                            assignmentDate
+                    );
+                })
+                .toList();
+    }
+
+
     // Crea un asset (reset cache)
     // @CacheEvict → Quando si crea/aggiorna un record, la cache viene
     //               completamente svuotata (clear). Alla prossima chiamata GET,
