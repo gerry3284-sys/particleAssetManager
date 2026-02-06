@@ -86,6 +86,7 @@ public class AssetService
                             asset.getBrand(),
                             asset.getModel(),
                             asset.getSerialNumber(),
+                            asset.getAssetType().getName(),
                             assignedUser,
                             asset.getBusinessUnit().getName(),
                             assignmentDate

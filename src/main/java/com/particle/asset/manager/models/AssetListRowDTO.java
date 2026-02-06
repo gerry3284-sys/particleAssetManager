@@ -12,6 +12,7 @@ public class AssetListRowDTO {
     private String brand;
     private String model;
     private String serialNumber;
+    private String assetType;
     private String assignedUser;
     private String businessUnit;
     private LocalDateTime assignmentDate;

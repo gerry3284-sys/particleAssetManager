@@ -42,6 +42,7 @@ public class SecurityConfig
                         .requestMatchers(new AntPathRequestMatcher("/assetType/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/businessUnit/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/assetStatusType/**")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/user/**")).permitAll()
 
 
                         // Console H2 - SOLO ADMIN (con AntPathRequestMatcher esplicito)
@@ -53,7 +54,7 @@ public class SecurityConfig
                         .requestMatchers(new AntPathRequestMatcher("/v3/api-docs/**")).permitAll()
 
                         // Proteggi le PUT
-                        .requestMatchers(new AntPathRequestMatcher("/asset/**", HttpMethod.PUT.name())).hasRole("ADMIN")
+                        /*.requestMatchers(new AntPathRequestMatcher("/asset/**", HttpMethod.PUT.name())).hasRole("ADMIN")
                         .requestMatchers(new AntPathRequestMatcher("/assetType/**", HttpMethod.PUT.name())).hasRole("ADMIN")
                         .requestMatchers(new AntPathRequestMatcher("/businessUnit/**", HttpMethod.PUT.name())).hasRole("ADMIN")
                         .requestMatchers(new AntPathRequestMatcher("/assetStatusType/**", HttpMethod.PUT.name())).hasRole("ADMIN")
@@ -62,7 +63,7 @@ public class SecurityConfig
                         .requestMatchers(new AntPathRequestMatcher("/asset/**", HttpMethod.POST.name())).hasRole("ADMIN")
                         .requestMatchers(new AntPathRequestMatcher("/assetType", HttpMethod.POST.name())).hasRole("ADMIN")
                         .requestMatchers(new AntPathRequestMatcher("/businessUnit", HttpMethod.POST.name())).hasRole("ADMIN")
-                        .requestMatchers(new AntPathRequestMatcher("/assetStatusType", HttpMethod.POST.name())).hasRole("ADMIN")
+                        .requestMatchers(new AntPathRequestMatcher("/assetStatusType", HttpMethod.POST.name())).hasRole("ADMIN")*/
 
                         // GET di /assetType - tutti gli utenti autenticati
                         //.requestMatchers(new AntPathRequestMatcher("/assetType/**", HttpMethod.GET.name())).authenticated()
