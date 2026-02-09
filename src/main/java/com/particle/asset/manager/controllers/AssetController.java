@@ -2,10 +2,9 @@ package com.particle.asset.manager.controllers;
 
 import com.particle.asset.manager.DTO.AssetBodyDTO;
 import com.particle.asset.manager.DTO.MovementRequestBodyDTO;
-import com.particle.asset.manager.DTO.MovementResponseBodyDTO;
 import com.particle.asset.manager.DTO.MovementSummaryDTO;
 import com.particle.asset.manager.models.Asset;
-import com.particle.asset.manager.models.AssetListRowDTO;
+import com.particle.asset.manager.DTO.AssetListRowDTO;
 import com.particle.asset.manager.models.Error;
 import com.particle.asset.manager.models.Movement;
 import com.particle.asset.manager.results.Result;

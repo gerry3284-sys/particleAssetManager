@@ -1,4 +1,4 @@
-package com.particle.asset.manager.models;
+package com.particle.asset.manager.DTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,6 +12,7 @@ public class AssetListRowDTO {
     private String brand;
     private String model;
     private String serialNumber;
+    private String assetCode;
     private String assetType;
     private String assignedUser;
     private String businessUnit;
