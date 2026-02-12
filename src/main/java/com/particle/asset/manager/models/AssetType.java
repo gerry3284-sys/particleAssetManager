@@ -33,6 +33,9 @@ public class AssetType
     @Column(nullable = false, unique = true)
     private String code; // Codice univoco per ogni record "primi due caratteri + id"
 
+    @Column(nullable = false)
+    private boolean ram, hardDisk;
+
     /*@OneToMany(mappedBy = "type", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Asset> asset = new ArrayList<>();*/
 }

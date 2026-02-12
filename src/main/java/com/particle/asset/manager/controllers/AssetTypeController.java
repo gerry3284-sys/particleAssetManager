@@ -1,7 +1,7 @@
 package com.particle.asset.manager.controllers;
 
+import com.particle.asset.manager.DTO.AssetTypeBodyDTO;
 import com.particle.asset.manager.DTO.AssetTypeBusinessUnitAssetStatusTypeActiveDeactiveBodyDTO;
-import com.particle.asset.manager.DTO.AssetTypeBusinessUnitAssetStatusTypeBodyDTO;
 import com.particle.asset.manager.results.Result;
 import com.particle.asset.manager.swaggerResponses.SwaggerResponses;
 import com.particle.asset.manager.models.Error;
@@ -65,7 +65,7 @@ public class AssetTypeController
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
                             examples = @ExampleObject(value = SwaggerResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
-    public ResponseEntity<?> getTypeByID(@PathVariable String code)
+    public ResponseEntity<?> getTypeByCode(@PathVariable String code)
     {
         AssetType searchedAssetType = service.getAssetTypeById(code);
 
@@ -78,7 +78,7 @@ public class AssetTypeController
     @ApiResponses({
             @ApiResponse(responseCode = "201",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = AssetTypeBusinessUnitAssetStatusTypeBodyDTO.class))),
+                            schema = @Schema(implementation = AssetTypeBodyDTO.class))),
             @ApiResponse(responseCode = "400", description = "Business Error",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
@@ -95,9 +95,9 @@ public class AssetTypeController
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
                             examples = @ExampleObject(value = SwaggerResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
-    public ResponseEntity<?> createAssetType(@RequestBody AssetTypeBusinessUnitAssetStatusTypeBodyDTO assetTypeDTO)
+    public ResponseEntity<?> createAssetType(@RequestBody AssetTypeBodyDTO assetTypeDTO)
     {
-        AssetTypeBusinessUnitAssetStatusTypeBodyDTO createdAssetType = service.createType(assetTypeDTO);
+        AssetTypeBodyDTO createdAssetType = service.createType(assetTypeDTO);
 
         return createdAssetType != null ?ResponseEntity.ok(createdAssetType)
                 :ResponseEntity.status(HttpStatus.BAD_REQUEST).body(SwaggerResponses.BAD_REQUEST);
@@ -108,7 +108,7 @@ public class AssetTypeController
     @ApiResponses({
             @ApiResponse(responseCode = "200",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = AssetTypeBusinessUnitAssetStatusTypeBodyDTO.class))),
+                            schema = @Schema(implementation = AssetTypeBodyDTO.class))),
             @ApiResponse(responseCode = "400", description = "Business Error",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
@@ -129,10 +129,9 @@ public class AssetTypeController
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
                             examples = @ExampleObject(value = SwaggerResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
-    public ResponseEntity<?> updateTypeById(@PathVariable String code,
-                                            @RequestBody AssetTypeBusinessUnitAssetStatusTypeBodyDTO assetTypeDTO)
+    public ResponseEntity<?> updateTypeById(@PathVariable String code, @RequestBody AssetTypeBodyDTO assetTypeDTO)
     {
-        Result.AssetTypeBusinessUnitAssetStatusTypeBodyDTOPatchResult updatedAssetType = service.updateTypeById(code, assetTypeDTO);
+        Result.AssetTypeDTOPatchResult updatedAssetType = service.updateTypeByCode(code, assetTypeDTO);
 
         return switch(updatedAssetType.getStatus())
         {

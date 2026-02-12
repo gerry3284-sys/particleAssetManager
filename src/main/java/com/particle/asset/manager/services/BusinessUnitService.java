@@ -1,7 +1,7 @@
 package com.particle.asset.manager.services;
 
 import com.particle.asset.manager.DTO.AssetTypeBusinessUnitAssetStatusTypeActiveDeactiveBodyDTO;
-import com.particle.asset.manager.DTO.AssetTypeBusinessUnitAssetStatusTypeBodyDTO;
+import com.particle.asset.manager.DTO.BusinessUnitAssetStatusTypeBodyDTO;
 import com.particle.asset.manager.enumerations.StatusForControllerOperations;
 import com.particle.asset.manager.models.BusinessUnit;
 import com.particle.asset.manager.repositories.BusinessUnitRepository;
@@ -85,8 +85,8 @@ public class BusinessUnitService
     //               completamente svuotata (clear). Alla prossima chiamata GET,
     //               i dati verranno caricati direttamente dal database.
     @CacheEvict(value = "businessUnits", allEntries = true)
-    public AssetTypeBusinessUnitAssetStatusTypeBodyDTO createBusinessUnit(
-            AssetTypeBusinessUnitAssetStatusTypeBodyDTO businessUnitDTO)
+    public BusinessUnitAssetStatusTypeBodyDTO createBusinessUnit(
+            BusinessUnitAssetStatusTypeBodyDTO businessUnitDTO)
     {
         if(businessUnitDTO == null || businessUnitDTO.getName() == null ||
                 businessUnitDTO.getName().trim().isEmpty())
@@ -131,33 +131,34 @@ public class BusinessUnitService
 
     // Aggiorna un BusinessUnit (reset cache)
     @CacheEvict(value = "businessUnits", allEntries = true)
-    public Result.AssetTypeBusinessUnitAssetStatusTypeBodyDTOPatchResult updateBusinessUnitById(String code,
-                                                                                                AssetTypeBusinessUnitAssetStatusTypeBodyDTO businessUnitDTO)
+    public Result.BusinessUnitAssetStatusTypeBodyDTOPatchResult updateBusinessUnitById(String code,
+                                                                                       BusinessUnitAssetStatusTypeBodyDTO businessUnitDTO)
     {
         if(businessUnitDTO == null || businessUnitDTO.getName() == null)
-            return new Result.AssetTypeBusinessUnitAssetStatusTypeBodyDTOPatchResult(StatusForControllerOperations.BAD_REQUEST, null);
+            return new Result.BusinessUnitAssetStatusTypeBodyDTOPatchResult(StatusForControllerOperations.BAD_REQUEST, null);
 
-        // Normalizzazione del nome (se necessario)
-        businessUnitDTO.setName(normalizeName(businessUnitDTO.getName()));
-        if(repository.existsByName(businessUnitDTO.getName()))
-            return new Result.AssetTypeBusinessUnitAssetStatusTypeBodyDTOPatchResult(StatusForControllerOperations.BAD_REQUEST, null);
+        /*if(repository.existsByName(businessUnitDTO.getName()))
+            return new Result.BusinessUnitAssetStatusTypeBodyDTOPatchResult(StatusForControllerOperations.BAD_REQUEST, null);*/
 
         Optional<BusinessUnit> businessUnitById = repository.findByCode(code);
 
         if(businessUnitById.isEmpty())
-            return new Result.AssetTypeBusinessUnitAssetStatusTypeBodyDTOPatchResult(StatusForControllerOperations.NOT_FOUND, null);
+            return new Result.BusinessUnitAssetStatusTypeBodyDTOPatchResult(StatusForControllerOperations.NOT_FOUND, null);
 
         BusinessUnit updatedBusinessUnit = businessUnitById.get();
 
+        // Normalizzazione del nome (se necessario)
+        businessUnitDTO.setName(normalizeName(businessUnitDTO.getName()));
+
         if(!(updatedBusinessUnit.getName().equals(businessUnitDTO.getName())) &&
                 repository.existsByName(businessUnitDTO.getName()))
-            return new Result.AssetTypeBusinessUnitAssetStatusTypeBodyDTOPatchResult(StatusForControllerOperations.BAD_REQUEST, null);
+            return new Result.BusinessUnitAssetStatusTypeBodyDTOPatchResult(StatusForControllerOperations.BAD_REQUEST, null);
 
         updatedBusinessUnit.setName(businessUnitDTO.getName());
         updatedBusinessUnit.setUpdateDate(LocalDateTime.now());
         repository.save(updatedBusinessUnit);
 
-        return new Result.AssetTypeBusinessUnitAssetStatusTypeBodyDTOPatchResult(StatusForControllerOperations.OK, businessUnitDTO);
+        return new Result.BusinessUnitAssetStatusTypeBodyDTOPatchResult(StatusForControllerOperations.OK, businessUnitDTO);
     }
 
 

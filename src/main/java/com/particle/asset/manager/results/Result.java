@@ -1,7 +1,8 @@
 package com.particle.asset.manager.results;
 
 import com.particle.asset.manager.DTO.AssetBodyDTO;
-import com.particle.asset.manager.DTO.AssetTypeBusinessUnitAssetStatusTypeBodyDTO;
+import com.particle.asset.manager.DTO.AssetTypeBodyDTO;
+import com.particle.asset.manager.DTO.BusinessUnitAssetStatusTypeBodyDTO;
 import com.particle.asset.manager.DTO.MovementResponseBodyDTO;
 import com.particle.asset.manager.enumerations.StatusForControllerOperations;
 import com.particle.asset.manager.models.Asset;
@@ -47,10 +48,18 @@ public class Result
 
     @AllArgsConstructor
     @Getter
-    public static class AssetTypeBusinessUnitAssetStatusTypeBodyDTOPatchResult
+    public static class AssetTypeDTOPatchResult
     {
         private StatusForControllerOperations status;
-        private AssetTypeBusinessUnitAssetStatusTypeBodyDTO patchResponse;
+        private AssetTypeBodyDTO patchResponse;
+    }
+
+    @AllArgsConstructor
+    @Getter
+    public static class BusinessUnitAssetStatusTypeBodyDTOPatchResult
+    {
+        private StatusForControllerOperations status;
+        private BusinessUnitAssetStatusTypeBodyDTO patchResponse;
     }
 
     @AllArgsConstructor

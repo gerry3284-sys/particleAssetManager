@@ -1,7 +1,7 @@
 package com.particle.asset.manager.services;
 
+import com.particle.asset.manager.DTO.AssetTypeBodyDTO;
 import com.particle.asset.manager.DTO.AssetTypeBusinessUnitAssetStatusTypeActiveDeactiveBodyDTO;
-import com.particle.asset.manager.DTO.AssetTypeBusinessUnitAssetStatusTypeBodyDTO;
 import com.particle.asset.manager.enumerations.StatusForControllerOperations;
 import com.particle.asset.manager.models.AssetType;
 import com.particle.asset.manager.repositories.AssetTypeRepository;
@@ -81,8 +81,7 @@ public class AssetTypeService
     //               completamente svuotata (clear). Alla prossima chiamata GET,
     //               i dati verrano caricati direttamente dal database.
     @CacheEvict(value = "assetTypes", allEntries = true)
-    public AssetTypeBusinessUnitAssetStatusTypeBodyDTO createType(
-            AssetTypeBusinessUnitAssetStatusTypeBodyDTO assetTypeDTO)
+    public AssetTypeBodyDTO createType(AssetTypeBodyDTO assetTypeDTO)
     {
         if(assetTypeDTO == null || assetTypeDTO.getName() == null ||
                 assetTypeDTO.getName().trim().isEmpty())
@@ -100,9 +99,11 @@ public class AssetTypeService
         String nameWithoutSpaces = assetType.getName().replaceAll("\\s+", "");
         assetType.setCode(nameWithoutSpaces.toUpperCase()
                 .substring(0, Math.min(2, nameWithoutSpaces.length())) + (repository.count()+1));
+        System.out.println("checkNULL: " + assetTypeDTO.isRam() + ", " + assetTypeDTO.isHardDisk());
+        assetType.setRam(assetTypeDTO.isRam());
+        assetType.setHardDisk(assetTypeDTO.isHardDisk());
 
         repository.save(assetType);
-
         return assetTypeDTO;
     }
 
@@ -127,33 +128,35 @@ public class AssetTypeService
 
     // Aggiorna un Type (reset cache)
     @CacheEvict(value = "assetTypes", allEntries = true)
-    public Result.AssetTypeBusinessUnitAssetStatusTypeBodyDTOPatchResult updateTypeById(String code,
-                                                                                        AssetTypeBusinessUnitAssetStatusTypeBodyDTO assetTypeDTO)
+    public Result.AssetTypeDTOPatchResult updateTypeByCode(String code,
+                                                           AssetTypeBodyDTO assetTypeDTO)
     {
         if(assetTypeDTO == null || assetTypeDTO.getName() == null)
-            return new Result.AssetTypeBusinessUnitAssetStatusTypeBodyDTOPatchResult(StatusForControllerOperations.BAD_REQUEST, null);
+            return new Result.AssetTypeDTOPatchResult(StatusForControllerOperations.BAD_REQUEST, null);
+
+        Optional<AssetType> typeByCode = repository.findByCode(code);
+
+        if(typeByCode.isEmpty())
+            return new Result.AssetTypeDTOPatchResult(StatusForControllerOperations.NOT_FOUND, null);
+        AssetType updatedAssetType = typeByCode.get();
 
         // Normalizzazione del nome (se necessario)
         assetTypeDTO.setName(normalizeName(assetTypeDTO.getName()));
-        if(repository.existsByName(assetTypeDTO.getName()))
-            return new Result.AssetTypeBusinessUnitAssetStatusTypeBodyDTOPatchResult(StatusForControllerOperations.BAD_REQUEST, null);
 
-        Optional<AssetType> typeById = repository.findByCode(code);
-
-        if(typeById.isEmpty())
-            return new Result.AssetTypeBusinessUnitAssetStatusTypeBodyDTOPatchResult(StatusForControllerOperations.NOT_FOUND, null);
-
-        AssetType updatedAssetType = typeById.get();
+        /*if(repository.existsByName(assetTypeDTO.getName()))
+            return new Result.AssetTypeDTOPatchResult(StatusForControllerOperations.BAD_REQUEST, null);*/
 
         if(!(updatedAssetType.getName().equals(assetTypeDTO.getName())) &&
                 repository.existsByName(assetTypeDTO.getName()))
-            return new Result.AssetTypeBusinessUnitAssetStatusTypeBodyDTOPatchResult(StatusForControllerOperations.BAD_REQUEST, null);
+            return new Result.AssetTypeDTOPatchResult(StatusForControllerOperations.BAD_REQUEST, null);
 
         updatedAssetType.setName(assetTypeDTO.getName());
+        updatedAssetType.setRam(assetTypeDTO.isRam());
+        updatedAssetType.setHardDisk(assetTypeDTO.isHardDisk());
         updatedAssetType.setUpdateDate(LocalDateTime.now());
         repository.save(updatedAssetType);
 
-        return new Result.AssetTypeBusinessUnitAssetStatusTypeBodyDTOPatchResult(StatusForControllerOperations.OK, assetTypeDTO);
+        return new Result.AssetTypeDTOPatchResult(StatusForControllerOperations.OK, assetTypeDTO);
     }
 
 

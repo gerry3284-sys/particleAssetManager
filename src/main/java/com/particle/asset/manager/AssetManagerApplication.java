@@ -26,7 +26,8 @@ public class AssetManagerApplication
 	// TODO: Modificare le PUT in PATCH
 	// TODO: Controllare i vari errori quando ci sono sia i 400 che i 404 (vedere quale errore mostrare prima)
 	// TODO: Creare una tabella PDF per le ricevute
-	// TODO: Aggiungere cache per i movement ?
+	// TODO: Modificare da "boolean" a "Boolean" (per avere "NULL") ?
+	// TODO: Modificare la Response dell'attivazione/disattivazione dell'AssetType aggiungendo RAM e Hard Disk ?
 
 	public static void main(String[] args) {
 		SpringApplication.run(AssetManagerApplication.class, args);

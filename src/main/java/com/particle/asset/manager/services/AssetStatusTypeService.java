@@ -1,7 +1,7 @@
 package com.particle.asset.manager.services;
 
 import com.particle.asset.manager.DTO.AssetTypeBusinessUnitAssetStatusTypeActiveDeactiveBodyDTO;
-import com.particle.asset.manager.DTO.AssetTypeBusinessUnitAssetStatusTypeBodyDTO;
+import com.particle.asset.manager.DTO.BusinessUnitAssetStatusTypeBodyDTO;
 import com.particle.asset.manager.enumerations.StatusForControllerOperations;
 import com.particle.asset.manager.models.AssetStatusType;
 import com.particle.asset.manager.repositories.AssetStatusTypeRepository;
@@ -85,8 +85,8 @@ public class AssetStatusTypeService
     //               completamente svuotata (clear). Alla prossima chiamata GET,
     //               i dati verrano caricati direttamente dal database.
     @CacheEvict(value = "assetStatusTypes", allEntries = true)
-    public AssetTypeBusinessUnitAssetStatusTypeBodyDTO createAssetStatusType(
-            AssetTypeBusinessUnitAssetStatusTypeBodyDTO assetStatusTypeDTO)
+    public BusinessUnitAssetStatusTypeBodyDTO createAssetStatusType(
+            BusinessUnitAssetStatusTypeBodyDTO assetStatusTypeDTO)
     {
         if(assetStatusTypeDTO == null || assetStatusTypeDTO.getName() == null ||
                 assetStatusTypeDTO.getName().trim().isEmpty())
@@ -131,33 +131,34 @@ public class AssetStatusTypeService
 
     // Aggiorna un AssetStatusType (reset cache)
     @CacheEvict(value = "assetStatusTypes", allEntries = true)
-    public Result.AssetTypeBusinessUnitAssetStatusTypeBodyDTOPatchResult updateAssetStatusType(String code,
-                                             AssetTypeBusinessUnitAssetStatusTypeBodyDTO assetStatusTypeDTO)
+    public Result.BusinessUnitAssetStatusTypeBodyDTOPatchResult updateAssetStatusType(String code,
+                                                                                      BusinessUnitAssetStatusTypeBodyDTO assetStatusTypeDTO)
     {
         if(assetStatusTypeDTO == null || assetStatusTypeDTO.getName() == null)
-            return new Result.AssetTypeBusinessUnitAssetStatusTypeBodyDTOPatchResult(StatusForControllerOperations.BAD_REQUEST, null);
+            return new Result.BusinessUnitAssetStatusTypeBodyDTOPatchResult(StatusForControllerOperations.BAD_REQUEST, null);
 
-        // Normalizzazione del nome (se necessario)
-        assetStatusTypeDTO.setName(normalizeName(assetStatusTypeDTO.getName()));
-        if(repository.existsByName(assetStatusTypeDTO.getName()))
-            return new Result.AssetTypeBusinessUnitAssetStatusTypeBodyDTOPatchResult(StatusForControllerOperations.BAD_REQUEST, null);
+        /*if(repository.existsByName(assetStatusTypeDTO.getName()))
+            return new Result.BusinessUnitAssetStatusTypeBodyDTOPatchResult(StatusForControllerOperations.BAD_REQUEST, null);*/
 
         Optional<AssetStatusType> assetStatusTypeById = repository.findByCode(code);
 
         if(assetStatusTypeById.isEmpty())
-            return new Result.AssetTypeBusinessUnitAssetStatusTypeBodyDTOPatchResult(StatusForControllerOperations.NOT_FOUND, null);
+            return new Result.BusinessUnitAssetStatusTypeBodyDTOPatchResult(StatusForControllerOperations.NOT_FOUND, null);
 
         AssetStatusType updatedAssetStatusType = assetStatusTypeById.get();
 
+        // Normalizzazione del nome (se necessario)
+        assetStatusTypeDTO.setName(normalizeName(assetStatusTypeDTO.getName()));
+
         if(!(updatedAssetStatusType.getName().equals(assetStatusTypeDTO.getName())) &&
                 repository.existsByName(assetStatusTypeDTO.getName()))
-            return new Result.AssetTypeBusinessUnitAssetStatusTypeBodyDTOPatchResult(StatusForControllerOperations.BAD_REQUEST, null);
+            return new Result.BusinessUnitAssetStatusTypeBodyDTOPatchResult(StatusForControllerOperations.BAD_REQUEST, null);
 
         updatedAssetStatusType.setName(assetStatusTypeDTO.getName());
         updatedAssetStatusType.setUpdateDate(LocalDateTime.now());
         repository.save(updatedAssetStatusType);
 
-        return new Result.AssetTypeBusinessUnitAssetStatusTypeBodyDTOPatchResult(StatusForControllerOperations.OK, assetStatusTypeDTO);
+        return new Result.BusinessUnitAssetStatusTypeBodyDTOPatchResult(StatusForControllerOperations.OK, assetStatusTypeDTO);
     }
 
     // Attiva o Disattiva un AssetStatusType (reset cache)
