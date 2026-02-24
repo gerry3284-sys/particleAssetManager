@@ -5,15 +5,15 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class MovementSummaryDTO
+public class MovementSummaryResponseDto
 {
     private Long id;
     private LocalDateTime date;
     private String movementType, note;
-    private AssetSummaryDTO asset;
-    private UserSummaryDTO user;
+    private AssetSummaryDto asset;
+    private UserSummaryDto user;
 
-    public MovementSummaryDTO(Long id, LocalDateTime date, String movementType, String note, AssetSummaryDTO asset, UserSummaryDTO user) {
+    public MovementSummaryResponseDto(Long id, LocalDateTime date, String movementType, String note, AssetSummaryDto asset, UserSummaryDto user) {
         this.id = id;
         this.date = date;
         this.movementType = movementType;
@@ -22,7 +22,7 @@ public class MovementSummaryDTO
         this.user = user;
     }
 
-    public MovementSummaryDTO() {
+    public MovementSummaryResponseDto() {
 
     }
 }

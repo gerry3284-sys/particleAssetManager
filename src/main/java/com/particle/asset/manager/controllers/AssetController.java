@@ -1,10 +1,7 @@
 package com.particle.asset.manager.controllers;
 
-import com.particle.asset.manager.DTO.AssetBodyDTO;
-import com.particle.asset.manager.DTO.MovementRequestBodyDTO;
-import com.particle.asset.manager.DTO.MovementSummaryDTO;
+import com.particle.asset.manager.DTO.*;
 import com.particle.asset.manager.models.Asset;
-import com.particle.asset.manager.DTO.AssetListRowDTO;
 import com.particle.asset.manager.models.Error;
 import com.particle.asset.manager.models.Movement;
 import com.particle.asset.manager.results.Result;
@@ -20,6 +17,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 
 import java.util.List;
 
@@ -83,7 +82,7 @@ public class AssetController
     @ApiResponses({
             @ApiResponse(responseCode = "201",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = AssetBodyDTO.class))),
+                            schema = @Schema(implementation = AssetResponseDto.class))),
             @ApiResponse(responseCode = "400", description = "Business Error",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
@@ -100,9 +99,9 @@ public class AssetController
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
                             examples = @ExampleObject(value = SwaggerResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
-    public ResponseEntity<?> createAsset(@RequestBody AssetBodyDTO assetDTO)
+    public ResponseEntity<?> createAsset(@RequestBody AssetRequestDto assetDTO)
     {
-        AssetBodyDTO createdAsset = service.createAsset(assetDTO);
+        AssetRequestDto createdAsset = service.createAsset(assetDTO);
 
         return createdAsset != null ?ResponseEntity.ok(createdAsset)
                 :ResponseEntity.status(HttpStatus.BAD_REQUEST).body(SwaggerResponses.BAD_REQUEST);
@@ -114,7 +113,7 @@ public class AssetController
     @ApiResponses({
             @ApiResponse(responseCode = "200",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = AssetBodyDTO.class))),
+                            schema = @Schema(implementation = AssetResponseDto.class))),
             @ApiResponse(responseCode = "400", description = "Business Error",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
@@ -135,13 +134,13 @@ public class AssetController
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
                             examples = @ExampleObject(value = SwaggerResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
-    public ResponseEntity<?> UpdateAssetById(@PathVariable String code, @RequestBody AssetBodyDTO assetDTO)
+    public ResponseEntity<?> UpdateAssetById(@PathVariable String code, @RequestBody AssetRequestDto assetDTO)
     {
         Result.AssetBodyDTOResult updatedAsset = service.updateAssetById(code, assetDTO);
 
         return switch(updatedAsset.getStatus())
         {
-            case OK -> ResponseEntity.ok(updatedAsset.getPatchResponse());
+            case OK -> ResponseEntity.ok(updatedAsset.getPutResponse());
             case NOT_FOUND -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(SwaggerResponses.NOT_FOUND);
             case BAD_REQUEST -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body(SwaggerResponses.BAD_REQUEST);
         };
@@ -153,7 +152,7 @@ public class AssetController
     @ApiResponses({
             @ApiResponse(responseCode = "200",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = MovementSummaryDTO.class))),
+                            schema = @Schema(implementation = MovementSummaryResponseDto.class))),
             @ApiResponse(responseCode = "401", description = "Not Authorized",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
@@ -172,7 +171,7 @@ public class AssetController
                             examples = @ExampleObject(value = SwaggerResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
     public ResponseEntity<?> getAssetMovements(@PathVariable String code)
     {
-        List<MovementSummaryDTO> movements = service.getAssetMovementDTO(code);
+        List<MovementSummaryResponseDto> movements = service.getAssetMovementDTO(code);
 
         return movements != null ?ResponseEntity.ok(movements)
                 :ResponseEntity.status(HttpStatus.NOT_FOUND).body(SwaggerResponses.NOT_FOUND);
@@ -183,7 +182,7 @@ public class AssetController
     @ApiResponses({
             @ApiResponse(responseCode = "200",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = AssetListRowDTO.class))),
+                            schema = @Schema(implementation = AssetListRowResponseDto.class))),
             @ApiResponse(responseCode = "401", description = "Not Authorized",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
@@ -192,7 +191,7 @@ public class AssetController
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
                             examples = @ExampleObject(value = SwaggerResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
-    public ResponseEntity<List<AssetListRowDTO>> getAllAssetList()
+    public ResponseEntity<List<AssetListRowResponseDto>> getAllAssetList()
     {
         return ResponseEntity.ok(service.getAssetList());
     }
@@ -225,15 +224,46 @@ public class AssetController
                             schema = @Schema(implementation = Error.class),
                             examples = @ExampleObject(value = SwaggerResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
     public ResponseEntity<?> assignReturnedDismissAsset(@PathVariable String code,
-                                                        @RequestBody MovementRequestBodyDTO movementDTO)
+                                                        @RequestBody MovementRequestBodyDto movementDTO)
     {
         Result.MovementBodyDTOResult movementOperation = service.assignReturnedDismissAsset(code, movementDTO);
 
         return switch(movementOperation.getStatus())
         {
-            case OK -> ResponseEntity.ok(movementOperation.getPatchResponse());
+            case OK -> ResponseEntity.ok(movementOperation.getPutResponse());
             case NOT_FOUND -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(SwaggerResponses.NOT_FOUND);
             case BAD_REQUEST -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body(SwaggerResponses.BAD_REQUEST);
+        };
+    }
+
+    @GetMapping("/{code}/movement/{movementId}/receipt")
+    @Operation(summary = "Download the receipt PDF for a specific Movement")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "PDF Receipt"),
+            @ApiResponse(responseCode = "404", description = "Not Found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Error.class),
+                            examples = @ExampleObject(value = SwaggerResponses.NOT_FOUND_EXAMPLE))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Error.class),
+                            examples = @ExampleObject(value = SwaggerResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
+    public ResponseEntity<?> getMovementReceipt(@PathVariable String code,
+                                                @PathVariable Long movementId)
+    {
+        Result.ReceiptResult receipt = service.getMovementReceipt(movementId);
+
+        return switch (receipt.getStatus())
+        {
+            case OK -> ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                            "attachment; filename=\"" + receipt.getFileName() + "\"")
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .body(receipt.getPdfBytes());
+            case NOT_FOUND -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(SwaggerResponses.NOT_FOUND);
+            default -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(SwaggerResponses.INTERNAL_SERVER_ERROR);
         };
     }
 }

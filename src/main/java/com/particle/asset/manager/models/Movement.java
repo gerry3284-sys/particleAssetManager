@@ -37,4 +37,8 @@ public class Movement
     @ManyToOne
     @JoinColumn(name = "users_id", nullable = false)
     private User users;
+
+    @Column(name = "receipt_file_name") // Al momento è Nullable, poi non lo sarà più
+    //@Column(name = "receipt_file_name", nullable = false)
+    private String receiptFileName;
 }

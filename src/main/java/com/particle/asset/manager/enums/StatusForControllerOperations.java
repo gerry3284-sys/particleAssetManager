@@ -1,3 +1,3 @@
-package com.particle.asset.manager.enumerations;
+package com.particle.asset.manager.enums;
 
 public enum StatusForControllerOperations { OK, NOT_FOUND, BAD_REQUEST }

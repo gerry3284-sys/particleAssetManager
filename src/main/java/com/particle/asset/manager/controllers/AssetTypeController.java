@@ -1,7 +1,8 @@
 package com.particle.asset.manager.controllers;
 
-import com.particle.asset.manager.DTO.AssetTypeBodyDTO;
-import com.particle.asset.manager.DTO.AssetTypeBusinessUnitAssetStatusTypeActiveDeactiveBodyDTO;
+import com.particle.asset.manager.DTO.AssetTypeRequestDto;
+import com.particle.asset.manager.DTO.AssetTypeResponseDto;
+import com.particle.asset.manager.DTO.AssetTypeStatusResponseDto;
 import com.particle.asset.manager.results.Result;
 import com.particle.asset.manager.swaggerResponses.SwaggerResponses;
 import com.particle.asset.manager.models.Error;
@@ -78,7 +79,7 @@ public class AssetTypeController
     @ApiResponses({
             @ApiResponse(responseCode = "201",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = AssetTypeBodyDTO.class))),
+                            schema = @Schema(implementation = AssetTypeResponseDto.class))),
             @ApiResponse(responseCode = "400", description = "Business Error",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
@@ -95,9 +96,9 @@ public class AssetTypeController
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
                             examples = @ExampleObject(value = SwaggerResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
-    public ResponseEntity<?> createAssetType(@RequestBody AssetTypeBodyDTO assetTypeDTO)
+    public ResponseEntity<?> createAssetType(@RequestBody AssetTypeRequestDto assetTypeDTO)
     {
-        AssetTypeBodyDTO createdAssetType = service.createType(assetTypeDTO);
+        AssetTypeRequestDto createdAssetType = service.createType(assetTypeDTO);
 
         return createdAssetType != null ?ResponseEntity.ok(createdAssetType)
                 :ResponseEntity.status(HttpStatus.BAD_REQUEST).body(SwaggerResponses.BAD_REQUEST);
@@ -108,7 +109,7 @@ public class AssetTypeController
     @ApiResponses({
             @ApiResponse(responseCode = "200",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = AssetTypeBodyDTO.class))),
+                            schema = @Schema(implementation = AssetTypeResponseDto.class))),
             @ApiResponse(responseCode = "400", description = "Business Error",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
@@ -129,13 +130,13 @@ public class AssetTypeController
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
                             examples = @ExampleObject(value = SwaggerResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
-    public ResponseEntity<?> updateTypeById(@PathVariable String code, @RequestBody AssetTypeBodyDTO assetTypeDTO)
+    public ResponseEntity<?> updateTypeById(@PathVariable String code, @RequestBody AssetTypeRequestDto assetTypeDTO)
     {
-        Result.AssetTypeDTOPatchResult updatedAssetType = service.updateTypeByCode(code, assetTypeDTO);
+        Result.AssetTypeDTOPutResult updatedAssetType = service.updateTypeByCode(code, assetTypeDTO);
 
         return switch(updatedAssetType.getStatus())
         {
-            case OK -> ResponseEntity.ok(updatedAssetType.getPatchResponse());
+            case OK -> ResponseEntity.ok(updatedAssetType.getPutResponse());
             case NOT_FOUND -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(SwaggerResponses.NOT_FOUND);
             case BAD_REQUEST -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body(SwaggerResponses.BAD_REQUEST);
         };
@@ -146,7 +147,7 @@ public class AssetTypeController
     @ApiResponses({
             @ApiResponse(responseCode = "200",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = AssetTypeBusinessUnitAssetStatusTypeActiveDeactiveBodyDTO.class))),
+                            schema = @Schema(implementation = AssetTypeStatusResponseDto.class))),
             @ApiResponse(responseCode = "401", description = "Not Authorized",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
@@ -165,7 +166,7 @@ public class AssetTypeController
                             examples = @ExampleObject(value = SwaggerResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
     public ResponseEntity<?> activateDeactivateTypeById(@PathVariable String code)
     {
-        AssetTypeBusinessUnitAssetStatusTypeActiveDeactiveBodyDTO activatedDeactivatedAssetType =
+        AssetTypeStatusResponseDto activatedDeactivatedAssetType =
                 service.activateDeactivateTypeById(code);
 
         return activatedDeactivatedAssetType != null ?ResponseEntity.ok(activatedDeactivatedAssetType)

@@ -1,7 +1,7 @@
 package com.particle.asset.manager.services;
 
 import com.particle.asset.manager.DTO.*;
-import com.particle.asset.manager.enumerations.StatusForControllerOperations;
+import com.particle.asset.manager.enums.StatusForControllerOperations;
 import com.particle.asset.manager.models.*;
 import com.particle.asset.manager.repositories.*;
 import com.particle.asset.manager.results.Result;
@@ -10,15 +10,26 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Base64;
+import jakarta.annotation.PostConstruct;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class AssetService
 {
+    @Value("${receipts.dir}")
+    private String receiptsDir;
+
     private final AssetRepository assetRepository;
     private final MovementRepository movementRepository;
     private final UserRepository userRepository;
@@ -61,7 +72,7 @@ public class AssetService
         return assets;
     }
 
-    public List<AssetListRowDTO> getAssetList()
+    public List<AssetListRowResponseDto> getAssetList()
     {
         List<Asset> assets = assetRepository.findAll();
 
@@ -81,7 +92,7 @@ public class AssetService
                         assignmentDate = lastMovement.get().getDate();
                     }
 
-                    return new AssetListRowDTO(
+                    return new AssetListRowResponseDto(
                             asset.getAssetStatusType().getName(),
                             asset.getBrand(),
                             asset.getModel(),
@@ -97,7 +108,7 @@ public class AssetService
     }
 
     @CacheEvict(value = "assets", allEntries = true)
-    public AssetBodyDTO createAsset(AssetBodyDTO assetDTO)
+    public AssetRequestDto createAsset(AssetRequestDto assetDTO)
     {
         if(assetDTO == null || assetDTO.getAssetTypeCode() == null || assetDTO.getBrand() == null ||
                 assetDTO.getModel() == null || assetDTO.getBusinessUnitCode() == null ||
@@ -165,7 +176,7 @@ public class AssetService
     }
 
     @CacheEvict(value = "assets", allEntries = true)
-    public Result.AssetBodyDTOResult updateAssetById(String code, AssetBodyDTO assetDTO)
+    public Result.AssetBodyDTOResult updateAssetById(String code, AssetRequestDto assetDTO)
     {
         if(assetDTO == null || assetDTO.getAssetTypeCode() == null || assetDTO.getBrand() == null ||
                 assetDTO.getModel() == null || assetDTO.getBusinessUnitCode() == null ||
@@ -227,7 +238,7 @@ public class AssetService
 
     // Ottiene tutti i movimenti di un certo asset (con cache)
     @Cacheable(value = "movements", key = "'assetCode::' + #assetCode")
-    public List<MovementSummaryDTO> getAssetMovementDTO(String assetCode)
+    public List<MovementSummaryResponseDto> getAssetMovementDTO(String assetCode)
     {
         System.out.println(">>> Fetching Movements for Asset " + assetCode + " from database...");
 
@@ -240,15 +251,15 @@ public class AssetService
     }
 
     // Converte in DTO il movimento per restituire il dato corretto
-    public MovementSummaryDTO convertToDTO(Movement movement)
+    public MovementSummaryResponseDto convertToDTO(Movement movement)
     {
-        MovementSummaryDTO dto = new MovementSummaryDTO();
+        MovementSummaryResponseDto dto = new MovementSummaryResponseDto();
         dto.setId(movement.getId());
         dto.setDate(movement.getDate());
         dto.setMovementType(movement.getMovementType());
         dto.setNote(movement.getNote());
 
-        AssetSummaryDTO assetSummaryDTO = new AssetSummaryDTO();
+        AssetSummaryDto assetSummaryDTO = new AssetSummaryDto();
         assetSummaryDTO.setId(movement.getAsset().getId());
         assetSummaryDTO.setBrand(movement.getAsset().getBrand());
         assetSummaryDTO.setModel(movement.getAsset().getModel());
@@ -257,7 +268,7 @@ public class AssetService
         assetSummaryDTO.setHardDisk(movement.getAsset().getHardDisk());
         dto.setAsset(assetSummaryDTO);
 
-        UserSummaryDTO userSummaryDTO = new UserSummaryDTO();
+        UserSummaryDto userSummaryDTO = new UserSummaryDto();
         userSummaryDTO.setId(movement.getUsers().getId());
         userSummaryDTO.setName(movement.getUsers().getName());
         userSummaryDTO.setSurname(movement.getUsers().getSurname());
@@ -269,64 +280,178 @@ public class AssetService
 
     // Assegna/Restituisce/Dismette un asset (reset cache)
     @CacheEvict(value = "movements", allEntries = true)
-    public Result.MovementBodyDTOResult assignReturnedDismissAsset(String assetCode, MovementRequestBodyDTO movementDTO)
+    public Result.MovementBodyDTOResult assignReturnedDismissAsset(String assetCode, MovementRequestBodyDto movementDTO)
     {
-        if(!(assetRepository.existsByCode(assetCode)) ||
+        // Validazione base
+        if (!(assetRepository.existsByCode(assetCode)) ||
                 !(movementDTO.getMovementType().equals("Returned") ||
                         movementDTO.getMovementType().equals("Assigned") ||
                         movementDTO.getMovementType().equals("Dismissed")))
             return new Result.MovementBodyDTOResult(StatusForControllerOperations.BAD_REQUEST, null);
 
+        // Validazione ricevuta - Per il momento così perchè null
+        /*if (movementDTO.getReceiptBase64() == null || movementDTO.getReceiptBase64().isBlank())
+            return new Result.MovementBodyDTOResult(StatusForControllerOperations.BAD_REQUEST, null);*/
+
         Optional<Asset> assetOpt = assetRepository.findByCode(assetCode);
-        if(assetOpt.isEmpty())
+        if (assetOpt.isEmpty())
             return new Result.MovementBodyDTOResult(StatusForControllerOperations.NOT_FOUND, null);
 
         Optional<User> userOpt = userRepository.findById(movementDTO.getUser());
-        if(userOpt.isEmpty())
+        if (userOpt.isEmpty())
             return new Result.MovementBodyDTOResult(StatusForControllerOperations.NOT_FOUND, null);
 
         Optional<Movement> lastMovement = movementRepository.findFirstByAssetCodeOrderByDateDesc(assetCode);
 
-        // Se sto facendo "Assigned"
-        if(movementDTO.getMovementType().equals("Assigned"))
+        // Regole di business sui tipi di movimento
+        if (movementDTO.getMovementType().equals("Assigned"))
         {
-            if(lastMovement.isPresent() &&
+            if (lastMovement.isPresent() &&
                     lastMovement.get().getMovementType().equals("Assigned"))
                 return new Result.MovementBodyDTOResult(StatusForControllerOperations.BAD_REQUEST, null);
 
-            if(lastMovement.isPresent() &&
+            if (lastMovement.isPresent() &&
                     lastMovement.get().getMovementType().equals("Dismissed"))
                 return new Result.MovementBodyDTOResult(StatusForControllerOperations.BAD_REQUEST, null);
         }
 
-        // Se sto facendo "Returned"
-        if(movementDTO.getMovementType().equals("Returned"))
+        if (movementDTO.getMovementType().equals("Returned"))
         {
-            if(lastMovement.isEmpty())
+            if (lastMovement.isEmpty())
                 return new Result.MovementBodyDTOResult(StatusForControllerOperations.BAD_REQUEST, null);
 
-            if(lastMovement.get().getMovementType().equals("Dismissed"))
+            if (lastMovement.get().getMovementType().equals("Dismissed"))
+                return new Result.MovementBodyDTOResult(StatusForControllerOperations.BAD_REQUEST, null);
+
+            if (lastMovement.get().getMovementType().equals("Returned"))
+                return new Result.MovementBodyDTOResult(StatusForControllerOperations.BAD_REQUEST, null);
+
+            if(!Objects.equals(lastMovement.get().getUsers().getId(), movementDTO.getUser()) && lastMovement.get().getMovementType().equals("Assigned"))
                 return new Result.MovementBodyDTOResult(StatusForControllerOperations.BAD_REQUEST, null);
         }
 
-        if(movementDTO.getMovementType().equals("Dismissed") && lastMovement.isPresent())
+        if (movementDTO.getMovementType().equals("Dismissed") && lastMovement.isPresent())
         {
-            if(lastMovement.get().getMovementType().equals("Dismissed"))
+            if (lastMovement.get().getMovementType().equals("Dismissed"))
                 return new Result.MovementBodyDTOResult(StatusForControllerOperations.BAD_REQUEST, null);
 
-            if(lastMovement.get().getMovementType().equals("Assigned"))
+            if (lastMovement.get().getMovementType().equals("Assigned"))
                 return new Result.MovementBodyDTOResult(StatusForControllerOperations.BAD_REQUEST, null);
         }
 
+        // Costruzione nome file: {assetCode}_{surname}_{movementType}_{rowCount}.pdf
+        /*long rowCount = movementRepository.count()+1;
+        String fileName = assetCode + "_"
+                + userOpt.get().getSurname() + "_"
+                + movementDTO.getMovementType() + "_"
+                + rowCount + ".pdf";
+
+        // Salvataggio file
+        String savedFileName = saveReceiptFile(movementDTO.getReceiptBase64(), fileName);
+        if (savedFileName == null)
+            return new Result.MovementBodyDTOResult(StatusForControllerOperations.BAD_REQUEST, null);*/
+
+        // Creazione e salvataggio movimento
         Movement addedMovement = new Movement();
         addedMovement.setMovementType(movementDTO.getMovementType());
         addedMovement.setAsset(assetOpt.get());
         addedMovement.setUsers(userOpt.get());
         addedMovement.setNote(movementDTO.getNote());
+        //addedMovement.setReceiptFileName(savedFileName);
         movementRepository.save(addedMovement);
 
         return new Result.MovementBodyDTOResult(StatusForControllerOperations.OK,
-                new MovementResponseBodyDTO(assetCode, movementDTO.getUser(),
+                new MovementResponseBodyDto(assetCode, movementDTO.getUser(),
                         movementDTO.getMovementType(), movementDTO.getNote()));
+    }
+
+    private String saveReceiptFile(String base64Pdf, String fileName)
+    {
+        try
+        {
+            Path dirPath = Paths.get(receiptsDir);
+
+            if (!Files.exists(dirPath))
+                Files.createDirectories(dirPath);
+
+            byte[] pdfBytes = Base64.getDecoder().decode(base64Pdf);
+            Path filePath = dirPath.resolve(fileName);
+            Files.write(filePath, pdfBytes);
+
+            return fileName; // Solo il nome, non il path completo
+        }
+        catch (IOException e)
+        {
+            System.err.println("Errore nel salvataggio della ricevuta: " + e.getMessage());
+            return null;
+        }
+    }
+
+    public Result.ReceiptResult getMovementReceipt(Long movementId)
+    {
+        Optional<Movement> movementOpt = movementRepository.findById(movementId);
+
+        if (movementOpt.isEmpty())
+            return new Result.ReceiptResult(StatusForControllerOperations.NOT_FOUND, null, null);
+
+        try
+        {
+            String fileName = movementOpt.get().getReceiptFileName();
+            Path filePath = Paths.get(receiptsDir).resolve(fileName);
+            byte[] pdfBytes = Files.readAllBytes(filePath);
+
+            return new Result.ReceiptResult(StatusForControllerOperations.OK, pdfBytes, fileName);
+        }
+        catch (IOException e)
+        {
+            System.err.println("Errore nella lettura della ricevuta: " + e.getMessage());
+            return new Result.ReceiptResult(StatusForControllerOperations.BAD_REQUEST, null, null);
+        }
+    }
+
+    @PostConstruct
+    public void cleanOrphanedReceipts()
+    {
+        try
+        {
+            Path receiptsPath = Paths.get(receiptsDir);
+
+            if (!Files.exists(receiptsPath))
+                return;
+
+            // Ottieni tutti i nomi dei file salvati nel DB
+            List<String> dbFileNames = movementRepository.findAll()
+                    .stream()
+                    .map(Movement::getReceiptFileName)
+                    .toList();
+
+            // Scansiona la cartella receipts
+            Files.list(receiptsPath)
+                    .filter(Files::isRegularFile)
+                    .filter(file -> file.toString().endsWith(".pdf"))
+                    .forEach(file -> {
+                        String fileName = file.getFileName().toString();
+
+                        // Se il file non è nel DB, cancellalo
+                        if (!dbFileNames.contains(fileName))
+                        {
+                            try
+                            {
+                                Files.delete(file);
+                                System.out.println(">>> Deleted orphaned receipt: " + fileName);
+                            }
+                            catch (IOException e)
+                            {
+                                System.err.println(">>> Failed to delete orphaned receipt: " + fileName);
+                            }
+                        }
+                    });
+
+            System.out.println(">>> Orphaned receipts cleanup completed");
+        }
+        catch (IOException e)
+        {
+            System.err.println(">>> Error during orphaned receipts cleanup: " + e.getMessage());
+        }
     }
 }

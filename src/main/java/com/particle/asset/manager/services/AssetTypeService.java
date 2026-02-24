@@ -1,8 +1,8 @@
 package com.particle.asset.manager.services;
 
-import com.particle.asset.manager.DTO.AssetTypeBodyDTO;
-import com.particle.asset.manager.DTO.AssetTypeBusinessUnitAssetStatusTypeActiveDeactiveBodyDTO;
-import com.particle.asset.manager.enumerations.StatusForControllerOperations;
+import com.particle.asset.manager.DTO.AssetTypeRequestDto;
+import com.particle.asset.manager.DTO.AssetTypeStatusResponseDto;
+import com.particle.asset.manager.enums.StatusForControllerOperations;
 import com.particle.asset.manager.models.AssetType;
 import com.particle.asset.manager.repositories.AssetTypeRepository;
 import com.particle.asset.manager.results.Result;
@@ -81,7 +81,7 @@ public class AssetTypeService
     //               completamente svuotata (clear). Alla prossima chiamata GET,
     //               i dati verrano caricati direttamente dal database.
     @CacheEvict(value = "assetTypes", allEntries = true)
-    public AssetTypeBodyDTO createType(AssetTypeBodyDTO assetTypeDTO)
+    public AssetTypeRequestDto createType(AssetTypeRequestDto assetTypeDTO)
     {
         if(assetTypeDTO == null || assetTypeDTO.getName() == null ||
                 assetTypeDTO.getName().trim().isEmpty())
@@ -128,27 +128,27 @@ public class AssetTypeService
 
     // Aggiorna un Type (reset cache)
     @CacheEvict(value = "assetTypes", allEntries = true)
-    public Result.AssetTypeDTOPatchResult updateTypeByCode(String code,
-                                                           AssetTypeBodyDTO assetTypeDTO)
+    public Result.AssetTypeDTOPutResult updateTypeByCode(String code,
+                                                         AssetTypeRequestDto assetTypeDTO)
     {
         if(assetTypeDTO == null || assetTypeDTO.getName() == null)
-            return new Result.AssetTypeDTOPatchResult(StatusForControllerOperations.BAD_REQUEST, null);
+            return new Result.AssetTypeDTOPutResult(StatusForControllerOperations.BAD_REQUEST, null);
 
         Optional<AssetType> typeByCode = repository.findByCode(code);
 
         if(typeByCode.isEmpty())
-            return new Result.AssetTypeDTOPatchResult(StatusForControllerOperations.NOT_FOUND, null);
+            return new Result.AssetTypeDTOPutResult(StatusForControllerOperations.NOT_FOUND, null);
         AssetType updatedAssetType = typeByCode.get();
 
         // Normalizzazione del nome (se necessario)
         assetTypeDTO.setName(normalizeName(assetTypeDTO.getName()));
 
         /*if(repository.existsByName(assetTypeDTO.getName()))
-            return new Result.AssetTypeDTOPatchResult(StatusForControllerOperations.BAD_REQUEST, null);*/
+            return new Result.AssetTypeDTOPutResult(StatusForControllerOperations.BAD_REQUEST, null);*/
 
         if(!(updatedAssetType.getName().equals(assetTypeDTO.getName())) &&
                 repository.existsByName(assetTypeDTO.getName()))
-            return new Result.AssetTypeDTOPatchResult(StatusForControllerOperations.BAD_REQUEST, null);
+            return new Result.AssetTypeDTOPutResult(StatusForControllerOperations.BAD_REQUEST, null);
 
         updatedAssetType.setName(assetTypeDTO.getName());
         updatedAssetType.setRam(assetTypeDTO.isRam());
@@ -156,13 +156,13 @@ public class AssetTypeService
         updatedAssetType.setUpdateDate(LocalDateTime.now());
         repository.save(updatedAssetType);
 
-        return new Result.AssetTypeDTOPatchResult(StatusForControllerOperations.OK, assetTypeDTO);
+        return new Result.AssetTypeDTOPutResult(StatusForControllerOperations.OK, assetTypeDTO);
     }
 
 
     // Attiva o Disattiva un Type (resetCache)
     @CacheEvict(value = "assetTypes", allEntries = true)
-    public AssetTypeBusinessUnitAssetStatusTypeActiveDeactiveBodyDTO activateDeactivateTypeById(String code)
+    public AssetTypeStatusResponseDto activateDeactivateTypeById(String code)
     {
         Optional<AssetType> typeById = repository.findByCode(code);
 
@@ -175,7 +175,6 @@ public class AssetTypeService
         activatedDeactivatedAssetType.setUpdateDate(LocalDateTime.now());
         repository.save(activatedDeactivatedAssetType);
 
-        return new AssetTypeBusinessUnitAssetStatusTypeActiveDeactiveBodyDTO(
-                activatedDeactivatedAssetType.getName(), activatedDeactivatedAssetType.isActive());
+        return new AssetTypeStatusResponseDto(activatedDeactivatedAssetType.getName(), activatedDeactivatedAssetType.isActive());
     }
 }

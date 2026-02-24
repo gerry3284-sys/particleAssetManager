@@ -1,10 +1,7 @@
 package com.particle.asset.manager.results;
 
-import com.particle.asset.manager.DTO.AssetBodyDTO;
-import com.particle.asset.manager.DTO.AssetTypeBodyDTO;
-import com.particle.asset.manager.DTO.BusinessUnitAssetStatusTypeBodyDTO;
-import com.particle.asset.manager.DTO.MovementResponseBodyDTO;
-import com.particle.asset.manager.enumerations.StatusForControllerOperations;
+import com.particle.asset.manager.DTO.*;
+import com.particle.asset.manager.enums.StatusForControllerOperations;
 import com.particle.asset.manager.models.Asset;
 import com.particle.asset.manager.models.AssetStatusType;
 import com.particle.asset.manager.models.AssetType;
@@ -48,18 +45,26 @@ public class Result
 
     @AllArgsConstructor
     @Getter
-    public static class AssetTypeDTOPatchResult
+    public static class AssetTypeDTOPutResult
     {
         private StatusForControllerOperations status;
-        private AssetTypeBodyDTO patchResponse;
+        private AssetTypeRequestDto putResponse;
     }
 
     @AllArgsConstructor
     @Getter
-    public static class BusinessUnitAssetStatusTypeBodyDTOPatchResult
+    public static class BusinessUnitRequestDtoPutResult
     {
         private StatusForControllerOperations status;
-        private BusinessUnitAssetStatusTypeBodyDTO patchResponse;
+        private BusinessUnitRequestDto putResponse;
+    }
+
+    @AllArgsConstructor
+    @Getter
+    public static class AssetStatusTypeRequestDtoPutResult
+    {
+        private StatusForControllerOperations status;
+        private AssetStatusTypeRequestDto putResponse;
     }
 
     @AllArgsConstructor
@@ -67,7 +72,7 @@ public class Result
     public static class AssetBodyDTOResult
     {
         private StatusForControllerOperations status;
-        private AssetBodyDTO patchResponse;
+        private AssetRequestDto putResponse;
     }
 
     @AllArgsConstructor
@@ -75,6 +80,15 @@ public class Result
     public static class MovementBodyDTOResult
     {
         private StatusForControllerOperations status;
-        private MovementResponseBodyDTO patchResponse;
+        private MovementResponseBodyDto putResponse;
+    }
+
+    @AllArgsConstructor
+    @Getter
+    public static class ReceiptResult
+    {
+        private StatusForControllerOperations status;
+        private byte[] pdfBytes;
+        private String fileName;
     }
 }

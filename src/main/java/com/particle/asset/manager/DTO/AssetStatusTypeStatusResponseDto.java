@@ -5,7 +5,7 @@ import lombok.Data;
 
 @AllArgsConstructor
 @Data
-public class AssetTypeBusinessUnitAssetStatusTypeActiveDeactiveBodyDTO
+public class AssetStatusTypeStatusResponseDto
 {
     private String name;
     private boolean active;

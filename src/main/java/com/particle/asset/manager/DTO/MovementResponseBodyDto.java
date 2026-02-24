@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class MovementResponseBodyDTO
+public class MovementResponseBodyDto
 {
     private String asset;
     private Long user;

@@ -1,7 +1,7 @@
 package com.particle.asset.manager.models;
 
 //import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.particle.asset.manager.enumerations.UserType;
+import com.particle.asset.manager.enums.UserType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.Data;

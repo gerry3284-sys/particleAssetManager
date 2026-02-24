@@ -3,13 +3,13 @@ package com.particle.asset.manager.DTO;
 import lombok.Data;
 
 @Data
-public class AssetSummaryDTO
+public class AssetSummaryDto
 {
     private Long id;
     private Short ram;
     private String brand, model, serialNumber, hardDisk;
 
-    public AssetSummaryDTO(Long id, String brand, String model, String serialNumber, Short ram, String hardDisk)
+    public AssetSummaryDto(Long id, String brand, String model, String serialNumber, Short ram, String hardDisk)
     {
         this.id = id;
         this.ram = ram;
@@ -19,7 +19,7 @@ public class AssetSummaryDTO
         this.serialNumber = serialNumber;
     }
 
-    public AssetSummaryDTO() {
+    public AssetSummaryDto() {
 
     }
 

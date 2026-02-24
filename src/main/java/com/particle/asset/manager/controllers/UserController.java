@@ -1,7 +1,6 @@
 package com.particle.asset.manager.controllers;
 
-import com.particle.asset.manager.DTO.MovementSummaryDTO;
-import com.particle.asset.manager.models.BusinessUnit;
+import com.particle.asset.manager.DTO.MovementSummaryResponseDto;
 import com.particle.asset.manager.models.Error;
 import com.particle.asset.manager.models.User;
 import com.particle.asset.manager.services.UserService;
@@ -87,7 +86,7 @@ public class UserController
     @ApiResponses({
             @ApiResponse(responseCode = "200",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = MovementSummaryDTO.class))),
+                            schema = @Schema(implementation = MovementSummaryResponseDto.class))),
             @ApiResponse(responseCode = "401", description = "Not Authorized",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
@@ -106,7 +105,7 @@ public class UserController
                             examples = @ExampleObject(value = SwaggerResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
     public ResponseEntity<?> getUserMovements(@PathVariable Long id)
     {
-        List<MovementSummaryDTO> movements = service.getUserMovements(id);
+        List<MovementSummaryResponseDto> movements = service.getUserMovements(id);
 
         return movements != null ?ResponseEntity.ok(movements)
                 :ResponseEntity.status(HttpStatus.NOT_FOUND).body(SwaggerResponses.NOT_FOUND);

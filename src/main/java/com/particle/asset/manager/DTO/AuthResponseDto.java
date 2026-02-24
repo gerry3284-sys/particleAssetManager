@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class AuthResponseDTO
+public class AuthResponseDto
 {
     private String accessToken, /*refreshToken,*/ tokenType = "Bearer";
     private long expiresIn; // Millisecondi

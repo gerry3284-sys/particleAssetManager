@@ -7,7 +7,8 @@ import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
-public class AssetListRowDTO {
+public class AssetListRowResponseDto
+{
     private String status;
     private String brand;
     private String model;

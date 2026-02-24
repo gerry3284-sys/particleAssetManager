@@ -1,8 +1,8 @@
 package com.particle.asset.manager.services;
 
-import com.particle.asset.manager.DTO.AssetTypeBusinessUnitAssetStatusTypeActiveDeactiveBodyDTO;
-import com.particle.asset.manager.DTO.BusinessUnitAssetStatusTypeBodyDTO;
-import com.particle.asset.manager.enumerations.StatusForControllerOperations;
+import com.particle.asset.manager.DTO.BusinessUnitRequestDto;
+import com.particle.asset.manager.DTO.BusinessUnitStatusResponseDto;
+import com.particle.asset.manager.enums.StatusForControllerOperations;
 import com.particle.asset.manager.models.BusinessUnit;
 import com.particle.asset.manager.repositories.BusinessUnitRepository;
 import com.particle.asset.manager.results.Result;
@@ -85,8 +85,8 @@ public class BusinessUnitService
     //               completamente svuotata (clear). Alla prossima chiamata GET,
     //               i dati verranno caricati direttamente dal database.
     @CacheEvict(value = "businessUnits", allEntries = true)
-    public BusinessUnitAssetStatusTypeBodyDTO createBusinessUnit(
-            BusinessUnitAssetStatusTypeBodyDTO businessUnitDTO)
+    public BusinessUnitRequestDto createBusinessUnit(
+            BusinessUnitRequestDto businessUnitDTO)
     {
         if(businessUnitDTO == null || businessUnitDTO.getName() == null ||
                 businessUnitDTO.getName().trim().isEmpty())
@@ -131,19 +131,19 @@ public class BusinessUnitService
 
     // Aggiorna un BusinessUnit (reset cache)
     @CacheEvict(value = "businessUnits", allEntries = true)
-    public Result.BusinessUnitAssetStatusTypeBodyDTOPatchResult updateBusinessUnitById(String code,
-                                                                                       BusinessUnitAssetStatusTypeBodyDTO businessUnitDTO)
+    public Result.BusinessUnitRequestDtoPutResult updateBusinessUnitById(String code,
+                                                                         BusinessUnitRequestDto businessUnitDTO)
     {
         if(businessUnitDTO == null || businessUnitDTO.getName() == null)
-            return new Result.BusinessUnitAssetStatusTypeBodyDTOPatchResult(StatusForControllerOperations.BAD_REQUEST, null);
+            return new Result.BusinessUnitRequestDtoPutResult(StatusForControllerOperations.BAD_REQUEST, null);
 
         /*if(repository.existsByName(businessUnitDTO.getName()))
-            return new Result.BusinessUnitAssetStatusTypeBodyDTOPatchResult(StatusForControllerOperations.BAD_REQUEST, null);*/
+            return new Result.BusinessUnitRequestDtoPutResult(StatusForControllerOperations.BAD_REQUEST, null);*/
 
         Optional<BusinessUnit> businessUnitById = repository.findByCode(code);
 
         if(businessUnitById.isEmpty())
-            return new Result.BusinessUnitAssetStatusTypeBodyDTOPatchResult(StatusForControllerOperations.NOT_FOUND, null);
+            return new Result.BusinessUnitRequestDtoPutResult(StatusForControllerOperations.NOT_FOUND, null);
 
         BusinessUnit updatedBusinessUnit = businessUnitById.get();
 
@@ -152,19 +152,19 @@ public class BusinessUnitService
 
         if(!(updatedBusinessUnit.getName().equals(businessUnitDTO.getName())) &&
                 repository.existsByName(businessUnitDTO.getName()))
-            return new Result.BusinessUnitAssetStatusTypeBodyDTOPatchResult(StatusForControllerOperations.BAD_REQUEST, null);
+            return new Result.BusinessUnitRequestDtoPutResult(StatusForControllerOperations.BAD_REQUEST, null);
 
         updatedBusinessUnit.setName(businessUnitDTO.getName());
         updatedBusinessUnit.setUpdateDate(LocalDateTime.now());
         repository.save(updatedBusinessUnit);
 
-        return new Result.BusinessUnitAssetStatusTypeBodyDTOPatchResult(StatusForControllerOperations.OK, businessUnitDTO);
+        return new Result.BusinessUnitRequestDtoPutResult(StatusForControllerOperations.OK, businessUnitDTO);
     }
 
 
     // Attiva o Disattiva un Type (reset Cache)
     @CacheEvict(value = "businessUnits", allEntries = true)
-    public AssetTypeBusinessUnitAssetStatusTypeActiveDeactiveBodyDTO activateDeactivateBusinessUnitById(String code)
+    public BusinessUnitStatusResponseDto activateDeactivateBusinessUnitById(String code)
     {
         Optional<BusinessUnit> businessUnitById = repository.findByCode(code);
 
@@ -177,7 +177,6 @@ public class BusinessUnitService
         activatedDeactivatedBusinessUnit.setUpdateDate(LocalDateTime.now());
         repository.save(activatedDeactivatedBusinessUnit);
 
-        return new AssetTypeBusinessUnitAssetStatusTypeActiveDeactiveBodyDTO(
-                activatedDeactivatedBusinessUnit.getName(), activatedDeactivatedBusinessUnit.isActive());
+        return new BusinessUnitStatusResponseDto(activatedDeactivatedBusinessUnit.getName(), activatedDeactivatedBusinessUnit.isActive());
     }
 }

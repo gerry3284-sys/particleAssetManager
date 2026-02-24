@@ -1,8 +1,8 @@
 package com.particle.asset.manager.services;
 
-import com.particle.asset.manager.DTO.AssetSummaryDTO;
-import com.particle.asset.manager.DTO.MovementSummaryDTO;
-import com.particle.asset.manager.DTO.UserSummaryDTO;
+import com.particle.asset.manager.DTO.AssetSummaryDto;
+import com.particle.asset.manager.DTO.MovementSummaryResponseDto;
+import com.particle.asset.manager.DTO.UserSummaryDto;
 import com.particle.asset.manager.models.Movement;
 import com.particle.asset.manager.models.User;
 import com.particle.asset.manager.repositories.MovementRepository;
@@ -38,7 +38,7 @@ public class UserService
     }
 
     // Ottiene tutti i movimenti degli utenti
-    public List<MovementSummaryDTO> getUserMovements(Long userId)
+    public List<MovementSummaryResponseDto> getUserMovements(Long userId)
     {
         if(!userRepository.existsById(userId))
            return null;
@@ -49,22 +49,22 @@ public class UserService
     }
 
     // Converte in DTO il movimento per restituire il dato corretto
-    public MovementSummaryDTO convertToDTO(Movement movement)
+    public MovementSummaryResponseDto convertToDTO(Movement movement)
     {
-        MovementSummaryDTO dto = new MovementSummaryDTO();
+        MovementSummaryResponseDto dto = new MovementSummaryResponseDto();
         dto.setId(movement.getId());
         dto.setDate(movement.getDate());
         dto.setMovementType(movement.getMovementType());
         dto.setNote(movement.getNote());
 
-        AssetSummaryDTO assetSummaryDTO = new AssetSummaryDTO();
+        AssetSummaryDto assetSummaryDTO = new AssetSummaryDto();
         assetSummaryDTO.setId(movement.getAsset().getId());
         assetSummaryDTO.setBrand(movement.getAsset().getBrand());
         assetSummaryDTO.setModel(movement.getAsset().getModel());
         assetSummaryDTO.setSerialNumber(movement.getAsset().getSerialNumber());
         dto.setAsset(assetSummaryDTO);
 
-        UserSummaryDTO userSummaryDTO = new UserSummaryDTO();
+        UserSummaryDto userSummaryDTO = new UserSummaryDto();
         userSummaryDTO.setId(movement.getUsers().getId());
         userSummaryDTO.setName(movement.getUsers().getName());
         userSummaryDTO.setSurname(movement.getUsers().getSurname());
