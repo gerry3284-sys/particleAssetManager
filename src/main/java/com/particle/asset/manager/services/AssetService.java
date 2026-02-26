@@ -133,6 +133,7 @@ public class AssetService
         asset.setRam(assetDTO.getRam());
         asset.setHardDisk(assetDTO.getHardDisk());
         asset.setAssetStatusType(assetStatusTypeById.get());
+        asset.setNote(assetDTO.getNote());
 
         String nameWithoutSpaces = asset.getSerialNumber().replaceAll("\\s+", "");
         asset.setCode(nameWithoutSpaces.toUpperCase()

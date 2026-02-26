@@ -9,7 +9,7 @@ import org.springframework.context.annotation.ComponentScan;
 public class AssetManagerApplication
 {
 	// http://localhost:8080/swagger-ui/index.html --> Swagger
-	// https://www.base64decode.org/ → Sito per verificare la firma dei token JWT
+	// https://www.base64decode.org/ → Sito per verificare la firma dei token JWT (Non serve più)
 	// Versione JDK: ms 21
 	// mvn clean install (su terminale) --> per effettuare i test
 	// Business Unit base = {Particle, Value, Ask, Kite}
@@ -27,13 +27,6 @@ public class AssetManagerApplication
 	// TODO: Modificare da "boolean" a "Boolean" (per avere "NULL") ?
 	// TODO: Modificare la Response dell'attivazione/disattivazione dell'AssetType aggiungendo RAM e Hard Disk ?
 	// TODO: Controllare il nome dei file generati all'interno della cartella "receipts" (sono sempre unici ?)
-	// TODO: Implementare un controllo che, all'avvio del programma, se nella cartella "receipts" è presente un
-	//		 file di cui non esiste più il record, perchè cancellato, esso venga eliminato - {OK}
-	// TODO: Sistemare l'errore dei Movement che permette di fare "Returned" di un asset di un altro utente
-	//		 o anche se già riconsegnato - {OK}
-	// TODO: Aggiungere i vari "requestDto" e "responseDto" - {OK}
-	// TODO: Testare lo Swagger - {OK}
-	// TODO: Modificare le patchResponse in putResponse - {OK}
 
 	public static void main(String[] args) {
 		SpringApplication.run(AssetManagerApplication.class, args);
