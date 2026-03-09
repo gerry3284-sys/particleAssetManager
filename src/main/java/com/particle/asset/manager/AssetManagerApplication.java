@@ -27,6 +27,17 @@ public class AssetManagerApplication
 	// TODO: Modificare da "boolean" a "Boolean" (per avere "NULL") ?
 	// TODO: Modificare la Response dell'attivazione/disattivazione dell'AssetType aggiungendo RAM e Hard Disk ?
 	// TODO: Controllare il nome dei file generati all'interno della cartella "receipts" (sono sempre unici ?)
+	// TODO: Quando si effettua un Movement, bisogna anche aggiornare "status_code" dell'asset {FATTO}
+	// TODO: Inserire un controllo per l'aggiornamento dello status di un asset. Non può diventare
+	// 		 "Assigned", "Returned" o "Dismissed" da solo (senza essere coerente con "Movement") fatta
+	//		 eccezione per casi in cui si utilizzano status differenti. {FATTO}
+	// TODO: Modificare gli errori. SwaggerResponses va bene però è troppo generica.
+	//		 Creare delle SwaggerResponses per i le varie entità così da avere messaggi d'errore
+	//		 più precisi (Controllare quali possano essere generici
+	//		 e quali hanno necessità di una nuova classe).
+	// TODO: assegnare/modificare lo status di un asset tramite la POST e la normale PUT non ha senso.
+	//		 creare un endpoint per l'aggiornamento solo dello status dell'asset (in altre parole, lo
+	//		 si separa dal resto. {FATTO}
 
 	public static void main(String[] args) {
 		SpringApplication.run(AssetManagerApplication.class, args);

@@ -27,6 +27,8 @@ CREATE TABLE asset_type (
     name VARCHAR(255) NOT NULL,
     update_date DATETIME(6) DEFAULT NULL,
     code VARCHAR(255) NOT NULL,
+    hard_disk BIT(1) NOT NULL,
+    ram BIT(1) NOT NULL,
     PRIMARY KEY (id),
     UNIQUE KEY (name),
     UNIQUE KEY (code)  -- Aggiunto vincolo UNIQUE

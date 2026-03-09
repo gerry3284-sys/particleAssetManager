@@ -108,18 +108,19 @@ public class AssetService
     }
 
     @CacheEvict(value = "assets", allEntries = true)
-    public AssetRequestDto createAsset(AssetRequestDto assetDTO)
+    public AssetResponseDto createAsset(AssetRequestDto assetDTO)
     {
         if(assetDTO == null || assetDTO.getAssetTypeCode() == null || assetDTO.getBrand() == null ||
                 assetDTO.getModel() == null || assetDTO.getBusinessUnitCode() == null ||
-                assetDTO.getSerialNumber() == null || assetDTO.getAssetStatusTypeCode() == null ||
+                assetDTO.getSerialNumber() == null ||
                 assetDTO.getRam() == null || assetDTO.getHardDisk() == null ||
                 assetRepository.existsBySerialNumber(assetDTO.getSerialNumber()))
             return null;
 
         Optional<AssetType> assetTypeById = assetTypeRepository.findByCode(assetDTO.getAssetTypeCode());
         Optional<BusinessUnit> businessUnitById = businessUnitRepository.findByCode(assetDTO.getBusinessUnitCode());
-        Optional<AssetStatusType> assetStatusTypeById = assetStatusTypeRepository.findByCode(assetDTO.getAssetStatusTypeCode());
+        // ↓ Cerco e inserisco il lo status "Disponibile" alla creazione dell'Asset
+        Optional<AssetStatusType> assetStatusTypeById = assetStatusTypeRepository.findByName("Available");
 
         if(assetTypeById.isEmpty() || businessUnitById.isEmpty() || assetStatusTypeById.isEmpty())
             return null;
@@ -141,7 +142,7 @@ public class AssetService
 
         assetRepository.save(asset);
 
-        return assetDTO;
+        return getAssetResponseDto(asset);
     }
 
     public Asset getAssetById(String code)
@@ -177,25 +178,24 @@ public class AssetService
     }
 
     @CacheEvict(value = "assets", allEntries = true)
-    public Result.AssetBodyDTOResult updateAssetById(String code, AssetRequestDto assetDTO)
+    public Result.AssetBodyDTOResult updateAssetByCode(String code, AssetRequestDto assetDTO)
     {
-        if(assetDTO == null || assetDTO.getAssetTypeCode() == null || assetDTO.getBrand() == null ||
-                assetDTO.getModel() == null || assetDTO.getBusinessUnitCode() == null ||
-                assetDTO.getAssetStatusTypeCode() == null || assetDTO.getSerialNumber() == null)
+        if(assetDTO == null || assetDTO.getAssetTypeCode() == null ||
+                assetDTO.getBrand() == null || assetDTO.getModel() == null ||
+                assetDTO.getBusinessUnitCode() == null || assetDTO.getSerialNumber() == null)
             return new Result.AssetBodyDTOResult(StatusForControllerOperations.BAD_REQUEST, null);
 
-        Optional<Asset> assetById = assetRepository.findByCode(code);
-        Optional<AssetType> assetTypeById = assetTypeRepository.findByCode(assetDTO.getAssetTypeCode());
-        Optional<BusinessUnit> businessUnitById = businessUnitRepository.findByCode(assetDTO.getBusinessUnitCode());
-        Optional<AssetStatusType> assetStatusTypeById = assetStatusTypeRepository.findByCode(assetDTO.getAssetStatusTypeCode());
+        Optional<Asset> assetByCode = assetRepository.findByCode(code);
+        Optional<AssetType> assetTypeByCode = assetTypeRepository.findByCode(assetDTO.getAssetTypeCode());
+        Optional<BusinessUnit> businessUnitByCode = businessUnitRepository.findByCode(assetDTO.getBusinessUnitCode());
 
-        if(assetById.isEmpty())
+        if(assetByCode.isEmpty())
             return new Result.AssetBodyDTOResult(StatusForControllerOperations.NOT_FOUND, null);
 
-        if(assetTypeById.isEmpty() || businessUnitById.isEmpty() || assetStatusTypeById.isEmpty())
+        if(assetTypeByCode.isEmpty() || businessUnitByCode.isEmpty())
             return new Result.AssetBodyDTOResult(StatusForControllerOperations.BAD_REQUEST, null);
 
-        Asset updatedAsset = assetById.get();
+        Asset updatedAsset = assetByCode.get();
 
         if(!(updatedAsset.getSerialNumber().equals(assetDTO.getSerialNumber())) &&
                 assetRepository.existsBySerialNumber(assetDTO.getSerialNumber()))
@@ -204,16 +204,68 @@ public class AssetService
         updatedAsset.setModel(assetDTO.getModel());
         updatedAsset.setBrand(assetDTO.getBrand());
         updatedAsset.setSerialNumber(assetDTO.getSerialNumber());
-        updatedAsset.setAssetType(assetTypeById.get());
-        updatedAsset.setBusinessUnit(businessUnitById.get());
-        updatedAsset.setAssetStatusType(assetStatusTypeById.get());
+        updatedAsset.setAssetType(assetTypeByCode.get());
+        updatedAsset.setBusinessUnit(businessUnitByCode.get());
         updatedAsset.setNote(assetDTO.getNote());
         updatedAsset.setRam(assetDTO.getRam());
         updatedAsset.setHardDisk(assetDTO.getHardDisk());
         updatedAsset.setUpdateDate(LocalDateTime.now());
         assetRepository.save(updatedAsset);
 
-        return new Result.AssetBodyDTOResult(StatusForControllerOperations.OK, assetDTO);
+        AssetResponseDto response = getAssetResponseDto(updatedAsset);
+
+        return new Result.AssetBodyDTOResult(StatusForControllerOperations.OK, response);
+    }
+
+    // Metodo di conversione per convertire da Asset a AssetResponse
+    private static AssetResponseDto getAssetResponseDto(Asset updatedAsset)
+    {
+        AssetResponseDto response = new AssetResponseDto();
+        response.setModel(updatedAsset.getModel());
+        response.setBrand(updatedAsset.getBrand());
+        response.setSerialNumber(updatedAsset.getSerialNumber());
+        response.setAssetTypeCode(updatedAsset.getAssetType().getCode());
+        response.setBusinessUnitCode(updatedAsset.getBusinessUnit().getCode());
+        response.setNote(updatedAsset.getNote());
+        response.setRam(updatedAsset.getRam());
+        response.setHardDisk(updatedAsset.getHardDisk());
+        response.setAssetStatusTypeCode(updatedAsset.getAssetStatusType().getCode());
+        return response;
+    }
+
+    @CacheEvict(value = "assets", allEntries = true)
+    public Result.AssetBodyDTOResult updateStatusByCode(String code, AssetStatusUpdateRequestDto statusCode)
+    {
+        if(code == null || statusCode == null || statusCode.getAssetStatusTypeCode() == null)
+            return new Result.AssetBodyDTOResult(StatusForControllerOperations.BAD_REQUEST, null);
+
+        Optional<Asset> assetByCode = assetRepository.findByCode(code);
+        Optional<AssetStatusType> assetStatusByCode = assetStatusTypeRepository.findByCode(statusCode.getAssetStatusTypeCode());
+
+        if(assetByCode.isEmpty() || assetStatusByCode.isEmpty())
+            return new Result.AssetBodyDTOResult(StatusForControllerOperations.NOT_FOUND, null);
+
+        if(assetStatusByCode.get().getCode().equals(assetByCode.get().getAssetStatusType().getCode()))
+            return new Result.AssetBodyDTOResult(StatusForControllerOperations.BAD_REQUEST, null);
+
+        if(assetByCode.get().getAssetStatusType().getName().equals("Assigned") ||
+            assetByCode.get().getAssetStatusType().getName().equals("Dismissed"))
+            return new Result.AssetBodyDTOResult(StatusForControllerOperations.BAD_REQUEST, null);
+
+        // ↓ Non è possibile effettuare questa operazione perchè sono dei Movement
+        // Da un qualcosa come "Under Maintenance" ad "Available" va bene perchè
+        // non viene effettuato nessun Movement effettivo.
+        if(assetStatusByCode.get().getName().equals("Assigned") ||
+            assetStatusByCode.get().getName().equals("Dismissed"))
+            return new Result.AssetBodyDTOResult(StatusForControllerOperations.BAD_REQUEST, null);
+
+        Asset updatedAssetStatus = assetByCode.get();
+        updatedAssetStatus.setAssetStatusType(assetStatusByCode.get());
+        assetRepository.save(updatedAssetStatus);
+
+        AssetResponseDto response = getAssetResponseDto(assetByCode.get());
+
+        return new Result.AssetBodyDTOResult(StatusForControllerOperations.OK, response);
     }
 
     // Ottiene tutti i movimenti (con cache)
@@ -298,6 +350,12 @@ public class AssetService
         if (assetOpt.isEmpty())
             return new Result.MovementBodyDTOResult(StatusForControllerOperations.NOT_FOUND, null);
 
+        // Controllo temporaneo. Da modificare perchè statico ?
+        if(!(assetOpt.get().getAssetStatusType().getName().equals("Available") ||
+                assetOpt.get().getAssetStatusType().getName().equals("Assigned") ||
+                assetOpt.get().getAssetStatusType().getName().equals("Dismissed")))
+            return new Result.MovementBodyDTOResult(StatusForControllerOperations.BAD_REQUEST, null);
+
         Optional<User> userOpt = userRepository.findById(movementDTO.getUser());
         if (userOpt.isEmpty())
             return new Result.MovementBodyDTOResult(StatusForControllerOperations.NOT_FOUND, null);
@@ -358,8 +416,22 @@ public class AssetService
         addedMovement.setAsset(assetOpt.get());
         addedMovement.setUsers(userOpt.get());
         addedMovement.setNote(movementDTO.getNote());
-        //addedMovement.setReceiptFileName(savedFileName);
+        //addedMovement.setReceiptFileName(savedFileName)
+
+        // Trovare un modo per inserire "isPresent()" ?
+        Asset updatedAssetStatus = assetOpt.get();
+        if(movementDTO.getMovementType().equals("Returned"))
+            updatedAssetStatus.setAssetStatusType
+                    (assetStatusTypeRepository.findByName("Available").get());
+        else if(movementDTO.getMovementType().equals("Assigned"))
+            updatedAssetStatus.setAssetStatusType
+                    (assetStatusTypeRepository.findByName("Assigned").get());
+        else // "Dismissed"
+            updatedAssetStatus.setAssetStatusType
+                    (assetStatusTypeRepository.findByName("Dismissed").get());
+
         movementRepository.save(addedMovement);
+        assetRepository.save(updatedAssetStatus);
 
         return new Result.MovementBodyDTOResult(StatusForControllerOperations.OK,
                 new MovementResponseBodyDto(assetCode, movementDTO.getUser(),

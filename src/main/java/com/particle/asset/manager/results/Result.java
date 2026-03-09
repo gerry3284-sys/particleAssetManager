@@ -72,7 +72,7 @@ public class Result
     public static class AssetBodyDTOResult
     {
         private StatusForControllerOperations status;
-        private AssetRequestDto putResponse;
+        private AssetResponseDto putResponse;
     }
 
     @AllArgsConstructor

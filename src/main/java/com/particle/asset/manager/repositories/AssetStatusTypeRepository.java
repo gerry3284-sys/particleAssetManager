@@ -13,4 +13,6 @@ public interface AssetStatusTypeRepository extends JpaRepository<AssetStatusType
     AssetStatusType findTopByOrderByIdDesc();
 
     Optional<AssetStatusType> findByCode(String code);
+
+    Optional<AssetStatusType> findByName(String name);
 }

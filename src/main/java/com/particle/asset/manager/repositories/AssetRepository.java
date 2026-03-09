@@ -1,5 +1,6 @@
 package com.particle.asset.manager.repositories;
 
+import com.particle.asset.manager.DTO.AssetResponseDto;
 import com.particle.asset.manager.models.Asset;
 import org.springframework.data.jpa.repository.JpaRepository;
 
