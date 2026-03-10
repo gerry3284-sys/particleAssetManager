@@ -1,6 +1,6 @@
 package com.particle.asset.manager.controllers;
 
-import com.particle.asset.manager.swaggerResponses.SwaggerResponses;
+import com.particle.asset.manager.swaggerResponses.GenericResponses;
 import com.particle.asset.manager.models.Error;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +15,6 @@ public class GlobalExceptionHandler
     {
         e.printStackTrace(); // Log dell'errore per debugging
 
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(SwaggerResponses.INTERNAL_SERVER_ERROR);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(GenericResponses.INTERNAL_SERVER_ERROR);
     }
 }

@@ -1,6 +1,8 @@
 package com.particle.asset.manager.services;
 
 import com.particle.asset.manager.DTO.*;
+import com.particle.asset.manager.enums.AssetOperations;
+import com.particle.asset.manager.enums.BusinessUnitOperations;
 import com.particle.asset.manager.enums.StatusForControllerOperations;
 import com.particle.asset.manager.models.*;
 import com.particle.asset.manager.repositories.*;
@@ -108,14 +110,14 @@ public class AssetService
     }
 
     @CacheEvict(value = "assets", allEntries = true)
-    public AssetResponseDto createAsset(AssetRequestDto assetDTO)
+    public Result.AssetDtoResult createAsset(AssetRequestDto assetDTO)
     {
         if(assetDTO == null || assetDTO.getAssetTypeCode() == null || assetDTO.getBrand() == null ||
                 assetDTO.getModel() == null || assetDTO.getBusinessUnitCode() == null ||
                 assetDTO.getSerialNumber() == null ||
                 assetDTO.getRam() == null || assetDTO.getHardDisk() == null ||
                 assetRepository.existsBySerialNumber(assetDTO.getSerialNumber()))
-            return null;
+            return new Result.AssetDtoResult(AssetOperations.BAD_REQUEST, null);
 
         Optional<AssetType> assetTypeById = assetTypeRepository.findByCode(assetDTO.getAssetTypeCode());
         Optional<BusinessUnit> businessUnitById = businessUnitRepository.findByCode(assetDTO.getBusinessUnitCode());
@@ -123,7 +125,7 @@ public class AssetService
         Optional<AssetStatusType> assetStatusTypeById = assetStatusTypeRepository.findByName("Available");
 
         if(assetTypeById.isEmpty() || businessUnitById.isEmpty() || assetStatusTypeById.isEmpty())
-            return null;
+            return new Result.AssetDtoResult(AssetOperations.ALREADY_EXISTS, null);
 
         Asset asset = new Asset();
         asset.setAssetType(assetTypeById.get());
@@ -142,7 +144,7 @@ public class AssetService
 
         assetRepository.save(asset);
 
-        return getAssetResponseDto(asset);
+        return new Result.AssetDtoResult(AssetOperations.OK, getAssetResponseDto(asset));
     }
 
     public Asset getAssetById(String code)
@@ -178,28 +180,28 @@ public class AssetService
     }
 
     @CacheEvict(value = "assets", allEntries = true)
-    public Result.AssetBodyDTOResult updateAssetByCode(String code, AssetRequestDto assetDTO)
+    public Result.AssetDtoResult updateAssetByCode(String code, AssetRequestDto assetDTO)
     {
         if(assetDTO == null || assetDTO.getAssetTypeCode() == null ||
                 assetDTO.getBrand() == null || assetDTO.getModel() == null ||
                 assetDTO.getBusinessUnitCode() == null || assetDTO.getSerialNumber() == null)
-            return new Result.AssetBodyDTOResult(StatusForControllerOperations.BAD_REQUEST, null);
+            return new Result.AssetDtoResult(AssetOperations.BAD_REQUEST, null);
 
         Optional<Asset> assetByCode = assetRepository.findByCode(code);
         Optional<AssetType> assetTypeByCode = assetTypeRepository.findByCode(assetDTO.getAssetTypeCode());
         Optional<BusinessUnit> businessUnitByCode = businessUnitRepository.findByCode(assetDTO.getBusinessUnitCode());
 
         if(assetByCode.isEmpty())
-            return new Result.AssetBodyDTOResult(StatusForControllerOperations.NOT_FOUND, null);
+            return new Result.AssetDtoResult(AssetOperations.NOT_FOUND, null);
 
         if(assetTypeByCode.isEmpty() || businessUnitByCode.isEmpty())
-            return new Result.AssetBodyDTOResult(StatusForControllerOperations.BAD_REQUEST, null);
+            return new Result.AssetDtoResult(AssetOperations.BAD_REQUEST, null);
 
         Asset updatedAsset = assetByCode.get();
 
         if(!(updatedAsset.getSerialNumber().equals(assetDTO.getSerialNumber())) &&
                 assetRepository.existsBySerialNumber(assetDTO.getSerialNumber()))
-            return new Result.AssetBodyDTOResult(StatusForControllerOperations.BAD_REQUEST, null);
+            return new Result.AssetDtoResult(AssetOperations.ALREADY_EXISTS, null);
 
         updatedAsset.setModel(assetDTO.getModel());
         updatedAsset.setBrand(assetDTO.getBrand());
@@ -214,10 +216,10 @@ public class AssetService
 
         AssetResponseDto response = getAssetResponseDto(updatedAsset);
 
-        return new Result.AssetBodyDTOResult(StatusForControllerOperations.OK, response);
+        return new Result.AssetDtoResult(AssetOperations.OK, response);
     }
 
-    // Metodo di conversione per convertire da Asset a AssetResponse
+    // Metodo di conversione per convertire da Asset ad AssetResponse
     private static AssetResponseDto getAssetResponseDto(Asset updatedAsset)
     {
         AssetResponseDto response = new AssetResponseDto();
@@ -234,30 +236,30 @@ public class AssetService
     }
 
     @CacheEvict(value = "assets", allEntries = true)
-    public Result.AssetBodyDTOResult updateStatusByCode(String code, AssetStatusUpdateRequestDto statusCode)
+    public Result.AssetDtoResult updateStatusByCode(String code, AssetStatusUpdateRequestDto statusCode)
     {
         if(code == null || statusCode == null || statusCode.getAssetStatusTypeCode() == null)
-            return new Result.AssetBodyDTOResult(StatusForControllerOperations.BAD_REQUEST, null);
+            return new Result.AssetDtoResult(AssetOperations.BAD_REQUEST, null);
 
         Optional<Asset> assetByCode = assetRepository.findByCode(code);
         Optional<AssetStatusType> assetStatusByCode = assetStatusTypeRepository.findByCode(statusCode.getAssetStatusTypeCode());
 
         if(assetByCode.isEmpty() || assetStatusByCode.isEmpty())
-            return new Result.AssetBodyDTOResult(StatusForControllerOperations.NOT_FOUND, null);
+            return new Result.AssetDtoResult(AssetOperations.NOT_FOUND, null);
 
         if(assetStatusByCode.get().getCode().equals(assetByCode.get().getAssetStatusType().getCode()))
-            return new Result.AssetBodyDTOResult(StatusForControllerOperations.BAD_REQUEST, null);
+            return new Result.AssetDtoResult(AssetOperations.BAD_REQUEST, null);
 
         if(assetByCode.get().getAssetStatusType().getName().equals("Assigned") ||
             assetByCode.get().getAssetStatusType().getName().equals("Dismissed"))
-            return new Result.AssetBodyDTOResult(StatusForControllerOperations.BAD_REQUEST, null);
+            return new Result.AssetDtoResult(AssetOperations.STATUS_ERROR, null);
 
         // ↓ Non è possibile effettuare questa operazione perchè sono dei Movement
         // Da un qualcosa come "Under Maintenance" ad "Available" va bene perchè
         // non viene effettuato nessun Movement effettivo.
         if(assetStatusByCode.get().getName().equals("Assigned") ||
             assetStatusByCode.get().getName().equals("Dismissed"))
-            return new Result.AssetBodyDTOResult(StatusForControllerOperations.BAD_REQUEST, null);
+            return new Result.AssetDtoResult(AssetOperations.STATUS_ERROR, null);
 
         Asset updatedAssetStatus = assetByCode.get();
         updatedAssetStatus.setAssetStatusType(assetStatusByCode.get());
@@ -265,7 +267,7 @@ public class AssetService
 
         AssetResponseDto response = getAssetResponseDto(assetByCode.get());
 
-        return new Result.AssetBodyDTOResult(StatusForControllerOperations.OK, response);
+        return new Result.AssetDtoResult(AssetOperations.OK, response);
     }
 
     // Ottiene tutti i movimenti (con cache)
@@ -319,6 +321,7 @@ public class AssetService
         assetSummaryDTO.setSerialNumber(movement.getAsset().getSerialNumber());
         assetSummaryDTO.setRam(movement.getAsset().getRam());
         assetSummaryDTO.setHardDisk(movement.getAsset().getHardDisk());
+        assetSummaryDTO.setCode(movement.getAsset().getCode());
         dto.setAsset(assetSummaryDTO);
 
         UserSummaryDto userSummaryDTO = new UserSummaryDto();
@@ -333,32 +336,32 @@ public class AssetService
 
     // Assegna/Restituisce/Dismette un asset (reset cache)
     @CacheEvict(value = "movements", allEntries = true)
-    public Result.MovementBodyDTOResult assignReturnedDismissAsset(String assetCode, MovementRequestBodyDto movementDTO)
+    public Result.MovementDtoResult assignReturnedDismissAsset(String assetCode, MovementRequestBodyDto movementDTO)
     {
         // Validazione base
         if (!(assetRepository.existsByCode(assetCode)) ||
                 !(movementDTO.getMovementType().equals("Returned") ||
                         movementDTO.getMovementType().equals("Assigned") ||
                         movementDTO.getMovementType().equals("Dismissed")))
-            return new Result.MovementBodyDTOResult(StatusForControllerOperations.BAD_REQUEST, null);
+            return new Result.MovementDtoResult(StatusForControllerOperations.BAD_REQUEST, null);
 
         // Validazione ricevuta - Per il momento così perchè null
         /*if (movementDTO.getReceiptBase64() == null || movementDTO.getReceiptBase64().isBlank())
-            return new Result.MovementBodyDTOResult(StatusForControllerOperations.BAD_REQUEST, null);*/
+            return new Result.MovementDtoResult(StatusForControllerOperations.BAD_REQUEST, null);*/
 
         Optional<Asset> assetOpt = assetRepository.findByCode(assetCode);
         if (assetOpt.isEmpty())
-            return new Result.MovementBodyDTOResult(StatusForControllerOperations.NOT_FOUND, null);
+            return new Result.MovementDtoResult(StatusForControllerOperations.NOT_FOUND, null);
 
         // Controllo temporaneo. Da modificare perchè statico ?
         if(!(assetOpt.get().getAssetStatusType().getName().equals("Available") ||
                 assetOpt.get().getAssetStatusType().getName().equals("Assigned") ||
                 assetOpt.get().getAssetStatusType().getName().equals("Dismissed")))
-            return new Result.MovementBodyDTOResult(StatusForControllerOperations.BAD_REQUEST, null);
+            return new Result.MovementDtoResult(StatusForControllerOperations.BAD_REQUEST, null);
 
         Optional<User> userOpt = userRepository.findById(movementDTO.getUser());
         if (userOpt.isEmpty())
-            return new Result.MovementBodyDTOResult(StatusForControllerOperations.NOT_FOUND, null);
+            return new Result.MovementDtoResult(StatusForControllerOperations.NOT_FOUND, null);
 
         Optional<Movement> lastMovement = movementRepository.findFirstByAssetCodeOrderByDateDesc(assetCode);
 
@@ -367,35 +370,35 @@ public class AssetService
         {
             if (lastMovement.isPresent() &&
                     lastMovement.get().getMovementType().equals("Assigned"))
-                return new Result.MovementBodyDTOResult(StatusForControllerOperations.BAD_REQUEST, null);
+                return new Result.MovementDtoResult(StatusForControllerOperations.BAD_REQUEST, null);
 
             if (lastMovement.isPresent() &&
                     lastMovement.get().getMovementType().equals("Dismissed"))
-                return new Result.MovementBodyDTOResult(StatusForControllerOperations.BAD_REQUEST, null);
+                return new Result.MovementDtoResult(StatusForControllerOperations.BAD_REQUEST, null);
         }
 
         if (movementDTO.getMovementType().equals("Returned"))
         {
             if (lastMovement.isEmpty())
-                return new Result.MovementBodyDTOResult(StatusForControllerOperations.BAD_REQUEST, null);
+                return new Result.MovementDtoResult(StatusForControllerOperations.BAD_REQUEST, null);
 
             if (lastMovement.get().getMovementType().equals("Dismissed"))
-                return new Result.MovementBodyDTOResult(StatusForControllerOperations.BAD_REQUEST, null);
+                return new Result.MovementDtoResult(StatusForControllerOperations.BAD_REQUEST, null);
 
             if (lastMovement.get().getMovementType().equals("Returned"))
-                return new Result.MovementBodyDTOResult(StatusForControllerOperations.BAD_REQUEST, null);
+                return new Result.MovementDtoResult(StatusForControllerOperations.BAD_REQUEST, null);
 
             if(!Objects.equals(lastMovement.get().getUsers().getId(), movementDTO.getUser()) && lastMovement.get().getMovementType().equals("Assigned"))
-                return new Result.MovementBodyDTOResult(StatusForControllerOperations.BAD_REQUEST, null);
+                return new Result.MovementDtoResult(StatusForControllerOperations.BAD_REQUEST, null);
         }
 
         if (movementDTO.getMovementType().equals("Dismissed") && lastMovement.isPresent())
         {
             if (lastMovement.get().getMovementType().equals("Dismissed"))
-                return new Result.MovementBodyDTOResult(StatusForControllerOperations.BAD_REQUEST, null);
+                return new Result.MovementDtoResult(StatusForControllerOperations.BAD_REQUEST, null);
 
             if (lastMovement.get().getMovementType().equals("Assigned"))
-                return new Result.MovementBodyDTOResult(StatusForControllerOperations.BAD_REQUEST, null);
+                return new Result.MovementDtoResult(StatusForControllerOperations.BAD_REQUEST, null);
         }
 
         // Costruzione nome file: {assetCode}_{surname}_{movementType}_{rowCount}.pdf
@@ -408,7 +411,7 @@ public class AssetService
         // Salvataggio file
         String savedFileName = saveReceiptFile(movementDTO.getReceiptBase64(), fileName);
         if (savedFileName == null)
-            return new Result.MovementBodyDTOResult(StatusForControllerOperations.BAD_REQUEST, null);*/
+            return new Result.MovementDtoResult(StatusForControllerOperations.BAD_REQUEST, null);*/
 
         // Creazione e salvataggio movimento
         Movement addedMovement = new Movement();
@@ -433,7 +436,7 @@ public class AssetService
         movementRepository.save(addedMovement);
         assetRepository.save(updatedAssetStatus);
 
-        return new Result.MovementBodyDTOResult(StatusForControllerOperations.OK,
+        return new Result.MovementDtoResult(StatusForControllerOperations.OK,
                 new MovementResponseBodyDto(assetCode, movementDTO.getUser(),
                         movementDTO.getMovementType(), movementDTO.getNote()));
     }

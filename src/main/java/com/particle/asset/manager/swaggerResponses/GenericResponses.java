@@ -2,7 +2,7 @@ package com.particle.asset.manager.swaggerResponses;
 
 import com.particle.asset.manager.models.Error;
 
-public class SwaggerResponses
+public class GenericResponses
 {
     // ↓ Utilizzati per mostrare gli errori JSON
     public static final Error BAD_REQUEST = new Error("400", "Not Valid Input");

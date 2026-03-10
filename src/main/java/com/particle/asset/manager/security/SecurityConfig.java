@@ -1,12 +1,11 @@
 package com.particle.asset.manager.security;
 
-import com.particle.asset.manager.swaggerResponses.SwaggerResponses;
+import com.particle.asset.manager.swaggerResponses.GenericResponses;
 import com.particle.asset.manager.services.CustomUserDetailsService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -76,12 +75,12 @@ public class SecurityConfig
                         .authenticationEntryPoint(((request, response, authException) -> {
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                             response.setContentType("application/json");
-                            response.getWriter().write(SwaggerResponses.UNAUTHORIZED_ACCESS_EXAMPLE);
+                            response.getWriter().write(GenericResponses.UNAUTHORIZED_ACCESS_EXAMPLE);
                         }))
                         .accessDeniedHandler(((request, response, accessDeniedException) -> {
                             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                             response.setContentType("application/json");
-                            response.getWriter().write(SwaggerResponses.FORBIDDEN_ACCESS_EXAMPLE);
+                            response.getWriter().write(GenericResponses.FORBIDDEN_ACCESS_EXAMPLE);
                         })))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()));

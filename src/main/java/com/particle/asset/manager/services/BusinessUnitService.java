@@ -2,6 +2,7 @@ package com.particle.asset.manager.services;
 
 import com.particle.asset.manager.DTO.BusinessUnitRequestDto;
 import com.particle.asset.manager.DTO.BusinessUnitStatusResponseDto;
+import com.particle.asset.manager.enums.BusinessUnitOperations;
 import com.particle.asset.manager.enums.StatusForControllerOperations;
 import com.particle.asset.manager.models.BusinessUnit;
 import com.particle.asset.manager.repositories.BusinessUnitRepository;
@@ -85,18 +86,18 @@ public class BusinessUnitService
     //               completamente svuotata (clear). Alla prossima chiamata GET,
     //               i dati verranno caricati direttamente dal database.
     @CacheEvict(value = "businessUnits", allEntries = true)
-    public BusinessUnitRequestDto createBusinessUnit(
+    public Result.BusinessUnitRequestDtoPutResult createBusinessUnit(
             BusinessUnitRequestDto businessUnitDTO)
     {
         if(businessUnitDTO == null || businessUnitDTO.getName() == null ||
                 businessUnitDTO.getName().trim().isEmpty())
-            return null;
+            return new Result.BusinessUnitRequestDtoPutResult(BusinessUnitOperations.BAD_REQUEST, null);
 
         // Normalizzazione del nome (se necessario)
         businessUnitDTO.setName(normalizeName(businessUnitDTO.getName()));
 
         if(repository.existsByName(businessUnitDTO.getName()))
-            return null;
+            return new Result.BusinessUnitRequestDtoPutResult(BusinessUnitOperations.ALREADY_EXSISTS, null);
 
         BusinessUnit businessUnit = new BusinessUnit();
         businessUnit.setName(businessUnitDTO.getName());
@@ -107,7 +108,7 @@ public class BusinessUnitService
 
         repository.save(businessUnit);
 
-        return businessUnitDTO;
+        return new Result.BusinessUnitRequestDtoPutResult(BusinessUnitOperations.OK, businessUnitDTO);
     }
 
     private String normalizeName(String name)
@@ -135,7 +136,7 @@ public class BusinessUnitService
                                                                          BusinessUnitRequestDto businessUnitDTO)
     {
         if(businessUnitDTO == null || businessUnitDTO.getName() == null)
-            return new Result.BusinessUnitRequestDtoPutResult(StatusForControllerOperations.BAD_REQUEST, null);
+            return new Result.BusinessUnitRequestDtoPutResult(BusinessUnitOperations.BAD_REQUEST, null);
 
         /*if(repository.existsByName(businessUnitDTO.getName()))
             return new Result.BusinessUnitRequestDtoPutResult(StatusForControllerOperations.BAD_REQUEST, null);*/
@@ -143,7 +144,7 @@ public class BusinessUnitService
         Optional<BusinessUnit> businessUnitById = repository.findByCode(code);
 
         if(businessUnitById.isEmpty())
-            return new Result.BusinessUnitRequestDtoPutResult(StatusForControllerOperations.NOT_FOUND, null);
+            return new Result.BusinessUnitRequestDtoPutResult(BusinessUnitOperations.NOT_FOUND, null);
 
         BusinessUnit updatedBusinessUnit = businessUnitById.get();
 
@@ -152,13 +153,13 @@ public class BusinessUnitService
 
         if(!(updatedBusinessUnit.getName().equals(businessUnitDTO.getName())) &&
                 repository.existsByName(businessUnitDTO.getName()))
-            return new Result.BusinessUnitRequestDtoPutResult(StatusForControllerOperations.BAD_REQUEST, null);
+            return new Result.BusinessUnitRequestDtoPutResult(BusinessUnitOperations.ALREADY_EXSISTS, null);
 
         updatedBusinessUnit.setName(businessUnitDTO.getName());
         updatedBusinessUnit.setUpdateDate(LocalDateTime.now());
         repository.save(updatedBusinessUnit);
 
-        return new Result.BusinessUnitRequestDtoPutResult(StatusForControllerOperations.OK, businessUnitDTO);
+        return new Result.BusinessUnitRequestDtoPutResult(BusinessUnitOperations.OK, businessUnitDTO);
     }
 
 

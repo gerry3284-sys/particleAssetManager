@@ -2,6 +2,7 @@ package com.particle.asset.manager.services;
 
 import com.particle.asset.manager.DTO.AssetStatusTypeRequestDto;
 import com.particle.asset.manager.DTO.AssetStatusTypeStatusResponseDto;
+import com.particle.asset.manager.enums.AssetStatusTypeOperations;
 import com.particle.asset.manager.enums.StatusForControllerOperations;
 import com.particle.asset.manager.models.AssetStatusType;
 import com.particle.asset.manager.repositories.AssetStatusTypeRepository;
@@ -85,17 +86,19 @@ public class AssetStatusTypeService
     //               completamente svuotata (clear). Alla prossima chiamata GET,
     //               i dati verrano caricati direttamente dal database.
     @CacheEvict(value = "assetStatusTypes", allEntries = true)
-    public AssetStatusTypeRequestDto createAssetStatusType(AssetStatusTypeRequestDto assetStatusTypeDTO)
+    public Result.AssetStatusTypeRequestDtoPutResult createAssetStatusType(AssetStatusTypeRequestDto assetStatusTypeDTO)
     {
         if(assetStatusTypeDTO == null || assetStatusTypeDTO.getName() == null ||
                 assetStatusTypeDTO.getName().trim().isEmpty())
-            return null;
+            return new Result.AssetStatusTypeRequestDtoPutResult
+                    (AssetStatusTypeOperations.BAD_REQUEST, null);
 
         // Normalizzazione del nome (se necessario)
         assetStatusTypeDTO.setName(normalizeName(assetStatusTypeDTO.getName()));
 
         if(repository.existsByName(assetStatusTypeDTO.getName()))
-            return null;
+            return new Result.AssetStatusTypeRequestDtoPutResult
+                    (AssetStatusTypeOperations.ALREADY_EXISTS, null);
 
         AssetStatusType assetStatusType = new AssetStatusType();
         assetStatusType.setName(assetStatusTypeDTO.getName());
@@ -106,7 +109,7 @@ public class AssetStatusTypeService
 
         repository.save(assetStatusType);
 
-        return assetStatusTypeDTO;
+        return new Result.AssetStatusTypeRequestDtoPutResult(AssetStatusTypeOperations.OK, assetStatusTypeDTO);
     }
 
     private String normalizeName(String name)
@@ -133,7 +136,7 @@ public class AssetStatusTypeService
     public Result.AssetStatusTypeRequestDtoPutResult updateAssetStatusType(String code, AssetStatusTypeRequestDto assetStatusTypeDTO)
     {
         if(assetStatusTypeDTO == null || assetStatusTypeDTO.getName() == null)
-            return new Result.AssetStatusTypeRequestDtoPutResult(StatusForControllerOperations.BAD_REQUEST, null);
+            return new Result.AssetStatusTypeRequestDtoPutResult(AssetStatusTypeOperations.BAD_REQUEST, null);
 
         /*if(repository.existsByName(assetStatusTypeDTO.getName()))
             return new Result.BusinessUnitRequestDtoPutResult(StatusForControllerOperations.BAD_REQUEST, null);*/
@@ -141,7 +144,7 @@ public class AssetStatusTypeService
         Optional<AssetStatusType> assetStatusTypeById = repository.findByCode(code);
 
         if(assetStatusTypeById.isEmpty())
-            return new Result.AssetStatusTypeRequestDtoPutResult(StatusForControllerOperations.NOT_FOUND, null);
+            return new Result.AssetStatusTypeRequestDtoPutResult(AssetStatusTypeOperations.NOT_FOUND, null);
 
         AssetStatusType updatedAssetStatusType = assetStatusTypeById.get();
 
@@ -150,13 +153,13 @@ public class AssetStatusTypeService
 
         if(!(updatedAssetStatusType.getName().equals(assetStatusTypeDTO.getName())) &&
                 repository.existsByName(assetStatusTypeDTO.getName()))
-            return new Result.AssetStatusTypeRequestDtoPutResult(StatusForControllerOperations.BAD_REQUEST, null);
+            return new Result.AssetStatusTypeRequestDtoPutResult(AssetStatusTypeOperations.ALREADY_EXISTS, null);
 
         updatedAssetStatusType.setName(assetStatusTypeDTO.getName());
         updatedAssetStatusType.setUpdateDate(LocalDateTime.now());
         repository.save(updatedAssetStatusType);
 
-        return new Result.AssetStatusTypeRequestDtoPutResult(StatusForControllerOperations.OK, assetStatusTypeDTO);
+        return new Result.AssetStatusTypeRequestDtoPutResult(AssetStatusTypeOperations.OK, assetStatusTypeDTO);
     }
 
     // Attiva o Disattiva un AssetStatusType (reset cache)

@@ -2,6 +2,7 @@ package com.particle.asset.manager.services;
 
 import com.particle.asset.manager.DTO.AssetTypeRequestDto;
 import com.particle.asset.manager.DTO.AssetTypeStatusResponseDto;
+import com.particle.asset.manager.enums.AssetTypeOperations;
 import com.particle.asset.manager.enums.StatusForControllerOperations;
 import com.particle.asset.manager.models.AssetType;
 import com.particle.asset.manager.repositories.AssetTypeRepository;
@@ -81,17 +82,17 @@ public class AssetTypeService
     //               completamente svuotata (clear). Alla prossima chiamata GET,
     //               i dati verrano caricati direttamente dal database.
     @CacheEvict(value = "assetTypes", allEntries = true)
-    public AssetTypeRequestDto createType(AssetTypeRequestDto assetTypeDTO)
+    public Result.AssetTypeDTOPutResult createType(AssetTypeRequestDto assetTypeDTO)
     {
         if(assetTypeDTO == null || assetTypeDTO.getName() == null ||
                 assetTypeDTO.getName().trim().isEmpty())
-            return null;
+            return new Result.AssetTypeDTOPutResult(AssetTypeOperations.BAD_REQUEST, null);
 
         // Normalizzazione del nome (se necessario)
         assetTypeDTO.setName(normalizeName(assetTypeDTO.getName()));
 
         if(repository.existsByName(assetTypeDTO.getName()))
-            return null;
+            return new Result.AssetTypeDTOPutResult(AssetTypeOperations.ALREADY_EXISTS, null);;
 
         AssetType assetType = new AssetType();
         assetType.setName(assetTypeDTO.getName());
@@ -104,7 +105,7 @@ public class AssetTypeService
         assetType.setHardDisk(assetTypeDTO.isHardDisk());
 
         repository.save(assetType);
-        return assetTypeDTO;
+        return new Result.AssetTypeDTOPutResult(AssetTypeOperations.OK, assetTypeDTO);
     }
 
     private String normalizeName(String name)
@@ -132,12 +133,12 @@ public class AssetTypeService
                                                          AssetTypeRequestDto assetTypeDTO)
     {
         if(assetTypeDTO == null || assetTypeDTO.getName() == null)
-            return new Result.AssetTypeDTOPutResult(StatusForControllerOperations.BAD_REQUEST, null);
+            return new Result.AssetTypeDTOPutResult(AssetTypeOperations.BAD_REQUEST, null);
 
         Optional<AssetType> typeByCode = repository.findByCode(code);
 
         if(typeByCode.isEmpty())
-            return new Result.AssetTypeDTOPutResult(StatusForControllerOperations.NOT_FOUND, null);
+            return new Result.AssetTypeDTOPutResult(AssetTypeOperations.NOT_FOUND, null);
         AssetType updatedAssetType = typeByCode.get();
 
         // Normalizzazione del nome (se necessario)
@@ -148,7 +149,7 @@ public class AssetTypeService
 
         if(!(updatedAssetType.getName().equals(assetTypeDTO.getName())) &&
                 repository.existsByName(assetTypeDTO.getName()))
-            return new Result.AssetTypeDTOPutResult(StatusForControllerOperations.BAD_REQUEST, null);
+            return new Result.AssetTypeDTOPutResult(AssetTypeOperations.BAD_REQUEST, null);
 
         updatedAssetType.setName(assetTypeDTO.getName());
         updatedAssetType.setRam(assetTypeDTO.isRam());
@@ -156,7 +157,7 @@ public class AssetTypeService
         updatedAssetType.setUpdateDate(LocalDateTime.now());
         repository.save(updatedAssetType);
 
-        return new Result.AssetTypeDTOPutResult(StatusForControllerOperations.OK, assetTypeDTO);
+        return new Result.AssetTypeDTOPutResult(AssetTypeOperations.OK, assetTypeDTO);
     }
 
 

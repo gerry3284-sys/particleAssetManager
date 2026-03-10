@@ -62,6 +62,9 @@ public class UserService
         assetSummaryDTO.setBrand(movement.getAsset().getBrand());
         assetSummaryDTO.setModel(movement.getAsset().getModel());
         assetSummaryDTO.setSerialNumber(movement.getAsset().getSerialNumber());
+        assetSummaryDTO.setCode(movement.getAsset().getCode());
+        assetSummaryDTO.setRam(movement.getAsset().getRam());
+        assetSummaryDTO.setHardDisk(movement.getAsset().getHardDisk());
         dto.setAsset(assetSummaryDTO);
 
         UserSummaryDto userSummaryDTO = new UserSummaryDto();
