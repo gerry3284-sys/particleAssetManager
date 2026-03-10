@@ -335,7 +335,7 @@ public class AssetService
     }
 
     // Assegna/Restituisce/Dismette un asset (reset cache)
-    @CacheEvict(value = "movements", allEntries = true)
+    @CacheEvict(value = {"movements", "assets"}, allEntries = true)
     public Result.MovementDtoResult assignReturnedDismissAsset(String assetCode, MovementRequestBodyDto movementDTO)
     {
         // Validazione base
