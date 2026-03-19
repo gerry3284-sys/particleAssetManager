@@ -23,12 +23,8 @@ public class AssetManagerApplication
 	// TODO: Implementare la creazione del token attraverso l'Office 365 (token SDK) - TBA
 	// TODO: Cancellare la creazione del token attraverso il database - TBA
 	// TODO: Modificare da "boolean" a "Boolean" (per avere "NULL") ?
-	// TODO: Modificare la Response dell'attivazione/disattivazione dell'AssetType aggiungendo RAM e Hard Disk ? {OK}
 	// TODO: Mettere un Code anche per Movement ?
 	// TODO: Creare un "Operations" in "enums" anche per "User" ?
-	// TODO: Una BU può essere disattivata solo nel caso non sia collegata a nessun Asset. {OK}
-	// TODO: Togliere la disattivazione dello stato degli Asset (non possono essere più disattivati). {OK}
-	// TODO: Inserire i messaggi errore d'esempio su Swagger per le modifiche di BusinessUnit. {OK}
 
 	public static void main(String[] args) {
 		SpringApplication.run(AssetManagerApplication.class, args);

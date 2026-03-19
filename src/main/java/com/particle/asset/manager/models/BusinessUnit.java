@@ -1,6 +1,7 @@
 package com.particle.asset.manager.models;
 
 //import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -41,6 +42,7 @@ public class BusinessUnit
     /*@OneToMany(mappedBy = "businessUnit", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<User> user = new ArrayList<>();*/
 
+    @JsonIgnore
     @OneToMany(mappedBy = "businessUnit", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Asset> asset = new ArrayList<>();
 
