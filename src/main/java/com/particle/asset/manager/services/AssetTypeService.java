@@ -3,7 +3,6 @@ package com.particle.asset.manager.services;
 import com.particle.asset.manager.DTO.AssetTypeRequestDto;
 import com.particle.asset.manager.DTO.AssetTypeStatusResponseDto;
 import com.particle.asset.manager.enums.AssetTypeOperations;
-import com.particle.asset.manager.enums.StatusForControllerOperations;
 import com.particle.asset.manager.models.AssetType;
 import com.particle.asset.manager.repositories.AssetTypeRepository;
 import com.particle.asset.manager.results.Result;
@@ -149,7 +148,7 @@ public class AssetTypeService
 
         if(!(updatedAssetType.getName().equals(assetTypeDTO.getName())) &&
                 repository.existsByName(assetTypeDTO.getName()))
-            return new Result.AssetTypeDTOPutResult(AssetTypeOperations.BAD_REQUEST, null);
+            return new Result.AssetTypeDTOPutResult(AssetTypeOperations.ALREADY_EXISTS, null);
 
         updatedAssetType.setName(assetTypeDTO.getName());
         updatedAssetType.setRam(assetTypeDTO.isRam());
@@ -176,6 +175,8 @@ public class AssetTypeService
         activatedDeactivatedAssetType.setUpdateDate(LocalDateTime.now());
         repository.save(activatedDeactivatedAssetType);
 
-        return new AssetTypeStatusResponseDto(activatedDeactivatedAssetType.getName(), activatedDeactivatedAssetType.isActive());
+        return new AssetTypeStatusResponseDto
+                (activatedDeactivatedAssetType.getName(), activatedDeactivatedAssetType.isRam(),
+                        activatedDeactivatedAssetType.isHardDisk(), activatedDeactivatedAssetType.isActive());
     }
 }

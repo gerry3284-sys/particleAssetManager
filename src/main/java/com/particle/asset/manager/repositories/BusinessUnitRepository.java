@@ -17,4 +17,6 @@ public interface BusinessUnitRepository extends JpaRepository<BusinessUnit, Long
     BusinessUnit findTopByOrderByIdDesc();
 
     Optional<BusinessUnit> findByCode(String code);
+
+    boolean existsByCodeAndAssetIsNotEmpty(String code);
 }

@@ -151,7 +151,7 @@ public class AssetStatusTypeController
         };
     }
 
-    @PutMapping("/activateDeactivate/{code}")
+    /*@PutMapping("/activateDeactivate/{code}")
     @Operation(summary = "Activate or Deactivate a specific AssetStatusType through its ID")
     @ApiResponses({
             @ApiResponse(responseCode = "200",
@@ -179,5 +179,5 @@ public class AssetStatusTypeController
 
         return activatedDeactivatedAssetStatusType != null ? ResponseEntity.ok(activatedDeactivatedAssetStatusType)
                 : ResponseEntity.status(404).body(GenericResponses.NOT_FOUND);
-    }
+    }*/
 }

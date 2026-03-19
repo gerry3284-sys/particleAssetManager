@@ -2,12 +2,14 @@ package com.particle.asset.manager.controllers;
 
 import com.particle.asset.manager.DTO.*;
 import com.particle.asset.manager.enums.AssetOperations;
+import com.particle.asset.manager.enums.MovementOperations;
 import com.particle.asset.manager.models.Asset;
 import com.particle.asset.manager.models.Error;
 import com.particle.asset.manager.results.Result;
 import com.particle.asset.manager.services.AssetService;
 import com.particle.asset.manager.swaggerResponses.AssetResponses;
 import com.particle.asset.manager.swaggerResponses.GenericResponses;
+import com.particle.asset.manager.swaggerResponses.MovementResponses;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -15,7 +17,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpHeaders;
@@ -214,6 +215,10 @@ public class AssetController
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
                             examples = @ExampleObject(value = GenericResponses.NOT_FOUND_EXAMPLE))),
+            @ApiResponse(responseCode = "423", description = "Table State is Blocked",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Error.class),
+                            examples = @ExampleObject(value = GenericResponses.TABLE_STATE_BLOCKS_OPERATION_EXAMPLE))),
             @ApiResponse(responseCode = "500", description = "Internal Server Error",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
@@ -223,7 +228,7 @@ public class AssetController
         List<MovementSummaryResponseDto> movements = service.getAssetMovementDTO(code);
 
         return movements != null ?ResponseEntity.ok(movements)
-                :ResponseEntity.status(404).body(AssetResponses.NOT_FOUND);
+                :ResponseEntity.status(404).body(MovementResponses.ASSET_MOVEMENT_NOT_FOUND);
     }
 
     @GetMapping("/list")
@@ -277,12 +282,18 @@ public class AssetController
     {
         Result.MovementDtoResult movementOperation = service.assignReturnedDismissAsset(code, movementDTO);
 
-        return switch(movementOperation.getStatus())
-        {
-            case OK -> ResponseEntity.ok(movementOperation.getPutResponse());
-            case NOT_FOUND -> ResponseEntity.status(404).body(GenericResponses.NOT_FOUND);
-            case BAD_REQUEST -> ResponseEntity.status(400).body(GenericResponses.BAD_REQUEST);
-        };
+        if(movementOperation.getStatus() == MovementOperations.OK)
+            return ResponseEntity.ok(movementOperation.getPutResponse());
+        else if(movementOperation.getStatus() == MovementOperations.BAD_REQUEST)
+            return ResponseEntity.status(400).body(MovementResponses.BAD_REQUEST);
+        else if(movementOperation.getStatus() == MovementOperations.INVALID_MOVEMENT_TYPE)
+            return ResponseEntity.status(400).body(MovementResponses.INVALID_MOVEMENT_TYPE);
+        else if(movementOperation.getStatus() == MovementOperations.ASSET_NOT_FOUND)
+            return ResponseEntity.status(404).body(MovementResponses.ASSET_NOT_FOUND);
+        else if(movementOperation.getStatus() == MovementOperations.USER_NOT_FOUND)
+            return ResponseEntity.status(404).body(MovementResponses.USER_NOT_FOUND);
+        else // ASSET_STATE_BLOCKS_OPERATION
+            return ResponseEntity.status(423).body(MovementResponses.ASSET_STATE_BLOCKS_OPERATION);
     }
 
     @GetMapping("/{code}/movement/{movementId}/receipt")

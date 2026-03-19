@@ -2,8 +2,8 @@ package com.particle.asset.manager.services;
 
 import com.particle.asset.manager.DTO.*;
 import com.particle.asset.manager.enums.AssetOperations;
-import com.particle.asset.manager.enums.BusinessUnitOperations;
-import com.particle.asset.manager.enums.StatusForControllerOperations;
+import com.particle.asset.manager.enums.MovementOperations;
+import com.particle.asset.manager.enums.GenericOperations;
 import com.particle.asset.manager.models.*;
 import com.particle.asset.manager.repositories.*;
 import com.particle.asset.manager.results.Result;
@@ -297,8 +297,12 @@ public class AssetService
     {
         System.out.println(">>> Fetching Movements for Asset " + assetCode + " from database...");
 
-        if(!(assetRepository.existsByCode(assetCode) && movementRepository.existsByAssetCode(assetCode)))
+        if(!(assetRepository.existsByCode(assetCode)))
             return null;
+
+        // ↓ Non necessario. In caso, si restituisce una lista vuota
+       /* if(!(movementRepository.existsByAssetCode(assetCode)))
+            return null;*/
 
         List<Movement> movements = movementRepository.findByAssetCode(assetCode);
 
@@ -339,29 +343,36 @@ public class AssetService
     public Result.MovementDtoResult assignReturnedDismissAsset(String assetCode, MovementRequestBodyDto movementDTO)
     {
         // Validazione base
+        if(movementDTO.getMovementType() == null || movementDTO.getUser() == null || assetCode == null
+            /*|| movementDTO.getReceiptBase64()*/)
+            return new Result.MovementDtoResult(MovementOperations.BAD_REQUEST, null);
+
+        // Controllo base per assetCode e corretto MovementType
         if (!(assetRepository.existsByCode(assetCode)) ||
                 !(movementDTO.getMovementType().equals("Returned") ||
                         movementDTO.getMovementType().equals("Assigned") ||
                         movementDTO.getMovementType().equals("Dismissed")))
-            return new Result.MovementDtoResult(StatusForControllerOperations.BAD_REQUEST, null);
+            return new Result.MovementDtoResult(MovementOperations.INVALID_MOVEMENT_TYPE, null);
 
         // Validazione ricevuta - Per il momento così perchè null
         /*if (movementDTO.getReceiptBase64() == null || movementDTO.getReceiptBase64().isBlank())
             return new Result.MovementDtoResult(StatusForControllerOperations.BAD_REQUEST, null);*/
 
+        // Ricerca Asset
         Optional<Asset> assetOpt = assetRepository.findByCode(assetCode);
         if (assetOpt.isEmpty())
-            return new Result.MovementDtoResult(StatusForControllerOperations.NOT_FOUND, null);
+            return new Result.MovementDtoResult(MovementOperations.ASSET_NOT_FOUND, null);
 
-        // Controllo temporaneo. Da modificare perchè statico ?
+        // Controllo temporaneo per lo status type corrente. Da modificare perchè statico ?
         if(!(assetOpt.get().getAssetStatusType().getName().equals("Available") ||
                 assetOpt.get().getAssetStatusType().getName().equals("Assigned") ||
                 assetOpt.get().getAssetStatusType().getName().equals("Dismissed")))
-            return new Result.MovementDtoResult(StatusForControllerOperations.BAD_REQUEST, null);
+            return new Result.MovementDtoResult(MovementOperations.ASSET_STATE_BLOCKS_OPERATION, null);
 
+        // Ricerca Utente
         Optional<User> userOpt = userRepository.findById(movementDTO.getUser());
         if (userOpt.isEmpty())
-            return new Result.MovementDtoResult(StatusForControllerOperations.NOT_FOUND, null);
+            return new Result.MovementDtoResult(MovementOperations.USER_NOT_FOUND, null);
 
         Optional<Movement> lastMovement = movementRepository.findFirstByAssetCodeOrderByDateDesc(assetCode);
 
@@ -370,35 +381,35 @@ public class AssetService
         {
             if (lastMovement.isPresent() &&
                     lastMovement.get().getMovementType().equals("Assigned"))
-                return new Result.MovementDtoResult(StatusForControllerOperations.BAD_REQUEST, null);
+                return new Result.MovementDtoResult(MovementOperations.INVALID_MOVEMENT_TYPE, null);
 
             if (lastMovement.isPresent() &&
                     lastMovement.get().getMovementType().equals("Dismissed"))
-                return new Result.MovementDtoResult(StatusForControllerOperations.BAD_REQUEST, null);
+                return new Result.MovementDtoResult(MovementOperations.INVALID_MOVEMENT_TYPE, null);
         }
 
         if (movementDTO.getMovementType().equals("Returned"))
         {
             if (lastMovement.isEmpty())
-                return new Result.MovementDtoResult(StatusForControllerOperations.BAD_REQUEST, null);
+                return new Result.MovementDtoResult(MovementOperations.INVALID_MOVEMENT_TYPE, null);
 
             if (lastMovement.get().getMovementType().equals("Dismissed"))
-                return new Result.MovementDtoResult(StatusForControllerOperations.BAD_REQUEST, null);
+                return new Result.MovementDtoResult(MovementOperations.INVALID_MOVEMENT_TYPE, null);
 
             if (lastMovement.get().getMovementType().equals("Returned"))
-                return new Result.MovementDtoResult(StatusForControllerOperations.BAD_REQUEST, null);
+                return new Result.MovementDtoResult(MovementOperations.INVALID_MOVEMENT_TYPE, null);
 
             if(!Objects.equals(lastMovement.get().getUsers().getId(), movementDTO.getUser()) && lastMovement.get().getMovementType().equals("Assigned"))
-                return new Result.MovementDtoResult(StatusForControllerOperations.BAD_REQUEST, null);
+                return new Result.MovementDtoResult(MovementOperations.INVALID_MOVEMENT_TYPE, null);
         }
 
         if (movementDTO.getMovementType().equals("Dismissed") && lastMovement.isPresent())
         {
             if (lastMovement.get().getMovementType().equals("Dismissed"))
-                return new Result.MovementDtoResult(StatusForControllerOperations.BAD_REQUEST, null);
+                return new Result.MovementDtoResult(MovementOperations.INVALID_MOVEMENT_TYPE, null);
 
             if (lastMovement.get().getMovementType().equals("Assigned"))
-                return new Result.MovementDtoResult(StatusForControllerOperations.BAD_REQUEST, null);
+                return new Result.MovementDtoResult(MovementOperations.INVALID_MOVEMENT_TYPE, null);
         }
 
         // Costruzione nome file: {assetCode}_{surname}_{movementType}_{rowCount}.pdf
@@ -436,7 +447,7 @@ public class AssetService
         movementRepository.save(addedMovement);
         assetRepository.save(updatedAssetStatus);
 
-        return new Result.MovementDtoResult(StatusForControllerOperations.OK,
+        return new Result.MovementDtoResult(MovementOperations.OK,
                 new MovementResponseBodyDto(assetCode, movementDTO.getUser(),
                         movementDTO.getMovementType(), movementDTO.getNote()));
     }
@@ -468,7 +479,7 @@ public class AssetService
         Optional<Movement> movementOpt = movementRepository.findById(movementId);
 
         if (movementOpt.isEmpty())
-            return new Result.ReceiptResult(StatusForControllerOperations.NOT_FOUND, null, null);
+            return new Result.ReceiptResult(GenericOperations.NOT_FOUND, null, null);
 
         try
         {
@@ -476,12 +487,12 @@ public class AssetService
             Path filePath = Paths.get(receiptsDir).resolve(fileName);
             byte[] pdfBytes = Files.readAllBytes(filePath);
 
-            return new Result.ReceiptResult(StatusForControllerOperations.OK, pdfBytes, fileName);
+            return new Result.ReceiptResult(GenericOperations.OK, pdfBytes, fileName);
         }
         catch (IOException e)
         {
             System.err.println("Errore nella lettura della ricevuta: " + e.getMessage());
-            return new Result.ReceiptResult(StatusForControllerOperations.BAD_REQUEST, null, null);
+            return new Result.ReceiptResult(GenericOperations.BAD_REQUEST, null, null);
         }
     }
 

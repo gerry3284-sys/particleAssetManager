@@ -52,4 +52,12 @@ public class GenericResponses
                 "errorDescription": "Internal Server Error"
             }
             """;
+
+    public static final String TABLE_STATE_BLOCKS_OPERATION_EXAMPLE =
+            """
+            {
+                "errorCode": "423",
+                "errorDescription": "Another Table Prevents This Operation"
+            }
+            """;
 }

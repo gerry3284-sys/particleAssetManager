@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 //import java.util.ArrayList;
 //import java.util.List;
@@ -39,8 +41,8 @@ public class BusinessUnit
     /*@OneToMany(mappedBy = "businessUnit", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<User> user = new ArrayList<>();*/
 
-//    @OneToMany(mappedBy = "businessUnit", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<Asset> asset = new ArrayList<>();
+    @OneToMany(mappedBy = "businessUnit", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Asset> asset = new ArrayList<>();
 
     /*@JsonIgnore
     public List<User> getUsers() {

@@ -144,13 +144,14 @@ public class BusinessUnitController
         Result.BusinessUnitRequestDtoPutResult updatedBusinessUnit =
                 service.updateBusinessUnitById(code, businessUnitDTO);
 
-        return switch(updatedBusinessUnit.getStatus())
-        {
-            case OK -> ResponseEntity.ok(updatedBusinessUnit.getPutResponse());
-            case NOT_FOUND -> ResponseEntity.status(404).body(BusinessUnitResponses.NOT_FOUND);
-            case BAD_REQUEST -> ResponseEntity.status(400).body(BusinessUnitResponses.BAD_REQUEST);
-            case ALREADY_EXSISTS -> ResponseEntity.status(400).body(BusinessUnitResponses.ALREADY_EXISTS);
-        };
+        if(updatedBusinessUnit.getStatus() == BusinessUnitOperations.OK)
+            return ResponseEntity.ok(updatedBusinessUnit.getPutResponse());
+        else if(updatedBusinessUnit.getStatus() == BusinessUnitOperations.NOT_FOUND)
+            return ResponseEntity.status(404).body(BusinessUnitResponses.NOT_FOUND);
+        else if(updatedBusinessUnit.getStatus() == BusinessUnitOperations.BAD_REQUEST)
+            return ResponseEntity.status(400).body(BusinessUnitResponses.BAD_REQUEST);
+        else // ALREADY_EXISTS
+            return ResponseEntity.status(400).body(BusinessUnitResponses.ALREADY_EXISTS);
     }
 
     @PutMapping("/activateDeactivate/{code}")
@@ -171,15 +172,23 @@ public class BusinessUnitController
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
                             examples = @ExampleObject(value = GenericResponses.NOT_FOUND_EXAMPLE))),
+            @ApiResponse(responseCode = "423", description = "Table State is Blocked",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Error.class),
+                            examples = @ExampleObject(value = GenericResponses.TABLE_STATE_BLOCKS_OPERATION_EXAMPLE))),
             @ApiResponse(responseCode = "500", description = "Internal Server Error",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
                             examples = @ExampleObject(value = GenericResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
     public ResponseEntity<?> activateDeactivateBusinessUnitById(@PathVariable String code)
     {
-        BusinessUnitStatusResponseDto activatedDeactivatedBusinessUnit = service.activateDeactivateBusinessUnitById(code);
+        Result.BusinessUnitActiveDtoPutResult activatedDeactivatedBusinessUnit = service.activateDeactivateBusinessUnitById(code);
 
-        return activatedDeactivatedBusinessUnit != null ?ResponseEntity.ok(activatedDeactivatedBusinessUnit)
-                :ResponseEntity.status(404).body(BusinessUnitResponses.NOT_FOUND);
+        if(activatedDeactivatedBusinessUnit.getStatus() == BusinessUnitOperations.OK)
+            return ResponseEntity.ok(activatedDeactivatedBusinessUnit.getPutResponse());
+        else if(activatedDeactivatedBusinessUnit.getStatus() == BusinessUnitOperations.NOT_FOUND)
+            return ResponseEntity.status(404).body(BusinessUnitResponses.NOT_FOUND);
+        else // CANNOT_DEACTIVATE
+            return ResponseEntity.status(423).body(BusinessUnitResponses.CANNOT_DEACTIVATE);
     }
 }

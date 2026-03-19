@@ -3,7 +3,6 @@ package com.particle.asset.manager.services;
 import com.particle.asset.manager.DTO.BusinessUnitRequestDto;
 import com.particle.asset.manager.DTO.BusinessUnitStatusResponseDto;
 import com.particle.asset.manager.enums.BusinessUnitOperations;
-import com.particle.asset.manager.enums.StatusForControllerOperations;
 import com.particle.asset.manager.models.BusinessUnit;
 import com.particle.asset.manager.repositories.BusinessUnitRepository;
 import com.particle.asset.manager.results.Result;
@@ -165,12 +164,16 @@ public class BusinessUnitService
 
     // Attiva o Disattiva un Type (reset Cache)
     @CacheEvict(value = "businessUnits", allEntries = true)
-    public BusinessUnitStatusResponseDto activateDeactivateBusinessUnitById(String code)
+    public Result.BusinessUnitActiveDtoPutResult activateDeactivateBusinessUnitById(String code)
     {
         Optional<BusinessUnit> businessUnitById = repository.findByCode(code);
 
         if(businessUnitById.isEmpty())
-            return null;
+            return new Result.BusinessUnitActiveDtoPutResult(BusinessUnitOperations.NOT_FOUND, null);
+
+        // Se la BU non compare in Asset, allora può essere disattivata/attivata
+        if(repository.existsByCodeAndAssetIsNotEmpty(code))
+            return new Result.BusinessUnitActiveDtoPutResult(BusinessUnitOperations.CANNOT_DEACTIVATE, null);;
 
         BusinessUnit activatedDeactivatedBusinessUnit = businessUnitById.get();
 
@@ -178,6 +181,8 @@ public class BusinessUnitService
         activatedDeactivatedBusinessUnit.setUpdateDate(LocalDateTime.now());
         repository.save(activatedDeactivatedBusinessUnit);
 
-        return new BusinessUnitStatusResponseDto(activatedDeactivatedBusinessUnit.getName(), activatedDeactivatedBusinessUnit.isActive());
+        // return new Result.BusinessUnitRequestDtoPutResult(activatedDeactivatedBusinessUnit.getName(),
+        // activatedDeactivatedBusinessUnit.isActive());
+        return new Result.BusinessUnitActiveDtoPutResult(BusinessUnitOperations.OK, new BusinessUnitStatusResponseDto(activatedDeactivatedBusinessUnit.getName(), activatedDeactivatedBusinessUnit.isActive()));
     }
 }

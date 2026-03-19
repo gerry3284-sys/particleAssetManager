@@ -5,6 +5,7 @@ import com.particle.asset.manager.models.Error;
 import com.particle.asset.manager.models.User;
 import com.particle.asset.manager.services.UserService;
 import com.particle.asset.manager.swaggerResponses.GenericResponses;
+import com.particle.asset.manager.swaggerResponses.MovementResponses;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -77,7 +78,7 @@ public class UserController
         User userById = service.getUserById(id);
 
         return userById != null ?ResponseEntity.ok(userById)
-                :ResponseEntity.status(HttpStatus.NOT_FOUND).body(GenericResponses.NOT_FOUND);
+                :ResponseEntity.status(404).body(GenericResponses.NOT_FOUND);
     }
 
     // Stampa tutti i movimenti dello user dato il suo id
@@ -108,6 +109,6 @@ public class UserController
         List<MovementSummaryResponseDto> movements = service.getUserMovements(id);
 
         return movements != null ?ResponseEntity.ok(movements)
-                :ResponseEntity.status(HttpStatus.NOT_FOUND).body(GenericResponses.NOT_FOUND);
+                :ResponseEntity.status(404).body(MovementResponses.USER_NOT_FOUND);
     }
 }

@@ -5,6 +5,8 @@ import com.particle.asset.manager.enums.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.util.List;
+
 public class Result
 {
     /*@AllArgsConstructor
@@ -57,6 +59,14 @@ public class Result
 
     @AllArgsConstructor
     @Getter
+    public static class BusinessUnitActiveDtoPutResult
+    {
+        private BusinessUnitOperations status;
+        private BusinessUnitStatusResponseDto putResponse;
+    }
+
+    @AllArgsConstructor
+    @Getter
     public static class AssetStatusTypeRequestDtoPutResult
     {
         private AssetStatusTypeOperations status;
@@ -75,15 +85,23 @@ public class Result
     @Getter
     public static class MovementDtoResult
     {
-        private StatusForControllerOperations status;
+        private MovementOperations status;
         private MovementResponseBodyDto putResponse;
+    }
+
+    @AllArgsConstructor
+    @Getter
+    public static class MovementAssetDtoResult
+    {
+        private MovementOperations status;
+        private List<MovementSummaryResponseDto> putResponse;
     }
 
     @AllArgsConstructor
     @Getter
     public static class ReceiptResult
     {
-        private StatusForControllerOperations status;
+        private GenericOperations status;
         private byte[] pdfBytes;
         private String fileName;
     }

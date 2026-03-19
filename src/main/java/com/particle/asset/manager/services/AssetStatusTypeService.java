@@ -3,7 +3,6 @@ package com.particle.asset.manager.services;
 import com.particle.asset.manager.DTO.AssetStatusTypeRequestDto;
 import com.particle.asset.manager.DTO.AssetStatusTypeStatusResponseDto;
 import com.particle.asset.manager.enums.AssetStatusTypeOperations;
-import com.particle.asset.manager.enums.StatusForControllerOperations;
 import com.particle.asset.manager.models.AssetStatusType;
 import com.particle.asset.manager.repositories.AssetStatusTypeRepository;
 import com.particle.asset.manager.results.Result;
@@ -163,7 +162,7 @@ public class AssetStatusTypeService
     }
 
     // Attiva o Disattiva un AssetStatusType (reset cache)
-    @CacheEvict(value = "assetStatusTypes", allEntries = true)
+    /*@CacheEvict(value = "assetStatusTypes", allEntries = true)
     public AssetStatusTypeStatusResponseDto activateDeactivateAssetStatusType(String code)
     {
         Optional<AssetStatusType> assetStatusTypeById = repository.findByCode(code);
@@ -178,5 +177,5 @@ public class AssetStatusTypeService
         repository.save(activatedDeactivatedAssetStatusType);
 
         return new AssetStatusTypeStatusResponseDto(activatedDeactivatedAssetStatusType.getName(), activatedDeactivatedAssetStatusType.isActive());
-    }
+    }*/
 }

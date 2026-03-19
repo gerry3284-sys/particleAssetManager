@@ -1,0 +1,9 @@
+package com.particle.asset.manager.enums;
+
+public enum MovementOperations
+{
+    OK, BAD_REQUEST,
+    INVALID_MOVEMENT_TYPE, ASSET_STATE_BLOCKS_OPERATION,
+    ASSET_NOT_FOUND, ASSET_MOVEMENT_NOT_FOUND,
+    USER_NOT_FOUND, USER_MOVEMENT_NOT_FOUND
+}
