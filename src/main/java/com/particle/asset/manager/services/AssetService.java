@@ -413,16 +413,21 @@ public class AssetService
         }
 
         // Costruzione nome file: {assetCode}_{surname}_{movementType}_{rowCount}.pdf
-        /*long rowCount = movementRepository.count()+1;
+        long rowCount = movementRepository.count()+1;
         String fileName = assetCode + "_"
                 + userOpt.get().getSurname() + "_"
                 + movementDTO.getMovementType() + "_"
                 + rowCount + ".pdf";
 
         // Salvataggio file
-        String savedFileName = saveReceiptFile(movementDTO.getReceiptBase64(), fileName);
-        if (savedFileName == null)
-            return new Result.MovementDtoResult(StatusForControllerOperations.BAD_REQUEST, null);*/
+        // TODO: Modificare dopo che il FE finisce
+        String savedFileName = null;
+        if(movementDTO.getReceiptBase64() != null  && !movementDTO.getReceiptBase64().isEmpty())
+        {
+            savedFileName = saveReceiptFile(movementDTO.getReceiptBase64(), fileName);
+            if (savedFileName == null)
+                return new Result.MovementDtoResult(MovementOperations.INVALID_FILE_NAME, null);
+        }
 
         // Creazione e salvataggio movimento
         Movement addedMovement = new Movement();
@@ -430,7 +435,7 @@ public class AssetService
         addedMovement.setAsset(assetOpt.get());
         addedMovement.setUsers(userOpt.get());
         addedMovement.setNote(movementDTO.getNote());
-        //addedMovement.setReceiptFileName(savedFileName)
+        addedMovement.setReceiptFileName(savedFileName);
 
         // Trovare un modo per inserire "isPresent()" ?
         Asset updatedAssetStatus = assetOpt.get();

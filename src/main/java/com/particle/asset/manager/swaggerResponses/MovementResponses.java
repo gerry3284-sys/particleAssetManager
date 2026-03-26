@@ -18,4 +18,6 @@ public class MovementResponses
             new Error("404", "No User Movement Record Was Found");
     public static final Error ASSET_STATE_BLOCKS_OPERATION =
             new Error("423", "Asset State Prevents This Operation");
+    public static final Error INVALID_FILE_NAME =
+            new Error("400", "File Name Is Invalid");
 }
