@@ -7,6 +7,7 @@ import com.particle.asset.manager.enums.GenericOperations;
 import com.particle.asset.manager.models.*;
 import com.particle.asset.manager.repositories.*;
 import com.particle.asset.manager.results.Result;
+import com.particle.asset.manager.swaggerResponses.MovementResponses;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
@@ -414,7 +415,7 @@ public class AssetService
 
         // Costruzione nome file: {assetCode}_{surname}_{movementType}_{rowCount}.pdf
         long rowCount = movementRepository.count()+1;
-        String fileName = assetCode + "_"
+        String fileName = assetCode.toUpperCase() + "_"
                 + userOpt.get().getSurname() + "_"
                 + movementDTO.getMovementType() + "_"
                 + rowCount + ".pdf";
@@ -479,12 +480,20 @@ public class AssetService
         }
     }
 
-    public Result.ReceiptResult getMovementReceipt(Long movementId)
+    public Result.ReceiptResult getMovementReceipt(String code, Long movementId)
     {
+
+        Optional<Asset> assetOtp = assetRepository.findByCode(code);
+        if(assetOtp.isEmpty())
+            return new Result.ReceiptResult(MovementOperations.ASSET_NOT_FOUND, null, null);
+
         Optional<Movement> movementOpt = movementRepository.findById(movementId);
 
         if (movementOpt.isEmpty())
-            return new Result.ReceiptResult(GenericOperations.NOT_FOUND, null, null);
+            return new Result.ReceiptResult(MovementOperations.MOVEMENT_NOT_FOUND, null, null);
+
+        if(!movementOpt.get().getAsset().getCode().equals(assetOtp.get().getCode()))
+            return new Result.ReceiptResult(MovementOperations.DIFFERENT_ASSET_CODE, null, null);
 
         try
         {
@@ -492,12 +501,12 @@ public class AssetService
             Path filePath = Paths.get(receiptsDir).resolve(fileName);
             byte[] pdfBytes = Files.readAllBytes(filePath);
 
-            return new Result.ReceiptResult(GenericOperations.OK, pdfBytes, fileName);
+            return new Result.ReceiptResult(MovementOperations.OK, pdfBytes, fileName);
         }
         catch (IOException e)
         {
             System.err.println("Errore nella lettura della ricevuta: " + e.getMessage());
-            return new Result.ReceiptResult(GenericOperations.BAD_REQUEST, null, null);
+            return new Result.ReceiptResult(MovementOperations.INVALID_FILE_NAME, null, null);
         }
     }
 

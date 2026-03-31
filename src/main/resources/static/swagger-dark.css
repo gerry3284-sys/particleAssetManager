@@ -1,0 +1,231 @@
+/* ========== BASE ========== */
+html, body {
+    background-color: #1a1a1a !important;
+}
+
+/* ========== CONTENITORI PRINCIPALI ========== */
+.swagger-ui,
+#swagger-ui,
+.swagger-ui .wrapper,
+.swagger-ui .information-container,
+.swagger-ui .scheme-container,
+.swagger-ui .opblock-tag-section,
+.swagger-ui .info,
+#swagger-ui section,
+#swagger-ui .swagger-container {
+    background-color: #1a1a1a !important;
+    background: #1a1a1a !important;
+}
+
+/* ========== BARRA SERVERS / AUTHORIZE ========== */
+.swagger-ui .scheme-container {
+    box-shadow: none !important;
+}
+
+/* ========== TOPBAR (barra nera in cima con logo) ========== */
+.swagger-ui .topbar {
+    background-color: #000 !important;
+}
+
+/* ========== SEZIONE MODELS (in fondo alla pagina) ========== */
+.swagger-ui section.models,
+.swagger-ui section.models .model-container {
+    background: #2a2a2a !important;
+}
+
+/* ========== TESTI PRINCIPALI ========== */
+.swagger-ui .info .title,
+.swagger-ui .opblock-tag,
+.swagger-ui .model-title,
+.swagger-ui .parameter__name {
+    color: #fff !important;
+}
+
+/* Descrizione endpoint nella riga chiusa, intestazioni tabella */
+.swagger-ui .opblock .opblock-summary-description,
+.swagger-ui table thead tr th {
+    color: #ccc !important;
+}
+
+/* Tipo parametro (string, integer, ecc.) */
+.swagger-ui .parameter__type {
+    color: #aaa !important;
+}
+
+/* Campi input e textarea */
+.swagger-ui textarea,
+.swagger-ui input {
+    background: #333 !important;
+    color: #fff !important;
+}
+
+/* Path dell'endpoint (es. /asset/{code}) */
+.swagger-ui .opblock .opblock-summary-path,
+.swagger-ui .opblock .opblock-summary-path a {
+    color: #fff !important;
+}
+
+/* ========== PANNELLO APERTO ========== */
+.swagger-ui .opblock-body,
+.swagger-ui .opblock-section-header,
+.swagger-ui .responses-wrapper,
+.swagger-ui .response-col_status,
+.swagger-ui .response-col_links {
+    background: #2a2a2a !important;
+}
+
+/* Titoli sezioni (Parameters, Request body, Responses) */
+.swagger-ui .opblock-section-header h4,
+.swagger-ui .opblock-section-header label {
+    color: #fff !important;
+}
+
+/* ========== DROPDOWN MEDIA TYPE ========== */
+.swagger-ui .content-type select,
+.swagger-ui select {
+    background: #333 !important;
+    color: #fff !important;
+    border-color: #555 !important;
+}
+
+/* ========== TABELLA RESPONSES ========== */
+.swagger-ui table.responses-table,
+.swagger-ui .response {
+    background: #2a2a2a !important;
+}
+
+.swagger-ui .responses-table .response-col_status,
+.swagger-ui .responses-table td,
+.swagger-ui .responses-table .response-col_description p,
+.swagger-ui .responses-table .response-col_description {
+    color: #ccc !important;
+}
+
+.swagger-ui .live-responses-table .response-col_description *,
+.swagger-ui table.responses-table tbody tr td {
+    color: #ccc !important;
+}
+
+/* Example Value / Schema tabs */
+.swagger-ui .tab li,
+.swagger-ui .tab li button {
+    color: #ccc !important;
+}
+
+/* "Controls Accept header" */
+.swagger-ui .response-control-media-type__accept-message {
+    color: #aaa !important;
+}
+
+/* ========== PULSANTE TRY IT OUT ========== */
+.swagger-ui .try-out__btn {
+    color: #fff !important;
+    border-color: #fff !important;
+}
+
+/* ========== PULSANTE CLEAR (gestito anche via JS) ========== */
+.swagger-ui .btn.clear {
+    color: #ff6b6b !important;
+    border-color: #ff6b6b !important;
+    background: transparent !important;
+    font-weight: bold !important;
+    opacity: 1 !important;
+}
+
+/* ========== RESPONSE BODY ========== */
+.swagger-ui .highlight-code,
+.swagger-ui .microlight {
+    background: #1e1e1e !important;
+}
+
+/* ========== TESTI LIVE RESPONSE ========== */
+.swagger-ui .live-responses-table .response-col_description,
+.swagger-ui .responses-inner h4,
+.swagger-ui .responses-inner h5,
+.swagger-ui .request-url,
+.swagger-ui .curl,
+.swagger-ui .response-body,
+.swagger-ui .response-col_status {
+    color: #ccc !important;
+}
+
+/* Labels generici (Code, Details, ecc.) */
+.swagger-ui .col_header {
+    color: #aaa !important;
+}
+
+/* ========== TESTI VARI PANNELLO ========== */
+.swagger-ui .opblock-body p,
+.swagger-ui .opblock-body h4,
+.swagger-ui .opblock-body h5,
+.swagger-ui .response-body h4,
+.swagger-ui .responses-inner h4,
+.swagger-ui .responses-inner h5 {
+    color: #ccc !important;
+}
+
+/* ========== PULSANTE CLEAR ========== */
+.swagger-ui .btn.btn-clear,
+.swagger-ui .btn.clear,
+.swagger-ui .opblock-control__btn.btn-clear {
+    color: #ff6b6b !important;
+    border-color: #ff6b6b !important;
+    background: transparent !important;
+    font-weight: bold !important;
+    opacity: 1 !important;
+}
+
+/* ========== SEZIONE SCHEMAS / MODELS ========== */
+
+/* Nomi proprietà (name, active, ecc.) */
+.swagger-ui .model table.model tbody tr.property-row td {
+    color: #9cdcfe !important;
+}
+
+/* Tipo proprietà (string, boolean, ecc.) */
+.swagger-ui .model table.model tbody tr.property-row td:last-child,
+.swagger-ui .model .prop-type {
+    color: #7ec699 !important;
+}
+
+/* Parentesi { } */
+.swagger-ui .model .brace-open,
+.swagger-ui .model .brace-close {
+    color: #ffffff !important;
+}
+
+/* Titolo del model (BusinessUnitResponseDto) */
+.swagger-ui .model-title,
+.swagger-ui .model-box .model-title {
+    color: #ffffff !important;
+}
+
+/* Inner object */
+.swagger-ui .model span.inner-object {
+    color: #ccc !important;
+}
+
+/* Freccia/toggle */
+.swagger-ui .model-toggle {
+    filter: invert(1) !important;
+}
+
+/* ========== SCHEMAS TITOLO E DESCRIZIONI ========== */
+
+/* Titolo "Schemas" */
+.swagger-ui .models-control span,
+.swagger-ui section.models h4 span {
+    color: #ffffff !important;
+}
+
+/* Descrizione gruppo endpoint (es. "Type of Asset Manager") */
+.swagger-ui .opblock-tag small,
+.swagger-ui .opblock-tag .renderedMarkdown p {
+    color: #aaa !important;
+}
+
+/* Nome schema nella lista chiusa (BusinessUnitRequestDto, ecc.) */
+.swagger-ui .model-container .model-title span,
+.swagger-ui section.models .model-container span {
+    color: #ffffff !important;
+}

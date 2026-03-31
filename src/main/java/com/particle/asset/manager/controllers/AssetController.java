@@ -299,7 +299,9 @@ public class AssetController
     @GetMapping("/{code}/movement/{movementId}/receipt")
     @Operation(summary = "Download the receipt PDF for a specific Movement")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "PDF Receipt"),
+            @ApiResponse(responseCode = "200", description = "PDF Receipt",
+                            content = @Content(mediaType = "application/pdf",
+                            schema = @Schema(type = "string", format = "binary"))),
             @ApiResponse(responseCode = "404", description = "Not Found",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
@@ -311,7 +313,7 @@ public class AssetController
     public ResponseEntity<?> getMovementReceipt(@PathVariable String code,
                                                 @PathVariable Long movementId)
     {
-        Result.ReceiptResult receipt = service.getMovementReceipt(movementId);
+        Result.ReceiptResult receipt = service.getMovementReceipt(code, movementId);
 
         return switch (receipt.getStatus())
         {
@@ -319,9 +321,13 @@ public class AssetController
                     .header(HttpHeaders.CONTENT_DISPOSITION,
                             "attachment; filename=\"" + receipt.getFileName() + "\"")
                     .contentType(MediaType.APPLICATION_PDF)
-                    .body(receipt.getPdfBytes());
-            case NOT_FOUND -> ResponseEntity.status(404)
-                    .body(GenericResponses.NOT_FOUND);
+                    .body(receipt.getPdfBytes()); // Ottiene il PDF
+            case ASSET_NOT_FOUND -> ResponseEntity.status(404)
+                    .body(MovementResponses.ASSET_NOT_FOUND);
+            case MOVEMENT_NOT_FOUND -> ResponseEntity.status(404)
+                    .body(MovementResponses.MOVEMENT_NOT_FOUND);
+            case DIFFERENT_ASSET_CODE -> ResponseEntity.status(400)
+                    .body(MovementResponses.DIFFERENT_ASSET_CODE);
             default -> ResponseEntity.status(500)
                     .body(GenericResponses.INTERNAL_SERVER_ERROR);
         };

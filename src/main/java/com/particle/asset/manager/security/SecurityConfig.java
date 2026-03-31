@@ -51,6 +51,7 @@ public class SecurityConfig
                         .requestMatchers(new AntPathRequestMatcher("/swagger-ui/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/swagger-ui.html")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/v3/api-docs/**")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/swagger-dark.css")).permitAll()
 
                         // Proteggi le PUT
                         /*.requestMatchers(new AntPathRequestMatcher("/asset/**", HttpMethod.PUT.name())).hasRole("ADMIN")

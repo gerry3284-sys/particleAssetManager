@@ -31,6 +31,11 @@ public class AssetManagerApplication
 	// TODO: Rimettere le Ricevute a NOT NULL
 	// TODO: Aggiungere il nome della ricevuta alla response 200 dopo aver effettuato
 	//		 un'operazione di movimento
+	// TODO: Effettuare un controllo per cancellare i file che non possiedono più un record sul Database
+	// TODO: Modificare la response del GET della ricevuta {OK}
+	// TODO: Quando si effettua un movimento, se si scrive in minuscolo, il codice viene salvato in
+	//		 quella maniera. Deve sempre essere in maiuscolo. {OK}
+	// TODO: Modificare il Background Color dello Swagger. {OK}
 
 	public static void main(String[] args) {
 		SpringApplication.run(AssetManagerApplication.class, args);

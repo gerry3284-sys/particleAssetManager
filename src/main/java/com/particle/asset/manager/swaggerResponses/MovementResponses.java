@@ -10,6 +10,8 @@ public class MovementResponses
             new Error("400", "Movement Type Is Not Valid");
     public static final Error ASSET_NOT_FOUND =
             new Error("404", "No Asset Record Was Found");
+    public static final Error MOVEMENT_NOT_FOUND =
+            new Error("404", "No Movement Record Was Found");
     public static final Error USER_NOT_FOUND =
             new Error("404", "No User Record Was Found");
     public static final Error ASSET_MOVEMENT_NOT_FOUND =
@@ -20,4 +22,6 @@ public class MovementResponses
             new Error("423", "Asset State Prevents This Operation");
     public static final Error INVALID_FILE_NAME =
             new Error("400", "File Name Is Invalid");
+    public static final Error DIFFERENT_ASSET_CODE =
+            new Error("400", "Asset Code and Movement Code are different with the given ID");
 }

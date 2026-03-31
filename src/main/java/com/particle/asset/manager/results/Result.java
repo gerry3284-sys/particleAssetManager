@@ -101,7 +101,7 @@ public class Result
     @Getter
     public static class ReceiptResult
     {
-        private GenericOperations status;
+        private MovementOperations status;
         private byte[] pdfBytes;
         private String fileName;
     }
