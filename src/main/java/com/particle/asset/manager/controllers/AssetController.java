@@ -296,7 +296,8 @@ public class AssetController
             return ResponseEntity.status(423).body(MovementResponses.ASSET_STATE_BLOCKS_OPERATION);
     }
 
-    @GetMapping("/{code}/movement/{movementId}/receipt")
+    @GetMapping(value = "/{code}/movement/{movementId}/receipt",
+                produces = {MediaType.APPLICATION_PDF_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @Operation(summary = "Download the receipt PDF for a specific Movement")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "PDF Receipt",
@@ -314,7 +315,7 @@ public class AssetController
                                                 @PathVariable Long movementId)
     {
         Result.ReceiptResult receipt = service.getMovementReceipt(code, movementId);
-
+        System.out.println("Status" + receipt.getStatus());
         return switch (receipt.getStatus())
         {
             case OK -> ResponseEntity.ok()
@@ -323,12 +324,16 @@ public class AssetController
                     .contentType(MediaType.APPLICATION_PDF)
                     .body(receipt.getPdfBytes()); // Ottiene il PDF
             case ASSET_NOT_FOUND -> ResponseEntity.status(404)
+                    .contentType(MediaType.APPLICATION_JSON)
                     .body(MovementResponses.ASSET_NOT_FOUND);
             case MOVEMENT_NOT_FOUND -> ResponseEntity.status(404)
+                    .contentType(MediaType.APPLICATION_JSON)
                     .body(MovementResponses.MOVEMENT_NOT_FOUND);
             case DIFFERENT_ASSET_CODE -> ResponseEntity.status(400)
+                    .contentType(MediaType.APPLICATION_JSON)
                     .body(MovementResponses.DIFFERENT_ASSET_CODE);
             default -> ResponseEntity.status(500)
+                    .contentType(MediaType.APPLICATION_JSON)
                     .body(GenericResponses.INTERNAL_SERVER_ERROR);
         };
     }
