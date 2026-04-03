@@ -7,10 +7,10 @@ public class AssetSummaryDto
 {
     private Long id;
     private Short ram;
-    private String brand, model, serialNumber, hardDisk, code;
+    private String brand, model, serialNumber, hardDisk, code, statusCode;
 
     public AssetSummaryDto(Long id, String brand, String model,
-                           String serialNumber, Short ram, String hardDisk, String code)
+                           String serialNumber, Short ram, String hardDisk, String code, String statusCode)
     {
         this.id = id;
         this.ram = ram;
@@ -19,6 +19,7 @@ public class AssetSummaryDto
         this.model = model;
         this.serialNumber = serialNumber;
         this.code = code;
+        this.statusCode = statusCode;
     }
 
     public AssetSummaryDto() {

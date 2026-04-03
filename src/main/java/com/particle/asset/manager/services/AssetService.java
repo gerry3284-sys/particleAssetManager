@@ -1,13 +1,10 @@
 package com.particle.asset.manager.services;
 
 import com.particle.asset.manager.DTO.*;
-import com.particle.asset.manager.enums.AssetOperations;
-import com.particle.asset.manager.enums.MovementOperations;
-import com.particle.asset.manager.enums.GenericOperations;
+import com.particle.asset.manager.enums.*;
 import com.particle.asset.manager.models.*;
 import com.particle.asset.manager.repositories.*;
 import com.particle.asset.manager.results.Result;
-import com.particle.asset.manager.swaggerResponses.MovementResponses;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
@@ -18,6 +15,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import jakarta.annotation.PostConstruct;
 
@@ -88,7 +86,7 @@ public class AssetService
                     LocalDateTime assignmentDate = null;
 
                     if (lastMovement.isPresent()
-                            && "Assigned".equals(lastMovement.get().getMovementType()))
+                            && BasicAssetStatuses.ASSIGNED.name().equals(lastMovement.get().getMovementType()))
                     {
                         User u = lastMovement.get().getUsers();
                         assignedUser = u.getName() + " " + u.getSurname();
@@ -123,9 +121,10 @@ public class AssetService
         Optional<AssetType> assetTypeById = assetTypeRepository.findByCode(assetDTO.getAssetTypeCode());
         Optional<BusinessUnit> businessUnitById = businessUnitRepository.findByCode(assetDTO.getBusinessUnitCode());
         // ↓ Cerco e inserisco il lo status "Disponibile" alla creazione dell'Asset
-        Optional<AssetStatusType> assetStatusTypeById = assetStatusTypeRepository.findByName("Available");
+        Optional<AssetStatusType> assetStatusTypeByCode =
+                assetStatusTypeRepository.findByName(BasicAssetStatuses.AVAILABLE.name());
 
-        if(assetTypeById.isEmpty() || businessUnitById.isEmpty() || assetStatusTypeById.isEmpty())
+        if(assetTypeById.isEmpty() || businessUnitById.isEmpty() || assetStatusTypeByCode.isEmpty())
             return new Result.AssetDtoResult(AssetOperations.ALREADY_EXISTS, null);
 
         Asset asset = new Asset();
@@ -136,7 +135,7 @@ public class AssetService
         asset.setSerialNumber(assetDTO.getSerialNumber());
         asset.setRam(assetDTO.getRam());
         asset.setHardDisk(assetDTO.getHardDisk());
-        asset.setAssetStatusType(assetStatusTypeById.get());
+        asset.setAssetStatusType(assetStatusTypeByCode.get());
         asset.setNote(assetDTO.getNote());
 
         String nameWithoutSpaces = asset.getSerialNumber().replaceAll("\\s+", "");
@@ -243,7 +242,8 @@ public class AssetService
             return new Result.AssetDtoResult(AssetOperations.BAD_REQUEST, null);
 
         Optional<Asset> assetByCode = assetRepository.findByCode(code);
-        Optional<AssetStatusType> assetStatusByCode = assetStatusTypeRepository.findByCode(statusCode.getAssetStatusTypeCode());
+        Optional<AssetStatusType> assetStatusByCode =
+                assetStatusTypeRepository.findByCode(statusCode.getAssetStatusTypeCode());
 
         if(assetByCode.isEmpty() || assetStatusByCode.isEmpty())
             return new Result.AssetDtoResult(AssetOperations.NOT_FOUND, null);
@@ -251,15 +251,15 @@ public class AssetService
         if(assetStatusByCode.get().getCode().equals(assetByCode.get().getAssetStatusType().getCode()))
             return new Result.AssetDtoResult(AssetOperations.BAD_REQUEST, null);
 
-        if(assetByCode.get().getAssetStatusType().getName().equals("Assigned") ||
-            assetByCode.get().getAssetStatusType().getName().equals("Dismissed"))
+        if(assetByCode.get().getAssetStatusType().getName().equals(BasicAssetStatuses.ASSIGNED.name()) ||
+            assetByCode.get().getAssetStatusType().getName().equals(BasicAssetStatuses.DISMISSED.name()))
             return new Result.AssetDtoResult(AssetOperations.STATUS_ERROR, null);
 
         // ↓ Non è possibile effettuare questa operazione perchè sono dei Movement
         // Da un qualcosa come "Under Maintenance" ad "Available" va bene perchè
         // non viene effettuato nessun Movement effettivo.
-        if(assetStatusByCode.get().getName().equals("Assigned") ||
-            assetStatusByCode.get().getName().equals("Dismissed"))
+        if(assetStatusByCode.get().getName().equals(BasicAssetStatuses.ASSIGNED.name()) ||
+            assetStatusByCode.get().getName().equals(BasicAssetStatuses.DISMISSED.name()))
             return new Result.AssetDtoResult(AssetOperations.STATUS_ERROR, null);
 
         Asset updatedAssetStatus = assetByCode.get();
@@ -316,7 +316,7 @@ public class AssetService
         MovementSummaryResponseDto dto = new MovementSummaryResponseDto();
         dto.setId(movement.getId());
         dto.setDate(movement.getDate());
-        dto.setMovementType(movement.getMovementType());
+        dto.setMovementType(String.valueOf(movement.getMovementType()));
         dto.setNote(movement.getNote());
 
         AssetSummaryDto assetSummaryDTO = new AssetSummaryDto();
@@ -327,6 +327,7 @@ public class AssetService
         assetSummaryDTO.setRam(movement.getAsset().getRam());
         assetSummaryDTO.setHardDisk(movement.getAsset().getHardDisk());
         assetSummaryDTO.setCode(movement.getAsset().getCode());
+        assetSummaryDTO.setStatusCode(movement.getAsset().getAssetStatusType().getCode());
         dto.setAsset(assetSummaryDTO);
 
         UserSummaryDto userSummaryDTO = new UserSummaryDto();
@@ -350,9 +351,9 @@ public class AssetService
 
         // Controllo base per assetCode e corretto MovementType
         if (!(assetRepository.existsByCode(assetCode)) ||
-                !(movementDTO.getMovementType().equals("Returned") ||
-                        movementDTO.getMovementType().equals("Assigned") ||
-                        movementDTO.getMovementType().equals("Dismissed")))
+                !(movementDTO.getMovementType().equals(MovementTypes.RETURNED.name()) ||
+                        movementDTO.getMovementType().equals(MovementTypes.ASSIGNED.name()) ||
+                        movementDTO.getMovementType().equals(MovementTypes.DISMISSED.name())))
             return new Result.MovementDtoResult(MovementOperations.INVALID_MOVEMENT_TYPE, null);
 
         // Validazione ricevuta - Per il momento così perchè null
@@ -365,9 +366,9 @@ public class AssetService
             return new Result.MovementDtoResult(MovementOperations.ASSET_NOT_FOUND, null);
 
         // Controllo temporaneo per lo status type corrente. Da modificare perchè statico ?
-        if(!(assetOpt.get().getAssetStatusType().getName().equals("Available") ||
-                assetOpt.get().getAssetStatusType().getName().equals("Assigned") ||
-                assetOpt.get().getAssetStatusType().getName().equals("Dismissed")))
+        if(!(assetOpt.get().getAssetStatusType().getName().equals(BasicAssetStatuses.AVAILABLE.name()) ||
+                assetOpt.get().getAssetStatusType().getName().equals(BasicAssetStatuses.ASSIGNED.name()) ||
+                assetOpt.get().getAssetStatusType().getName().equals(BasicAssetStatuses.DISMISSED.name())))
             return new Result.MovementDtoResult(MovementOperations.ASSET_STATE_BLOCKS_OPERATION, null);
 
         // Ricerca Utente
@@ -378,38 +379,39 @@ public class AssetService
         Optional<Movement> lastMovement = movementRepository.findFirstByAssetCodeOrderByDateDesc(assetCode);
 
         // Regole di business sui tipi di movimento
-        if (movementDTO.getMovementType().equals("Assigned"))
+        if (movementDTO.getMovementType().equals(MovementTypes.ASSIGNED.name()))
         {
             if (lastMovement.isPresent() &&
-                    lastMovement.get().getMovementType().equals("Assigned"))
+                    lastMovement.get().getMovementType().equals(MovementTypes.ASSIGNED.name()))
                 return new Result.MovementDtoResult(MovementOperations.INVALID_MOVEMENT_TYPE, null);
 
             if (lastMovement.isPresent() &&
-                    lastMovement.get().getMovementType().equals("Dismissed"))
+                    lastMovement.get().getMovementType().equals(MovementTypes.DISMISSED.name()))
                 return new Result.MovementDtoResult(MovementOperations.INVALID_MOVEMENT_TYPE, null);
         }
 
-        if (movementDTO.getMovementType().equals("Returned"))
+        if (movementDTO.getMovementType().equals(MovementTypes.RETURNED.name()))
         {
             if (lastMovement.isEmpty())
                 return new Result.MovementDtoResult(MovementOperations.INVALID_MOVEMENT_TYPE, null);
 
-            if (lastMovement.get().getMovementType().equals("Dismissed"))
+            if (lastMovement.get().getMovementType().equals(MovementTypes.DISMISSED.name()))
                 return new Result.MovementDtoResult(MovementOperations.INVALID_MOVEMENT_TYPE, null);
 
-            if (lastMovement.get().getMovementType().equals("Returned"))
+            if (lastMovement.get().getMovementType().equals(MovementTypes.RETURNED.name()))
                 return new Result.MovementDtoResult(MovementOperations.INVALID_MOVEMENT_TYPE, null);
 
-            if(!Objects.equals(lastMovement.get().getUsers().getId(), movementDTO.getUser()) && lastMovement.get().getMovementType().equals("Assigned"))
+            if(!Objects.equals(lastMovement.get().getUsers().getId(), movementDTO.getUser()) &&
+                    lastMovement.get().getMovementType().equals(BasicAssetStatuses.ASSIGNED.name()))
                 return new Result.MovementDtoResult(MovementOperations.INVALID_MOVEMENT_TYPE, null);
         }
 
-        if (movementDTO.getMovementType().equals("Dismissed") && lastMovement.isPresent())
+        if (movementDTO.getMovementType().equals(MovementTypes.DISMISSED.name()) && lastMovement.isPresent())
         {
-            if (lastMovement.get().getMovementType().equals("Dismissed"))
+            if (lastMovement.get().getMovementType().equals(MovementTypes.DISMISSED.name()))
                 return new Result.MovementDtoResult(MovementOperations.INVALID_MOVEMENT_TYPE, null);
 
-            if (lastMovement.get().getMovementType().equals("Assigned"))
+            if (lastMovement.get().getMovementType().equals(MovementTypes.ASSIGNED.name()))
                 return new Result.MovementDtoResult(MovementOperations.INVALID_MOVEMENT_TYPE, null);
         }
 
@@ -432,23 +434,26 @@ public class AssetService
 
         // Creazione e salvataggio movimento
         Movement addedMovement = new Movement();
-        addedMovement.setMovementType(movementDTO.getMovementType());
+        addedMovement.setMovementType(MovementTypes.valueOf(movementDTO.getMovementType()));
         addedMovement.setAsset(assetOpt.get());
         addedMovement.setUsers(userOpt.get());
         addedMovement.setNote(movementDTO.getNote());
         addedMovement.setReceiptFileName(savedFileName);
+        addedMovement.setCode(movementDTO.getMovementType().toUpperCase()
+                .substring(0, 2) + movementDTO.getUser() + assetCode.toUpperCase() +
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + (movementRepository.count()+1));
 
         // Trovare un modo per inserire "isPresent()" ?
         Asset updatedAssetStatus = assetOpt.get();
-        if(movementDTO.getMovementType().equals("Returned"))
+        if(movementDTO.getMovementType().equals(MovementTypes.RETURNED.name()))
             updatedAssetStatus.setAssetStatusType
-                    (assetStatusTypeRepository.findByName("Available").get());
-        else if(movementDTO.getMovementType().equals("Assigned"))
+                    (assetStatusTypeRepository.findByName(BasicAssetStatuses.AVAILABLE.name()).get());
+        else if(movementDTO.getMovementType().equals(MovementTypes.ASSIGNED.name()))
             updatedAssetStatus.setAssetStatusType
-                    (assetStatusTypeRepository.findByName("Assigned").get());
-        else // "Dismissed"
+                    (assetStatusTypeRepository.findByName(MovementTypes.ASSIGNED.name()).get());
+        else // "DISMISSED"
             updatedAssetStatus.setAssetStatusType
-                    (assetStatusTypeRepository.findByName("Dismissed").get());
+                    (assetStatusTypeRepository.findByName(BasicAssetStatuses.DISMISSED.name()).get());
 
         movementRepository.save(addedMovement);
         assetRepository.save(updatedAssetStatus);
@@ -480,14 +485,14 @@ public class AssetService
         }
     }
 
-    public Result.ReceiptResult getMovementReceipt(String code, Long movementId)
+    public Result.ReceiptResult getMovementReceipt(String assetCode, String movementCode)
     {
 
-        Optional<Asset> assetOtp = assetRepository.findByCode(code);
+        Optional<Asset> assetOtp = assetRepository.findByCode(assetCode);
         if(assetOtp.isEmpty())
             return new Result.ReceiptResult(MovementOperations.ASSET_NOT_FOUND, null, null);
 
-        Optional<Movement> movementOpt = movementRepository.findById(movementId);
+        Optional<Movement> movementOpt = movementRepository.findByCode(movementCode);
 
         if (movementOpt.isEmpty())
             return new Result.ReceiptResult(MovementOperations.MOVEMENT_NOT_FOUND, null, null);
@@ -495,6 +500,8 @@ public class AssetService
         if(!movementOpt.get().getAsset().getCode().equals(assetOtp.get().getCode()))
             return new Result.ReceiptResult(MovementOperations.DIFFERENT_ASSET_CODE, null, null);
 
+        if(movementOpt.get().getReceiptFileName() == null)
+            return new Result.ReceiptResult(MovementOperations.FILE_IS_MISSING, null, null);
         try
         {
             String fileName = movementOpt.get().getReceiptFileName();
@@ -510,6 +517,7 @@ public class AssetService
         }
     }
 
+    // Cancella i pdf orfani
     @PostConstruct
     public void cleanOrphanedReceipts()
     {

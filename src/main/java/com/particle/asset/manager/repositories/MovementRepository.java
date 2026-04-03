@@ -24,4 +24,6 @@ public interface MovementRepository extends JpaRepository<Movement, Long>
     //Optional<Movement> findFirstByAssetIdOrderByDateDesc(Long assetId);
 
     Optional<Movement> findFirstByAssetCodeOrderByDateDesc(String assetCode);
+
+    Optional<Movement> findByCode(String code);
 }

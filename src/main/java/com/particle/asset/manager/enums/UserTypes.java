@@ -1,3 +1,3 @@
 package com.particle.asset.manager.enums;
 
-public enum UserType { ADMIN, USER }
+public enum UserTypes { ADMIN, USER }

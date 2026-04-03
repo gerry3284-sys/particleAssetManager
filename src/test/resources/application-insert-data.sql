@@ -6,11 +6,17 @@ INSERT INTO business_unit (active, creation_date, name, code, update_date) VALUE
 (1, NOW(), 'Kite', 'KI4', NULL);
 
 -- Asset Status Type con code (prime 2 lettere maiuscole + posizione)
-INSERT INTO asset_status_type (active, creation_date, name, code, update_date) VALUES
-(1, NOW(), 'Available', 'AV1', NULL),
-(1, NOW(), 'Assigned', 'AS2', NULL),
-(1, NOW(), 'Under Maintenance', 'UN3', NULL),
-(1, NOW(), 'Dismissed', 'DI4', NULL);
+-- INSERT INTO asset_status_type (active, creation_date, name, code, update_date) VALUES
+-- (1, NOW(), 'Available', 'AV1', NULL),
+-- (1, NOW(), 'Assigned', 'AS2', NULL),
+-- (1, NOW(), 'Under Maintenance', 'UN3', NULL),
+-- (1, NOW(), 'Dismissed', 'DI4', NULL);
+
+INSERT INTO asset_status_type (creation_date, name, code, update_date) VALUES
+(NOW(), 'AVAILABLE', 'AV1', NULL),
+(NOW(), 'ASSIGNED', 'AS2', NULL),
+(NOW(), 'DISMISSED', 'DI3', NULL),
+(NOW(), 'Under Maintenance', 'UN4', NULL);
 
 -- Asset Type con code (prime 2 lettere maiuscole + posizione)
 INSERT INTO asset_type (active, creation_date, name, code, hard_disk, ram, update_date) VALUES
@@ -24,7 +30,7 @@ INSERT INTO asset (brand, model, note, serial_number, type_code, business_unit_c
 ('Dell', 'Latitude 5420', 'Laptop aziendale', 'SN001234', 'LA1', 'PA1', NOW(), NULL, 'AS2', 'SN1'),
 ('HP', 'EliteBook 840', NULL, 'SN001235', 'LA1', 'PA1', NOW(), NULL, 'AV1', 'SN2'),
 ('LG', '27UK850', 'Monitor 4K', 'SN002001', 'MO2', 'VA2', NOW(), NULL, 'AV1', 'SN3'),
-('Samsung', 'Galaxy S23', NULL, 'IMEI123456', 'SM4', 'PA1', NOW(), NULL, 'DI4', 'IM4');
+('Samsung', 'Galaxy S23', NULL, 'IMEI123456', 'SM4', 'PA1', NOW(), NULL, 'DI3', 'IM4');
 
 -- Users (rimane con business_unit_id)
 INSERT INTO users (name, surname, email, phone_number, user_type, business_unit_code) VALUES
@@ -35,8 +41,8 @@ INSERT INTO users (name, surname, email, phone_number, user_type, business_unit_
 ('Giulia', 'Neri', 'giulia.neri@example.com', '3334445555', 'ADMIN', 'KI4');
 
 -- Movement usando asset_code (prime 2 lettere del serial_number + posizione)
-INSERT INTO movement (date, movement_type, note, asset_code, users_id) VALUES
-(TIMESTAMP '2024-01-10 09:00:00', 'Assigned', 'Assegnato notebook a Marco', 'SN1', 1),
-(TIMESTAMP '2024-01-15 14:30:00', 'Assigned', NULL, 'SN2', 2),
-(TIMESTAMP '2024-02-01 11:00:00', 'Returned', 'Monitor inviato in manutenzione', 'SN2', 2),
-(TIMESTAMP '2024-02-05 16:00:00', 'Dismissed', 'Smartphone dismesso', 'IM4', 4);
+INSERT INTO movement (date, movement_type, note, asset_code, users_id, receipt_file_name, code) VALUES
+(TIMESTAMP '2024-01-10 09:00:00', 'ASSIGNED', 'Assegnato notebook a Marco', 'SN1', 1, 'NOPDF1', 'AS1SN1202401101'),
+(TIMESTAMP '2024-01-15 14:30:00', 'ASSIGNED', NULL, 'SN2', 2, 'NOPDF2', 'AS2SN2202401152'),
+(TIMESTAMP '2024-02-01 11:00:00', 'RETURNED', 'Monitor inviato in manutenzione', 'SN2', 2, 'NOPDF3', 'RE2SN2202402113'),
+(TIMESTAMP '2024-02-05 16:00:00', 'DISMISSED', 'Smartphone dismesso', 'IM4', 1, 'NOPDF4', 'DI1IM4202402054');

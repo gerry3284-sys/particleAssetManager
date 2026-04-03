@@ -1,6 +1,7 @@
 package com.particle.asset.manager.models;
 
 //import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.particle.asset.manager.enums.MovementTypes;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -22,7 +23,8 @@ public class Movement
     private LocalDateTime date = LocalDateTime.now();
 
     @Column(name = "movement_type", nullable = false)
-    private String movementType;
+    @Enumerated(value = EnumType.STRING)
+    private MovementTypes movementType;
 
     private String note;
 
@@ -41,4 +43,7 @@ public class Movement
     @Column(name = "receipt_file_name") // Al momento è Nullable, poi non lo sarà più
     //@Column(name = "receipt_file_name", nullable = false)
     private String receiptFileName;
+
+    @Column(nullable = false, unique = true)
+    private String code;
 }

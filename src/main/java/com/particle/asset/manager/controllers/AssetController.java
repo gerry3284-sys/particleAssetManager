@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 
+import javax.print.attribute.standard.Media;
 import java.util.List;
 
 @RestController
@@ -196,9 +197,9 @@ public class AssetController
             return  ResponseEntity.status(400).body(AssetResponses.STATUS_ERROR);
     }
 
-    // Stampa i movimenti di un asset dato il suo id
+    // Stampa i movimenti di un asset dato il suo code
     @GetMapping("/{code}/movement")
-    @Operation(summary = "Get all the Movements for a specific Asset through its ID")
+    @Operation(summary = "Get all the Movements for a specific Asset through its Code")
     @ApiResponses({
             @ApiResponse(responseCode = "200",
                     content = @Content(mediaType = "application/json",
@@ -250,7 +251,7 @@ public class AssetController
         return ResponseEntity.ok(service.getAssetList());
     }
 
-    // Inserisci un movimento di un asset dato il suo id
+    // Inserisci un movimento di un asset dato il suo code
     @PostMapping("{code}/movement")
     @Operation(summary = "Assign/Return/Dismiss a specific Asset through its code")
     @ApiResponses({
@@ -296,9 +297,10 @@ public class AssetController
             return ResponseEntity.status(423).body(MovementResponses.ASSET_STATE_BLOCKS_OPERATION);
     }
 
-    @GetMapping(value = "/{code}/movement/{movementId}/receipt",
+    // Ottieni il PDF attraverso il codice dell'asset e del movimento
+    @GetMapping(value = "/{assetCode}/movement/{movementCode}/receipt",
                 produces = {MediaType.APPLICATION_PDF_VALUE, MediaType.APPLICATION_JSON_VALUE})
-    @Operation(summary = "Download the receipt PDF for a specific Movement")
+    @Operation(summary = "Download the receipt PDF for a specific Movement through the asset and movement code")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "PDF Receipt",
                             content = @Content(mediaType = "application/pdf",
@@ -311,11 +313,10 @@ public class AssetController
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
                             examples = @ExampleObject(value = GenericResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
-    public ResponseEntity<?> getMovementReceipt(@PathVariable String code,
-                                                @PathVariable Long movementId)
+    public ResponseEntity<?> getMovementReceipt(@PathVariable String assetCode,
+                                                @PathVariable String movementCode)
     {
-        Result.ReceiptResult receipt = service.getMovementReceipt(code, movementId);
-        System.out.println("Status" + receipt.getStatus());
+        Result.ReceiptResult receipt = service.getMovementReceipt(assetCode, movementCode);
         return switch (receipt.getStatus())
         {
             case OK -> ResponseEntity.ok()
@@ -323,6 +324,12 @@ public class AssetController
                             "attachment; filename=\"" + receipt.getFileName() + "\"")
                     .contentType(MediaType.APPLICATION_PDF)
                     .body(receipt.getPdfBytes()); // Ottiene il PDF
+            case INVALID_FILE_NAME -> ResponseEntity.status(400)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(MovementResponses.INVALID_FILE_NAME);
+            case FILE_IS_MISSING -> ResponseEntity.status(404)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(MovementResponses.FILE_IS_MISSING);
             case ASSET_NOT_FOUND -> ResponseEntity.status(404)
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(MovementResponses.ASSET_NOT_FOUND);

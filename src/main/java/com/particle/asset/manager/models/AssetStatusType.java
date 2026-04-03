@@ -17,8 +17,8 @@ public class AssetStatusType
     @Column(nullable = false, unique = true)
     private String name;
 
-    @Column(nullable = false)
-    private boolean active = true;
+    /*@Column(nullable = false)
+    private boolean active = true;*/
 
     @Column(nullable = false)
     private LocalDateTime creationDate = LocalDateTime.now();

@@ -1,7 +1,7 @@
 package com.particle.asset.manager.models;
 
 //import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.particle.asset.manager.enums.UserType;
+import com.particle.asset.manager.enums.UserTypes;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -33,7 +33,7 @@ public class User
 
     @Column(nullable = false)
     @Enumerated(value = EnumType.STRING)
-    private UserType userType;
+    private UserTypes userType;
 
     @ManyToOne
     @JoinColumn(name = "business_unit_code", referencedColumnName = "code", nullable = false)

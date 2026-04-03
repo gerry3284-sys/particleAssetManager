@@ -54,7 +54,7 @@ public class UserService
         MovementSummaryResponseDto dto = new MovementSummaryResponseDto();
         dto.setId(movement.getId());
         dto.setDate(movement.getDate());
-        dto.setMovementType(movement.getMovementType());
+        dto.setMovementType(String.valueOf(movement.getMovementType()));
         dto.setNote(movement.getNote());
 
         AssetSummaryDto assetSummaryDTO = new AssetSummaryDto();
@@ -65,6 +65,7 @@ public class UserService
         assetSummaryDTO.setCode(movement.getAsset().getCode());
         assetSummaryDTO.setRam(movement.getAsset().getRam());
         assetSummaryDTO.setHardDisk(movement.getAsset().getHardDisk());
+        assetSummaryDTO.setStatusCode(movement.getAsset().getAssetStatusType().getCode());
         dto.setAsset(assetSummaryDTO);
 
         UserSummaryDto userSummaryDTO = new UserSummaryDto();

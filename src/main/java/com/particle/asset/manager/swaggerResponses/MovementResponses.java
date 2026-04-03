@@ -22,6 +22,8 @@ public class MovementResponses
             new Error("423", "Asset State Prevents This Operation");
     public static final Error INVALID_FILE_NAME =
             new Error("400", "File Name Is Invalid");
+    public static final Error FILE_IS_MISSING =
+            new Error("404", "There's no saved file for the Movement.");
     public static final Error DIFFERENT_ASSET_CODE =
             new Error("400", "Asset Code and Movement Code are different with the given ID");
 }

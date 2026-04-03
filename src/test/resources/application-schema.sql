@@ -37,7 +37,7 @@ CREATE TABLE asset_type (
 -- Tabella asset_status_type
 CREATE TABLE asset_status_type (
     id BIGINT(20) NOT NULL AUTO_INCREMENT,
-    active BIT(1) NOT NULL,
+    -- active BIT(1) NOT NULL,
     creation_date DATETIME(6) NOT NULL,
     name VARCHAR(255) NOT NULL,
     update_date DATETIME(6) DEFAULT NULL,
@@ -91,11 +91,14 @@ CREATE TABLE asset (
 CREATE TABLE movement (
     id BIGINT(20) NOT NULL AUTO_INCREMENT,
     date DATETIME(6) NOT NULL,
-    movement_type VARCHAR(255) NOT NULL,
+    movement_type ENUM('ASSIGNED', 'RETURNED', 'DISMISSED') NOT NULL,
     note VARCHAR(255) DEFAULT NULL,
     asset_code VARCHAR(255) NOT NULL,
     users_id BIGINT(20) NOT NULL,
+    receipt_file_name VARCHAR(255) NOT NULL,
+    code VARCHAR(255) NOT NULL,
     PRIMARY KEY (id),
+    UNIQUE KEY (code),
     KEY (asset_code),
     KEY (users_id),
     CONSTRAINT fk_movement_asset FOREIGN KEY (asset_code) REFERENCES asset(code),
