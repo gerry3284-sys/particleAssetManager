@@ -7,5 +7,6 @@ public enum MovementOperations
     ASSET_NOT_FOUND, MOVEMENT_NOT_FOUND,
     ASSET_MOVEMENT_NOT_FOUND, USER_NOT_FOUND,
     USER_MOVEMENT_NOT_FOUND, INVALID_FILE_NAME,
-    FILE_IS_MISSING, DIFFERENT_ASSET_CODE // codice asset e movement non combaciano
+    BUSINESS_UNIT_MISMATCH, FILE_IS_MISSING,
+    INVALID_TARGET_ROLE, DIFFERENT_ASSET_CODE // codice asset e movement non combaciano
 }

@@ -237,3 +237,58 @@ html, body {
     fill: #49cc90 !important;
     stroke: #49cc90 !important;
 }
+
+/* ========== MODALE AUTHORIZE ========== */
+
+/* Sfondo modale */
+.swagger-ui .dialog-ux .modal-ux {
+    background: #2a2a2a !important;
+    border: 1px solid #444 !important;
+}
+
+/* Header modale */
+.swagger-ui .dialog-ux .modal-ux-header {
+    background: #1a1a1a !important;
+    border-bottom: 1px solid #444 !important;
+}
+
+/* Titolo "Available authorizations" */
+.swagger-ui .dialog-ux .modal-ux-header h3 {
+    color: #ffffff !important;
+}
+
+/* Corpo modale */
+.swagger-ui .dialog-ux .modal-ux-content {
+    background: #2a2a2a !important;
+}
+
+/* Testi interni (Bearer Authentication, Value, ecc.) */
+.swagger-ui .dialog-ux .modal-ux-content p,
+.swagger-ui .dialog-ux .modal-ux-content h4,
+.swagger-ui .dialog-ux .modal-ux-content label,
+.swagger-ui .auth-container h4,
+.swagger-ui .auth-container p,
+.swagger-ui .auth-container label,
+.swagger-ui .scopes h2 {
+    color: #ccc !important;
+}
+
+/* Input Value */
+.swagger-ui .auth-container input {
+    background: #333 !important;
+    color: #fff !important;
+    border: 1px solid #555 !important;
+}
+
+/* Pulsanti Authorize e Close */
+.swagger-ui .auth-btn-wrapper .btn,
+.swagger-ui .auth-container .btn {
+    color: #49cc90 !important;
+    border-color: #49cc90 !important;
+    background: transparent !important;
+}
+
+/* X chiudi in alto a destra */
+.swagger-ui .dialog-ux .modal-ux-header .close-modal {
+    filter: invert(1) !important;
+}

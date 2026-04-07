@@ -26,24 +26,21 @@ public class AssetManagerApplication
 	// TODO: Implementare la creazione del token attraverso l'Office 365 (token SDK) - TBA
 	// TODO: Cancellare la creazione del token attraverso il database - TBA
 	// TODO: Modificare da "boolean" a "Boolean" (per avere "NULL") ?
-	// TODO: Mettere un Code anche per Movement {OK}
-	// TODO: Modificare la creazione del DB e l'inserimento dei dati per farlo combaciare
-	//		 con le modifiche del Movement (aggiunta di Code)
 	// TODO: Modificare il salvataggio del file rendendolo obbligatorio in un'operazione POST del Movement
 	// TODO: Creare un "Operations" in "enums" anche per "User" ?
-	// TODO: Togliere "active" da AssetStatusType {OK}
 	// TODO: Se si dovesse togliere Hard Disk e Ram di un Tipo di Asset deve azzerarsi a DB ?
 	// TODO: Aggiungere gli errori relativi al salvataggio delle ricevute
 	// TODO: Aggiungere il nome della ricevuta alla response 200 dopo aver effettuato
 	//		 un'operazione di movimento (è possibile farlo ?)
-	// TODO: Modificare il form dell'autorizzazione in Swagger (esteticamente)
-	// TODO: Aggiungere (anche se molto probabilmente non sarà mai usato) un errore per l'assenza di file nella
-	//		 GET del Movement. {OK}
-	// TODO: Inserire un enum per i tre tipi di base dei movement {OK}
-	// TODO: Modificare la GET per i movimenti di un utente {OK}
-	// TODO: Inserire l'errore per quando c'è un movimento ma il file non è presente {OK}
-	// TODO: Dire ad Andrea che "Available", "Assigned" e "Dismissed" non possono essere modificati
-	// TODO: Quando viene fatto il Dismissed, l'id dell'utente deve essere quello di un admin.
+	// TODO: Modificare il form dell'autorizzazione in Swagger (esteticamente) {OK}
+	// TODO: Far si che "Available", "Assigned" e "Dismissed" non possano essere modificati {OK}
+	// TODO: Quando viene fatto il Dismissed, l'id dell'utente deve essere NULL {OK}
+	// TODO: Fixare il bug dato dall'enum dei valori di Movement {OK}
+	// TODO: Un asset può essere assegnato solo a utenti appartenenti alla stessa BU {OK}
+	// TODO: Un Admin non può assegnarsi Asset e non può assegnare Asset ad altri Admin {OK}
+	// TODO: Un Admin deve avere Business Unit NULL {OK}
+	// TODO: Aggiungere un endpoint differente per la dismissione degli Asset ?
+	// TODO: Far si che un Asset possa essere modificato solo se esso è Available
 
 	public static void main(String[] args) {
 		SpringApplication.run(AssetManagerApplication.class, args);

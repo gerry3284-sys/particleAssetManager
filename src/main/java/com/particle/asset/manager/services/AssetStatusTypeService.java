@@ -3,6 +3,7 @@ package com.particle.asset.manager.services;
 import com.particle.asset.manager.DTO.AssetStatusTypeRequestDto;
 import com.particle.asset.manager.DTO.AssetStatusTypeStatusResponseDto;
 import com.particle.asset.manager.enums.AssetStatusTypeOperations;
+import com.particle.asset.manager.enums.BasicAssetStatuses;
 import com.particle.asset.manager.models.AssetStatusType;
 import com.particle.asset.manager.repositories.AssetStatusTypeRepository;
 import com.particle.asset.manager.results.Result;
@@ -146,6 +147,11 @@ public class AssetStatusTypeService
             return new Result.AssetStatusTypeRequestDtoPutResult(AssetStatusTypeOperations.NOT_FOUND, null);
 
         AssetStatusType updatedAssetStatusType = assetStatusTypeById.get();
+
+        if(updatedAssetStatusType.getName().equals(BasicAssetStatuses.AVAILABLE.name()) ||
+            updatedAssetStatusType.getName().equals(BasicAssetStatuses.ASSIGNED.name()) ||
+            updatedAssetStatusType.getName().equals(BasicAssetStatuses.DISMISSED.name()))
+            return new Result.AssetStatusTypeRequestDtoPutResult(AssetStatusTypeOperations.IMMUTABLE_FIELD, null);
 
         // Normalizzazione del nome (se necessario)
         assetStatusTypeDTO.setName(normalizeName(assetStatusTypeDTO.getName()));

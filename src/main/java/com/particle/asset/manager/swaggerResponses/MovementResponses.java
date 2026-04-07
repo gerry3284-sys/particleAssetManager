@@ -26,4 +26,8 @@ public class MovementResponses
             new Error("404", "There's no saved file for the Movement.");
     public static final Error DIFFERENT_ASSET_CODE =
             new Error("400", "Asset Code and Movement Code are different with the given ID");
+    public static final Error INVALID_TARGET_ROLE =
+            new Error("403", "Assets can only be Assigned to Users not to Admins");
+    public static final Error BUSINESS_UNIT_MISMATCH =
+            new Error("409", "Asset and User don't belong to the same Business Unit");
 }

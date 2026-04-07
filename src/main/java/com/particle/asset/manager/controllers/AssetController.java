@@ -233,7 +233,7 @@ public class AssetController
     }
 
     @GetMapping("/list")
-    @Operation(summary = "Get the Asset List")
+    @Operation(summary = "Get the Asset List with the current owner of the Asset")
     @ApiResponses({
             @ApiResponse(responseCode = "200",
                     content = @Content(mediaType = "application/json",
@@ -293,6 +293,10 @@ public class AssetController
             return ResponseEntity.status(404).body(MovementResponses.ASSET_NOT_FOUND);
         else if(movementOperation.getStatus() == MovementOperations.USER_NOT_FOUND)
             return ResponseEntity.status(404).body(MovementResponses.USER_NOT_FOUND);
+        else if(movementOperation.getStatus() == MovementOperations.INVALID_TARGET_ROLE)
+            return ResponseEntity.status(403).body(MovementResponses.INVALID_TARGET_ROLE);
+        else if(movementOperation.getStatus() == MovementOperations.BUSINESS_UNIT_MISMATCH)
+            return ResponseEntity.status(409).body(MovementResponses.BUSINESS_UNIT_MISMATCH);
         else // ASSET_STATE_BLOCKS_OPERATION
             return ResponseEntity.status(423).body(MovementResponses.ASSET_STATE_BLOCKS_OPERATION);
     }

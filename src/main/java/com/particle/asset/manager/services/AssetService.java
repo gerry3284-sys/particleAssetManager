@@ -86,7 +86,7 @@ public class AssetService
                     LocalDateTime assignmentDate = null;
 
                     if (lastMovement.isPresent()
-                            && BasicAssetStatuses.ASSIGNED.name().equals(lastMovement.get().getMovementType()))
+                            && BasicAssetStatuses.ASSIGNED.name().equals(lastMovement.get().getMovementType().name()))
                     {
                         User u = lastMovement.get().getUsers();
                         assignedUser = u.getName() + " " + u.getSurname();
@@ -351,9 +351,9 @@ public class AssetService
 
         // Controllo base per assetCode e corretto MovementType
         if (!(assetRepository.existsByCode(assetCode)) ||
-                !(movementDTO.getMovementType().equals(MovementTypes.RETURNED.name()) ||
-                        movementDTO.getMovementType().equals(MovementTypes.ASSIGNED.name()) ||
-                        movementDTO.getMovementType().equals(MovementTypes.DISMISSED.name())))
+                !(movementDTO.getMovementType().name().equals(MovementTypes.RETURNED.name()) ||
+                        movementDTO.getMovementType().name().equals(MovementTypes.ASSIGNED.name()) ||
+                        movementDTO.getMovementType().name().equals(MovementTypes.DISMISSED.name())))
             return new Result.MovementDtoResult(MovementOperations.INVALID_MOVEMENT_TYPE, null);
 
         // Validazione ricevuta - Per il momento così perchè null
@@ -379,39 +379,45 @@ public class AssetService
         Optional<Movement> lastMovement = movementRepository.findFirstByAssetCodeOrderByDateDesc(assetCode);
 
         // Regole di business sui tipi di movimento
-        if (movementDTO.getMovementType().equals(MovementTypes.ASSIGNED.name()))
+        if (movementDTO.getMovementType().name().equals(MovementTypes.ASSIGNED.name()))
         {
             if (lastMovement.isPresent() &&
-                    lastMovement.get().getMovementType().equals(MovementTypes.ASSIGNED.name()))
+                    lastMovement.get().getMovementType().name().equals(MovementTypes.ASSIGNED.name()))
                 return new Result.MovementDtoResult(MovementOperations.INVALID_MOVEMENT_TYPE, null);
 
             if (lastMovement.isPresent() &&
-                    lastMovement.get().getMovementType().equals(MovementTypes.DISMISSED.name()))
+                    lastMovement.get().getMovementType().name().equals(MovementTypes.DISMISSED.name()))
                 return new Result.MovementDtoResult(MovementOperations.INVALID_MOVEMENT_TYPE, null);
+
+            if(userOpt.get().getBusinessUnit() == null)
+                return new Result.MovementDtoResult(MovementOperations.INVALID_TARGET_ROLE, null);
+
+            if(!(userOpt.get().getBusinessUnit().getCode().equals(assetOpt.get().getBusinessUnit().getCode())))
+                return new Result.MovementDtoResult(MovementOperations.BUSINESS_UNIT_MISMATCH, null);
         }
 
-        if (movementDTO.getMovementType().equals(MovementTypes.RETURNED.name()))
+        if (movementDTO.getMovementType().name().equals(MovementTypes.RETURNED.name()))
         {
             if (lastMovement.isEmpty())
                 return new Result.MovementDtoResult(MovementOperations.INVALID_MOVEMENT_TYPE, null);
 
-            if (lastMovement.get().getMovementType().equals(MovementTypes.DISMISSED.name()))
+            if (lastMovement.get().getMovementType().name().equals(MovementTypes.DISMISSED.name()))
                 return new Result.MovementDtoResult(MovementOperations.INVALID_MOVEMENT_TYPE, null);
 
-            if (lastMovement.get().getMovementType().equals(MovementTypes.RETURNED.name()))
+            if (lastMovement.get().getMovementType().name().equals(MovementTypes.RETURNED.name()))
                 return new Result.MovementDtoResult(MovementOperations.INVALID_MOVEMENT_TYPE, null);
 
             if(!Objects.equals(lastMovement.get().getUsers().getId(), movementDTO.getUser()) &&
-                    lastMovement.get().getMovementType().equals(BasicAssetStatuses.ASSIGNED.name()))
+                    lastMovement.get().getMovementType().name().equals(BasicAssetStatuses.ASSIGNED.name()))
                 return new Result.MovementDtoResult(MovementOperations.INVALID_MOVEMENT_TYPE, null);
         }
 
-        if (movementDTO.getMovementType().equals(MovementTypes.DISMISSED.name()) && lastMovement.isPresent())
+        if (movementDTO.getMovementType().name().equals(MovementTypes.DISMISSED.name()) && lastMovement.isPresent())
         {
-            if (lastMovement.get().getMovementType().equals(MovementTypes.DISMISSED.name()))
+            if (lastMovement.get().getMovementType().name().equals(MovementTypes.DISMISSED.name()))
                 return new Result.MovementDtoResult(MovementOperations.INVALID_MOVEMENT_TYPE, null);
 
-            if (lastMovement.get().getMovementType().equals(MovementTypes.ASSIGNED.name()))
+            if (lastMovement.get().getMovementType().name().equals(MovementTypes.ASSIGNED.name()))
                 return new Result.MovementDtoResult(MovementOperations.INVALID_MOVEMENT_TYPE, null);
         }
 
@@ -434,21 +440,22 @@ public class AssetService
 
         // Creazione e salvataggio movimento
         Movement addedMovement = new Movement();
-        addedMovement.setMovementType(MovementTypes.valueOf(movementDTO.getMovementType()));
+        addedMovement.setMovementType(movementDTO.getMovementType());
         addedMovement.setAsset(assetOpt.get());
-        addedMovement.setUsers(userOpt.get());
+        addedMovement.setUsers(!(movementDTO.getMovementType().name().equals(MovementTypes.DISMISSED.name()))
+                ?userOpt.get() :null);
         addedMovement.setNote(movementDTO.getNote());
         addedMovement.setReceiptFileName(savedFileName);
-        addedMovement.setCode(movementDTO.getMovementType().toUpperCase()
+        addedMovement.setCode(movementDTO.getMovementType().name()
                 .substring(0, 2) + movementDTO.getUser() + assetCode.toUpperCase() +
                 LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + (movementRepository.count()+1));
 
         // Trovare un modo per inserire "isPresent()" ?
         Asset updatedAssetStatus = assetOpt.get();
-        if(movementDTO.getMovementType().equals(MovementTypes.RETURNED.name()))
+        if(movementDTO.getMovementType().name().equals(MovementTypes.RETURNED.name()))
             updatedAssetStatus.setAssetStatusType
                     (assetStatusTypeRepository.findByName(BasicAssetStatuses.AVAILABLE.name()).get());
-        else if(movementDTO.getMovementType().equals(MovementTypes.ASSIGNED.name()))
+        else if(movementDTO.getMovementType().name().equals(MovementTypes.ASSIGNED.name()))
             updatedAssetStatus.setAssetStatusType
                     (assetStatusTypeRepository.findByName(MovementTypes.ASSIGNED.name()).get());
         else // "DISMISSED"
@@ -460,7 +467,7 @@ public class AssetService
 
         return new Result.MovementDtoResult(MovementOperations.OK,
                 new MovementResponseBodyDto(assetCode, movementDTO.getUser(),
-                        movementDTO.getMovementType(), movementDTO.getNote()));
+                        movementDTO.getMovementType().name(), movementDTO.getNote()));
     }
 
     private String saveReceiptFile(String base64Pdf, String fileName)

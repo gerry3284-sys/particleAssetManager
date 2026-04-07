@@ -10,4 +10,6 @@ public class AssetStatusTypeResponses
             new Error("404", "No Asset Status Type Record Was Found");
     public static final Error ALREADY_EXISTS =
             new Error("400", "Asset Status Type Already Exists");
+    public static final Error IMMUTABLE_FIELD =
+            new Error("409", "The Field Cannot Be Modified");
 }

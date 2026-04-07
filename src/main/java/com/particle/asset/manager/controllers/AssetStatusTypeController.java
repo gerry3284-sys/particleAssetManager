@@ -148,6 +148,7 @@ public class AssetStatusTypeController
             case NOT_FOUND -> ResponseEntity.status(404).body(AssetStatusTypeResponses.NOT_FOUND);
             case BAD_REQUEST -> ResponseEntity.status(400).body(AssetStatusTypeResponses.BAD_REQUEST);
             case ALREADY_EXISTS -> ResponseEntity.status(400).body(AssetStatusTypeResponses.ALREADY_EXISTS);
+            case IMMUTABLE_FIELD -> ResponseEntity.status(409).body(AssetStatusTypeResponses.IMMUTABLE_FIELD);
         };
     }
 

@@ -36,7 +36,8 @@ public class User
     private UserTypes userType;
 
     @ManyToOne
-    @JoinColumn(name = "business_unit_code", referencedColumnName = "code", nullable = false)
+    //@JoinColumn(name = "business_unit_code", referencedColumnName = "code", nullable = false)
+    @JoinColumn(name = "business_unit_code", referencedColumnName = "code")
     private BusinessUnit businessUnit;
 
     // "mappedBy = *nome*" --> nome del lato di chi passa la chiave
