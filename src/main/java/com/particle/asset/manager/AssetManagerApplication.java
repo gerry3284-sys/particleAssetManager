@@ -32,15 +32,15 @@ public class AssetManagerApplication
 	// TODO: Aggiungere gli errori relativi al salvataggio delle ricevute
 	// TODO: Aggiungere il nome della ricevuta alla response 200 dopo aver effettuato
 	//		 un'operazione di movimento (è possibile farlo ?)
-	// TODO: Modificare il form dell'autorizzazione in Swagger (esteticamente) {OK}
-	// TODO: Far si che "Available", "Assigned" e "Dismissed" non possano essere modificati {OK}
-	// TODO: Quando viene fatto il Dismissed, l'id dell'utente deve essere NULL {OK}
-	// TODO: Fixare il bug dato dall'enum dei valori di Movement {OK}
-	// TODO: Un asset può essere assegnato solo a utenti appartenenti alla stessa BU {OK}
-	// TODO: Un Admin non può assegnarsi Asset e non può assegnare Asset ad altri Admin {OK}
-	// TODO: Un Admin deve avere Business Unit NULL {OK}
 	// TODO: Aggiungere un endpoint differente per la dismissione degli Asset ?
+	//		 Questo potrebbe essere fatto per via del controllo che si effettua per mettere
+	//		 a null i dati
 	// TODO: Far si che un Asset possa essere modificato solo se esso è Available
+	// TODO: Far si che la GET user/{id}/movement restituisca il code del movement
+	// TODO: Far si che le varie chiamate non restituiscano più l'id perchè inutile
+	//		 (fatta eccezione per l'utente)
+	// TODO: I movimenti degli asset che hanno null come ID devono essere gestiti affinchè
+	//		 non venga generato l'errore 500
 
 	public static void main(String[] args) {
 		SpringApplication.run(AssetManagerApplication.class, args);

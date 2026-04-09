@@ -315,6 +315,7 @@ public class AssetService
     {
         MovementSummaryResponseDto dto = new MovementSummaryResponseDto();
         dto.setId(movement.getId());
+        dto.setCode(movement.getCode());
         dto.setDate(movement.getDate());
         dto.setMovementType(String.valueOf(movement.getMovementType()));
         dto.setNote(movement.getNote());
