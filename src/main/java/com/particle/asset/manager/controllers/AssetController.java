@@ -152,7 +152,9 @@ public class AssetController
             return ResponseEntity.status(404).body(AssetResponses.NOT_FOUND);
         else if(updatedAsset.getStatus() == AssetOperations.BAD_REQUEST)
             return ResponseEntity.status(400).body(AssetResponses.BAD_REQUEST);
-        else
+        else if(updatedAsset.getStatus() == AssetOperations.CANNOT_UPDATE)
+            return ResponseEntity.status(409).body(AssetResponses.CANNOT_UPDATE);
+        else // ALREADY_EXISTS
             return ResponseEntity.status(400).body(AssetResponses.ALREADY_EXISTS);
     }
 
@@ -297,6 +299,8 @@ public class AssetController
             return ResponseEntity.status(403).body(MovementResponses.INVALID_TARGET_ROLE);
         else if(movementOperation.getStatus() == MovementOperations.BUSINESS_UNIT_MISMATCH)
             return ResponseEntity.status(409).body(MovementResponses.BUSINESS_UNIT_MISMATCH);
+        else if(movementOperation.getStatus() == MovementOperations.INVALID_RETURN_USER)
+            return ResponseEntity.status(409).body(MovementResponses.INVALID_RETURN_USER);
         else // ASSET_STATE_BLOCKS_OPERATION
             return ResponseEntity.status(423).body(MovementResponses.ASSET_STATE_BLOCKS_OPERATION);
     }

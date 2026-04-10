@@ -199,6 +199,10 @@ public class AssetService
 
         Asset updatedAsset = assetByCode.get();
 
+        if(assetByCode.get().getAssetStatusType().getName().equals(BasicAssetStatuses.ASSIGNED.name()) ||
+                assetByCode.get().getAssetStatusType().getName().equals(BasicAssetStatuses.DISMISSED.name()))
+            return new Result.AssetDtoResult(AssetOperations.CANNOT_UPDATE, null);
+
         if(!(updatedAsset.getSerialNumber().equals(assetDTO.getSerialNumber())) &&
                 assetRepository.existsBySerialNumber(assetDTO.getSerialNumber()))
             return new Result.AssetDtoResult(AssetOperations.ALREADY_EXISTS, null);
@@ -314,14 +318,12 @@ public class AssetService
     public MovementSummaryResponseDto convertToDTO(Movement movement)
     {
         MovementSummaryResponseDto dto = new MovementSummaryResponseDto();
-        dto.setId(movement.getId());
         dto.setCode(movement.getCode());
         dto.setDate(movement.getDate());
         dto.setMovementType(String.valueOf(movement.getMovementType()));
         dto.setNote(movement.getNote());
 
         AssetSummaryDto assetSummaryDTO = new AssetSummaryDto();
-        assetSummaryDTO.setId(movement.getAsset().getId());
         assetSummaryDTO.setBrand(movement.getAsset().getBrand());
         assetSummaryDTO.setModel(movement.getAsset().getModel());
         assetSummaryDTO.setSerialNumber(movement.getAsset().getSerialNumber());
@@ -332,11 +334,16 @@ public class AssetService
         dto.setAsset(assetSummaryDTO);
 
         UserSummaryDto userSummaryDTO = new UserSummaryDto();
-        userSummaryDTO.setId(movement.getUsers().getId());
-        userSummaryDTO.setName(movement.getUsers().getName());
-        userSummaryDTO.setSurname(movement.getUsers().getSurname());
-        userSummaryDTO.setEmail(movement.getUsers().getEmail());
-        dto.setUser(userSummaryDTO);
+        if(movement.getUsers() != null)
+        {
+            userSummaryDTO.setId(movement.getUsers().getId());
+            userSummaryDTO.setName(movement.getUsers().getName());
+            userSummaryDTO.setSurname(movement.getUsers().getSurname());
+            userSummaryDTO.setEmail(movement.getUsers().getEmail());
+            dto.setUser(userSummaryDTO);
+        }
+        else
+            dto.setUser(null);
 
         return dto;
     }
@@ -346,8 +353,9 @@ public class AssetService
     public Result.MovementDtoResult assignReturnedDismissAsset(String assetCode, MovementRequestBodyDto movementDTO)
     {
         // Validazione base
-        if(movementDTO.getMovementType() == null || movementDTO.getUser() == null || assetCode == null
-            /*|| movementDTO.getReceiptBase64()*/)
+        if(movementDTO.getMovementType() == null /*|| movementDTO.getUser() == null*/ || assetCode == null
+            /*|| movementDTO.getReceiptBase64()*/ || (movementDTO.getUser() == null &&
+                !movementDTO.getMovementType().name().equals(MovementTypes.DISMISSED.name())))
             return new Result.MovementDtoResult(MovementOperations.BAD_REQUEST, null);
 
         // Controllo base per assetCode e corretto MovementType
@@ -373,9 +381,14 @@ public class AssetService
             return new Result.MovementDtoResult(MovementOperations.ASSET_STATE_BLOCKS_OPERATION, null);
 
         // Ricerca Utente
-        Optional<User> userOpt = userRepository.findById(movementDTO.getUser());
-        if (userOpt.isEmpty())
-            return new Result.MovementDtoResult(MovementOperations.USER_NOT_FOUND, null);
+        Optional<User> userOpt = Optional.empty();
+
+        if(movementDTO.getUser() != null)
+        {
+            userOpt = userRepository.findById(movementDTO.getUser());
+            if (userOpt.isEmpty())
+                return new Result.MovementDtoResult(MovementOperations.USER_NOT_FOUND, null);
+        }
 
         Optional<Movement> lastMovement = movementRepository.findFirstByAssetCodeOrderByDateDesc(assetCode);
 
@@ -410,7 +423,7 @@ public class AssetService
 
             if(!Objects.equals(lastMovement.get().getUsers().getId(), movementDTO.getUser()) &&
                     lastMovement.get().getMovementType().name().equals(BasicAssetStatuses.ASSIGNED.name()))
-                return new Result.MovementDtoResult(MovementOperations.INVALID_MOVEMENT_TYPE, null);
+                return new Result.MovementDtoResult(MovementOperations.INVALID_RETURN_USER, null);
         }
 
         if (movementDTO.getMovementType().name().equals(MovementTypes.DISMISSED.name()) && lastMovement.isPresent())
@@ -424,10 +437,16 @@ public class AssetService
 
         // Costruzione nome file: {assetCode}_{surname}_{movementType}_{rowCount}.pdf
         long rowCount = movementRepository.count()+1;
-        String fileName = assetCode.toUpperCase() + "_"
+        String fileName;
+        if(!movementDTO.getMovementType().name().equals(MovementTypes.DISMISSED.name()))
+            fileName = assetCode.toUpperCase() + "_"
                 + userOpt.get().getSurname() + "_"
                 + movementDTO.getMovementType() + "_"
                 + rowCount + ".pdf";
+        else
+            fileName = assetCode.toUpperCase() + "_"
+                    + movementDTO.getMovementType() + "_"
+                    + rowCount + ".pdf";
 
         // Salvataggio file
         // TODO: Modificare dopo che il FE finisce
@@ -447,9 +466,14 @@ public class AssetService
                 ?userOpt.get() :null);
         addedMovement.setNote(movementDTO.getNote());
         addedMovement.setReceiptFileName(savedFileName);
-        addedMovement.setCode(movementDTO.getMovementType().name()
-                .substring(0, 2) + movementDTO.getUser() + assetCode.toUpperCase() +
-                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + (movementRepository.count()+1));
+        if(!movementDTO.getMovementType().name().equals(MovementTypes.DISMISSED.name()))
+            addedMovement.setCode(movementDTO.getMovementType().name()
+                    .substring(0, 2) + movementDTO.getUser() + assetCode.toUpperCase() +
+                    LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + (movementRepository.count()+1));
+        else
+            addedMovement.setCode(movementDTO.getMovementType().name()
+                    .substring(0, 2) + assetCode.toUpperCase() +
+                    LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + (movementRepository.count()+1));
 
         // Trovare un modo per inserire "isPresent()" ?
         Asset updatedAssetStatus = assetOpt.get();
@@ -466,8 +490,13 @@ public class AssetService
         movementRepository.save(addedMovement);
         assetRepository.save(updatedAssetStatus);
 
+        if(!(movementDTO.getMovementType().name().equals(MovementTypes.DISMISSED.name())))
         return new Result.MovementDtoResult(MovementOperations.OK,
                 new MovementResponseBodyDto(assetCode, movementDTO.getUser(),
+                        movementDTO.getMovementType().name(), movementDTO.getNote()));
+        else
+            return new Result.MovementDtoResult(MovementOperations.OK,
+                    new MovementResponseBodyDto(assetCode, null,
                         movementDTO.getMovementType().name(), movementDTO.getNote()));
     }
 

@@ -52,14 +52,12 @@ public class UserService
     public MovementSummaryResponseDto convertToDTO(Movement movement)
     {
         MovementSummaryResponseDto dto = new MovementSummaryResponseDto();
-        dto.setId(movement.getId());
         dto.setCode(movement.getCode());
         dto.setDate(movement.getDate());
         dto.setMovementType(String.valueOf(movement.getMovementType()));
         dto.setNote(movement.getNote());
 
         AssetSummaryDto assetSummaryDTO = new AssetSummaryDto();
-        assetSummaryDTO.setId(movement.getAsset().getId());
         assetSummaryDTO.setBrand(movement.getAsset().getBrand());
         assetSummaryDTO.setModel(movement.getAsset().getModel());
         assetSummaryDTO.setSerialNumber(movement.getAsset().getSerialNumber());

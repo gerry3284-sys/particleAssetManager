@@ -12,4 +12,6 @@ public class AssetResponses
             new Error("400", "Asset With That Serial Number Already Exists");
     public static final Error STATUS_ERROR =
             new Error("400", "Asset Status Cannot Be Changed Now");
+    public static final Error CANNOT_UPDATE =
+            new Error("409", "Asset Cannot Be Updated Because it's not AVAILABLE");
 }

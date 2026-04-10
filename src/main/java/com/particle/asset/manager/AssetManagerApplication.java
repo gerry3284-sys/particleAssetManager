@@ -32,15 +32,17 @@ public class AssetManagerApplication
 	// TODO: Aggiungere gli errori relativi al salvataggio delle ricevute
 	// TODO: Aggiungere il nome della ricevuta alla response 200 dopo aver effettuato
 	//		 un'operazione di movimento (è possibile farlo ?)
-	// TODO: Aggiungere un endpoint differente per la dismissione degli Asset ?
-	//		 Questo potrebbe essere fatto per via del controllo che si effettua per mettere
-	//		 a null i dati
-	// TODO: Far si che un Asset possa essere modificato solo se esso è Available
+	// TODO: Far si che si possa avere users_id = null nel caso della Dismissione {OK}
+	// TODO: Far si che un Asset possa essere modificato solo se esso è Available {OK}
 	// TODO: Far si che la GET user/{id}/movement restituisca il code del movement
+	//  	 Anche asset/{code}/movement viene affetto da ciò {OK}
 	// TODO: Far si che le varie chiamate non restituiscano più l'id perchè inutile
-	//		 (fatta eccezione per l'utente)
+	//		 (fatta eccezione per l'utente) {OK}
 	// TODO: I movimenti degli asset che hanno null come ID devono essere gestiti affinchè
-	//		 non venga generato l'errore 500
+	//		 non venga generato l'errore 500 {OK}
+	// TODO: Risolvere l'errore del messaggio d'errore sbagliato quando si prova a fare RETURNED
+	//		 usando un id utente differente {OK}
+	// TODO: Far si che il nome del PDF creato in DISMISSED sia differente (non deve avere i dati utente) {OK}
 
 	public static void main(String[] args) {
 		SpringApplication.run(AssetManagerApplication.class, args);

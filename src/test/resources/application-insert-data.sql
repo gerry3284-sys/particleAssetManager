@@ -28,7 +28,7 @@ INSERT INTO asset_type (active, creation_date, name, code, hard_disk, ram, updat
 -- Asset usando i code (prime 2 lettere del serial_number + posizione)
 INSERT INTO asset (brand, model, note, serial_number, type_code, business_unit_code, creation_date, update_date, status_code, code) VALUES
 ('Dell', 'Latitude 5420', 'Laptop aziendale', 'SN001234', 'LA1', 'PA1', NOW(), NULL, 'AS2', 'SN1'),
-('HP', 'EliteBook 840', NULL, 'SN001235', 'LA1', 'PA1', NOW(), NULL, 'AV1', 'SN2'),
+('HP', 'EliteBook 840', NULL, 'SN001235', 'LA1', 'VA2', NOW(), NULL, 'AV1', 'SN2'),
 ('LG', '27UK850', 'Monitor 4K', 'SN002001', 'MO2', 'VA2', NOW(), NULL, 'AV1', 'SN3'),
 ('Samsung', 'Galaxy S23', NULL, 'IMEI123456', 'SM4', 'PA1', NOW(), NULL, 'DI3', 'IM4');
 
@@ -42,7 +42,7 @@ INSERT INTO users (name, surname, email, phone_number, user_type, business_unit_
 
 -- Movement usando asset_code (prime 2 lettere del serial_number + posizione)
 INSERT INTO movement (date, movement_type, note, asset_code, users_id, receipt_file_name, code) VALUES
-(TIMESTAMP '2024-01-10 09:00:00', 'ASSIGNED', 'Assegnato notebook a Marco', 'SN1', 3, 'NOPDF1', 'AS1SN1202401101'),
-(TIMESTAMP '2024-01-15 14:30:00', 'ASSIGNED', NULL, 'SN2', 2, 'NOPDF2', 'AS2SN2202401152'),
-(TIMESTAMP '2024-02-01 11:00:00', 'RETURNED', 'Monitor inviato in manutenzione', 'SN2', 2, 'NOPDF3', 'RE2SN2202402113'),
-(TIMESTAMP '2024-02-05 16:00:00', 'DISMISSED', 'Smartphone dismesso', 'IM4', NULL, 'NOPDF4', 'DI1IM4202402054');
+(TIMESTAMP '2024-01-10 09:00:00', 'ASSIGNED', 'Assegnato notebook a Marco', 'SN1', 2, 'SN1_Rossi_ASSIGNED_1.pdf', 'AS2SN1202401101'),
+(TIMESTAMP '2024-01-15 14:30:00', 'ASSIGNED', NULL, 'SN2', 3, 'SN2_Bianchi_ASSIGNED_2.pdf', 'AS3SN2202401152'),
+(TIMESTAMP '2024-02-01 11:00:00', 'RETURNED', 'Monitor inviato in manutenzione', 'SN2', 3, 'SN2_Bianchi_RETURNED_3.pdf', 'RE3SN2202402113'),
+(TIMESTAMP '2024-02-05 16:00:00', 'DISMISSED', 'Smartphone dismesso', 'IM4', NULL, 'IM4_DISMISSED_4.pdf', 'DIIM4202402054');
