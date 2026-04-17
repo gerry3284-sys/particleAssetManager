@@ -96,7 +96,7 @@ public class AssetStatusTypeService
         // Normalizzazione del nome (se necessario)
         assetStatusTypeDTO.setName(normalizeName(assetStatusTypeDTO.getName()));
 
-        if(repository.existsByName(assetStatusTypeDTO.getName()))
+        if(repository.existsByName(assetStatusTypeDTO.getName().trim()))
             return new Result.AssetStatusTypeRequestDtoPutResult
                     (AssetStatusTypeOperations.ALREADY_EXISTS, null);
 

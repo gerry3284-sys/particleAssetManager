@@ -27,7 +27,7 @@ CREATE TABLE asset_type (
     name VARCHAR(255) NOT NULL,
     update_date DATETIME(6) DEFAULT NULL,
     code VARCHAR(255) NOT NULL,
-    hard_disk BIT(1) NOT NULL,
+    storage BIT(1) NOT NULL,
     ram BIT(1) NOT NULL,
     PRIMARY KEY (id),
     UNIQUE KEY (name),
@@ -56,8 +56,10 @@ CREATE TABLE users (
     surname VARCHAR(255) NOT NULL,
     user_type ENUM('ADMIN', 'USER') NOT NULL,
     business_unit_code VARCHAR(255),
+    oid VARCHAR(36) NOT NULL,
     PRIMARY KEY (id),
     KEY (business_unit_code),
+    UNIQUE KEY(oid),
     CONSTRAINT fk_users_business_unit FOREIGN KEY (business_unit_code) REFERENCES business_unit(code)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -66,7 +68,7 @@ CREATE TABLE asset (
     id BIGINT(20) NOT NULL AUTO_INCREMENT,
     brand VARCHAR(255) NOT NULL,
     creation_date DATETIME(6) NOT NULL,
-    hard_disk VARCHAR(255) DEFAULT NULL,
+    storage VARCHAR(255) DEFAULT NULL,
     model VARCHAR(255) NOT NULL,
     note VARCHAR(255) DEFAULT NULL,
     ram SMALLINT(6) DEFAULT NULL,

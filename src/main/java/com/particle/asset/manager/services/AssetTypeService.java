@@ -99,9 +99,9 @@ public class AssetTypeService
         String nameWithoutSpaces = assetType.getName().replaceAll("\\s+", "");
         assetType.setCode(nameWithoutSpaces.toUpperCase()
                 .substring(0, Math.min(2, nameWithoutSpaces.length())) + (repository.count()+1));
-        System.out.println("checkNULL: " + assetTypeDTO.isRam() + ", " + assetTypeDTO.isHardDisk());
+        //System.out.println("checkNULL: " + assetTypeDTO.isRam() + ", " + assetTypeDTO.isStorage());
         assetType.setRam(assetTypeDTO.isRam());
-        assetType.setHardDisk(assetTypeDTO.isHardDisk());
+        assetType.setStorage(assetTypeDTO.isStorage());
 
         repository.save(assetType);
         return new Result.AssetTypeDTOPutResult(AssetTypeOperations.OK, assetTypeDTO);
@@ -152,7 +152,7 @@ public class AssetTypeService
 
         updatedAssetType.setName(assetTypeDTO.getName());
         updatedAssetType.setRam(assetTypeDTO.isRam());
-        updatedAssetType.setHardDisk(assetTypeDTO.isHardDisk());
+        updatedAssetType.setStorage(assetTypeDTO.isStorage());
         updatedAssetType.setUpdateDate(LocalDateTime.now());
         repository.save(updatedAssetType);
 
@@ -177,6 +177,6 @@ public class AssetTypeService
 
         return new AssetTypeStatusResponseDto
                 (activatedDeactivatedAssetType.getName(), activatedDeactivatedAssetType.isRam(),
-                        activatedDeactivatedAssetType.isHardDisk(), activatedDeactivatedAssetType.isActive());
+                        activatedDeactivatedAssetType.isStorage(), activatedDeactivatedAssetType.isActive());
     }
 }

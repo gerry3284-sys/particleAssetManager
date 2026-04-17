@@ -8,5 +8,5 @@ import lombok.Data;
 public class AssetTypeStatusResponseDto
 {
     private String name;
-    private boolean ram, hardDisk, active;
+    private boolean ram, storage, active;
 }

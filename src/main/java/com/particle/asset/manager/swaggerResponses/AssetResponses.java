@@ -14,4 +14,6 @@ public class AssetResponses
             new Error("400", "Asset Status Cannot Be Changed Now");
     public static final Error CANNOT_UPDATE =
             new Error("409", "Asset Cannot Be Updated Because it's not AVAILABLE");
+    public static final Error INVALID_STORAGE =
+            new Error("400", "Invalid Storage Type, Data Size or Number is Invalid");
 }

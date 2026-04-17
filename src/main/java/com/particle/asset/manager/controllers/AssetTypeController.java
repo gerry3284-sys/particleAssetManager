@@ -103,10 +103,10 @@ public class AssetTypeController
         Result.AssetTypeDTOPutResult createdAssetType = service.createType(assetTypeDTO);
 
         if(createdAssetType.getStatus() == AssetTypeOperations.OK)
-            return ResponseEntity.ok(createdAssetType);
+            return ResponseEntity.ok(createdAssetType.getPutResponse());
         else if(createdAssetType.getStatus() == AssetTypeOperations.BAD_REQUEST)
             return ResponseEntity.status(400).body(AssetTypeResponses.BAD_REQUEST);
-        else
+        else // ALREADY_EXISTS
             return ResponseEntity.status(400).body(AssetTypeResponses.ALREADY_EXISTS);
     }
 

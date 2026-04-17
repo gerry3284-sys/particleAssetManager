@@ -21,28 +21,27 @@ public class AssetManagerApplication
 	// "code" di Movement → RE1CA1199603221
 	// RE → MovementType (primi 2 caratteri), 1 → UserId, CA1 → AssetCode,
 	// 19960322 → MovementDate (yyyymmdd), 1 → Numero Record Tabella
+	// "code" di Movement per casi Dismissed → DICA1199603221 (come l'altro ma senza UserId)
+	// Esempio "OID" → 550e8400-e29b-41d4-a716-446655440000 → 32 caratteri esadecimali (0-9 e a-f) →
+	// Divisi in 5 gruppi separati da trattini → Formato: 8-4-4-4-12 (36 caratteri totali per via del separatore)
 
-	// TODO: Per il nome dell'hard disk usare un enum (inserire più tipi) - TBA
+	// TODO: Per il nome dello storage usare un enum (inserire più tipi)
+	// TODO: Per la quantità di spazio dello storage usare un enum
 	// TODO: Implementare la creazione del token attraverso l'Office 365 (token SDK) - TBA
-	// TODO: Cancellare la creazione del token attraverso il database - TBA
+	// TODO: Cancellare la creazione del token attraverso il database {OK}
 	// TODO: Modificare da "boolean" a "Boolean" (per avere "NULL") ?
+	//		 Potrebbe avere senso per far si che serva obbligatoriamente il valore
 	// TODO: Modificare il salvataggio del file rendendolo obbligatorio in un'operazione POST del Movement
 	// TODO: Creare un "Operations" in "enums" anche per "User" ?
 	// TODO: Se si dovesse togliere Hard Disk e Ram di un Tipo di Asset deve azzerarsi a DB ?
-	// TODO: Aggiungere gli errori relativi al salvataggio delle ricevute
-	// TODO: Aggiungere il nome della ricevuta alla response 200 dopo aver effettuato
-	//		 un'operazione di movimento (è possibile farlo ?)
-	// TODO: Far si che si possa avere users_id = null nel caso della Dismissione {OK}
-	// TODO: Far si che un Asset possa essere modificato solo se esso è Available {OK}
-	// TODO: Far si che la GET user/{id}/movement restituisca il code del movement
-	//  	 Anche asset/{code}/movement viene affetto da ciò {OK}
-	// TODO: Far si che le varie chiamate non restituiscano più l'id perchè inutile
-	//		 (fatta eccezione per l'utente) {OK}
-	// TODO: I movimenti degli asset che hanno null come ID devono essere gestiti affinchè
-	//		 non venga generato l'errore 500 {OK}
-	// TODO: Risolvere l'errore del messaggio d'errore sbagliato quando si prova a fare RETURNED
-	//		 usando un id utente differente {OK}
-	// TODO: Far si che il nome del PDF creato in DISMISSED sia differente (non deve avere i dati utente) {OK}
+	// TODO: Restituire il nome dello statusCode per "GET user/{code}/movement" ?
+	// TODO: Inserire OID (che si prenderà da login SDK) nella tabella users {OK}
+	// TODO: Inserire OID nella creazione del DB e nell'inserimento dei valori di default {OK}
+	// TODO: Risolvere il problema del Response Body sbagliato per la creazione di un AssetType {OK}
+	// TODO: Inserire un controllo che faccia si che non si possa inserire 0 come valore RAM
+	//		 se l'assetType lo possiede (stesso discorso per lo storage).
+	// TODO: Quando si prova a inserire un Asset che esiste già, compare l'errore sbagliato
+	// TODO: Inserire in tutti i controlli e set (dove necessario) {OK}
 
 	public static void main(String[] args) {
 		SpringApplication.run(AssetManagerApplication.class, args);

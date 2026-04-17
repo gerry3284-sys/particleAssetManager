@@ -6,5 +6,5 @@ import lombok.Data;
 public class AssetTypeRequestDto
 {
     private String name;
-    private boolean Ram, HardDisk;
+    private boolean ram, storage;
 }

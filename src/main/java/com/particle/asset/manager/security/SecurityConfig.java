@@ -27,7 +27,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig
 {
-    private final CustomUserDetailsService userDetailsService;
+    //private final CustomUserDetailsService userDetailsService;
     private final JwtAuthenticationFilter jwtAuthFilter;
 
     @Bean

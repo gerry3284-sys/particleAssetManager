@@ -28,10 +28,10 @@ public class User
     @Column(nullable = false)
     private String email;
 
-    @Column(nullable = false)
+    //@Column(nullable = false)
     private String phoneNumber;
 
-    @Column(nullable = false)
+    //@Column(nullable = false)
     @Enumerated(value = EnumType.STRING)
     private UserTypes userType;
 
@@ -39,6 +39,9 @@ public class User
     //@JoinColumn(name = "business_unit_code", referencedColumnName = "code", nullable = false)
     @JoinColumn(name = "business_unit_code", referencedColumnName = "code")
     private BusinessUnit businessUnit;
+
+    @Column(nullable = false, unique = true)
+    private String oid; // Id del login attraverso Microsoft (Object ID)
 
     // "mappedBy = *nome*" --> nome del lato di chi passa la chiave
     // "cascade = CascadeType.ALL" --> salva/aggiorna/cancella anche i figli

@@ -95,7 +95,7 @@ public class BusinessUnitService
         // Normalizzazione del nome (se necessario)
         businessUnitDTO.setName(normalizeName(businessUnitDTO.getName()));
 
-        if(repository.existsByName(businessUnitDTO.getName()))
+        if(repository.existsByName(businessUnitDTO.getName().trim()))
             return new Result.BusinessUnitRequestDtoPutResult(BusinessUnitOperations.ALREADY_EXSISTS, null);
 
         BusinessUnit businessUnit = new BusinessUnit();

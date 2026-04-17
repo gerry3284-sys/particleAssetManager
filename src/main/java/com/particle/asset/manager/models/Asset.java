@@ -37,7 +37,7 @@ public class Asset
 
     private Short ram; // RAM in Giga
 
-    private String hardDisk; // *tipo Hard Disk* + spazio
+    private String storage; // *tipo Hard Disk* + spazio + *unità di misura*
 
     @ManyToOne
     @JoinColumn(name = "business_unit_code", referencedColumnName = "code", nullable = false)

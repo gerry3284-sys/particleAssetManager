@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class AssetRequestDto
 {
-    private String brand, model, serialNumber, note, hardDisk,
+    private String brand, model, serialNumber, note, storage,
             businessUnitCode, assetTypeCode;
     private Short ram;
 }

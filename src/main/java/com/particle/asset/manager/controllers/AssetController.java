@@ -111,7 +111,9 @@ public class AssetController
             return ResponseEntity.ok(createdAsset.getPutResponse());
         else if(createdAsset.getStatus() == AssetOperations.BAD_REQUEST)
             return ResponseEntity.status(400).body(AssetResponses.BAD_REQUEST);
-        else
+        else if(createdAsset.getStatus() == AssetOperations.INVALID_STORAGE)
+            return ResponseEntity.status(400).body(AssetResponses.INVALID_STORAGE);
+        else // ALREADY_EXISTS
             return ResponseEntity.status(400).body(AssetResponses.ALREADY_EXISTS);
     }
 

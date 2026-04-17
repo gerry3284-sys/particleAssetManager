@@ -29,7 +29,7 @@
 	<properties>
 		<java.version>21</java.version>
 		<lombok.version>1.18.30</lombok.version>
-		<jjwt.version>0.12.3</jjwt.version>
+		<!--<jjwt.version>0.12.3</jjwt.version>-->
 	</properties>
 	<dependencies>
 		<dependency>
@@ -52,13 +52,13 @@
 		</dependency>
 
 		<!-- JWT - jjwt-api -->
-		<dependency>
+		<!-- <dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-api</artifactId>
 			<version>${jjwt.version}</version>
 		</dependency>
 
-		<!-- JWT - jjwt-impl -->
+		 JWT - jjwt-impl
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-impl</artifactId>
@@ -66,12 +66,19 @@
 			<scope>runtime</scope>
 		</dependency>
 
-		<!-- JWT - jjwt-jackson -->
+		JWT - jjwt-jackson
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-jackson</artifactId>
 			<version>${jjwt.version}</version>
 			<scope>runtime</scope>
+		</dependency> -->
+
+		<!-- MSAL4J per validazione token Microsoft -->
+		<dependency>
+			<groupId>com.microsoft.azure</groupId>
+			<artifactId>msal4j</artifactId>
+			<version>1.14.0</version>
 		</dependency>
 
 		<!-- Aggiunta dipendenza per il collegamento a MariaDB -->

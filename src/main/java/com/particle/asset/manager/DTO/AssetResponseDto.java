@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class AssetResponseDto
 {
-    private String brand, model, serialNumber, note, hardDisk,
+    private String brand, model, serialNumber, note, storage,
             businessUnitCode, assetTypeCode, assetStatusTypeCode;
     private Short ram;
 }

@@ -63,7 +63,7 @@ public class UserService
         assetSummaryDTO.setSerialNumber(movement.getAsset().getSerialNumber());
         assetSummaryDTO.setCode(movement.getAsset().getCode());
         assetSummaryDTO.setRam(movement.getAsset().getRam());
-        assetSummaryDTO.setHardDisk(movement.getAsset().getHardDisk());
+        assetSummaryDTO.setStorage(movement.getAsset().getStorage());
         assetSummaryDTO.setStatusCode(movement.getAsset().getAssetStatusType().getCode());
         dto.setAsset(assetSummaryDTO);
 

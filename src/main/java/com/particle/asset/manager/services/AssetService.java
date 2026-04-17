@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 @Service
 public class AssetService
@@ -114,9 +116,12 @@ public class AssetService
         if(assetDTO == null || assetDTO.getAssetTypeCode() == null || assetDTO.getBrand() == null ||
                 assetDTO.getModel() == null || assetDTO.getBusinessUnitCode() == null ||
                 assetDTO.getSerialNumber() == null ||
-                assetDTO.getRam() == null || assetDTO.getHardDisk() == null ||
-                assetRepository.existsBySerialNumber(assetDTO.getSerialNumber()))
+                assetDTO.getRam() == null || assetDTO.getStorage() == null ||
+                assetRepository.existsBySerialNumber(assetDTO.getSerialNumber().trim()))
             return new Result.AssetDtoResult(AssetOperations.BAD_REQUEST, null);
+
+        if(assetDTO.getStorage() == null || !isValidStorageFormat(assetDTO.getStorage().trim()))
+            return new Result.AssetDtoResult(AssetOperations.INVALID_STORAGE, null);
 
         Optional<AssetType> assetTypeById = assetTypeRepository.findByCode(assetDTO.getAssetTypeCode());
         Optional<BusinessUnit> businessUnitById = businessUnitRepository.findByCode(assetDTO.getBusinessUnitCode());
@@ -129,14 +134,14 @@ public class AssetService
 
         Asset asset = new Asset();
         asset.setAssetType(assetTypeById.get());
-        asset.setBrand(assetDTO.getBrand());
-        asset.setModel(assetDTO.getModel());
+        asset.setBrand(assetDTO.getBrand().trim());
+        asset.setModel(assetDTO.getModel().trim());
         asset.setBusinessUnit(businessUnitById.get());
-        asset.setSerialNumber(assetDTO.getSerialNumber());
+        asset.setSerialNumber(assetDTO.getSerialNumber().trim());
         asset.setRam(assetDTO.getRam());
-        asset.setHardDisk(assetDTO.getHardDisk());
+        asset.setStorage(assetDTO.getStorage().trim().replaceAll("\\s+", " "));
         asset.setAssetStatusType(assetStatusTypeByCode.get());
-        asset.setNote(assetDTO.getNote());
+        asset.setNote(assetDTO.getNote().trim());
 
         String nameWithoutSpaces = asset.getSerialNumber().replaceAll("\\s+", "");
         asset.setCode(nameWithoutSpaces.toUpperCase()
@@ -145,6 +150,23 @@ public class AssetService
         assetRepository.save(asset);
 
         return new Result.AssetDtoResult(AssetOperations.OK, getAssetResponseDto(asset));
+    }
+
+    public boolean isValidStorageFormat(String storage) {
+        // Costruisce il pattern dagli enum: (SSD|HDD|NVMe|...)
+        String storagePattern = Arrays.stream(StorageTypes.values())
+                .map(s -> s.name())
+                .collect(Collectors.joining("|"));
+
+        // Costruisce il pattern dagli enum: (GB|TB|MB|...)
+        String unitPattern = Arrays.stream(DataSizeUnits.values())
+                .map(d -> d.name())
+                .collect(Collectors.joining("|"));
+
+        // Pattern finale: "SSD 500 GB" oppure "HDD 1 TB" ecc.
+        String regex = "(?i)(" + storagePattern + ")\\s+\\d+\\s+(" + unitPattern + ")";
+
+        return storage != null && storage.matches(regex);
     }
 
     public Asset getAssetById(String code)
@@ -187,6 +209,9 @@ public class AssetService
                 assetDTO.getBusinessUnitCode() == null || assetDTO.getSerialNumber() == null)
             return new Result.AssetDtoResult(AssetOperations.BAD_REQUEST, null);
 
+        if(assetDTO.getStorage() == null || !isValidStorageFormat(assetDTO.getStorage().trim()))
+            return new Result.AssetDtoResult(AssetOperations.INVALID_STORAGE, null);
+
         Optional<Asset> assetByCode = assetRepository.findByCode(code);
         Optional<AssetType> assetTypeByCode = assetTypeRepository.findByCode(assetDTO.getAssetTypeCode());
         Optional<BusinessUnit> businessUnitByCode = businessUnitRepository.findByCode(assetDTO.getBusinessUnitCode());
@@ -203,18 +228,18 @@ public class AssetService
                 assetByCode.get().getAssetStatusType().getName().equals(BasicAssetStatuses.DISMISSED.name()))
             return new Result.AssetDtoResult(AssetOperations.CANNOT_UPDATE, null);
 
-        if(!(updatedAsset.getSerialNumber().equals(assetDTO.getSerialNumber())) &&
-                assetRepository.existsBySerialNumber(assetDTO.getSerialNumber()))
+        if(!(updatedAsset.getSerialNumber().trim().equals(assetDTO.getSerialNumber().trim())) &&
+                assetRepository.existsBySerialNumber(assetDTO.getSerialNumber().trim()))
             return new Result.AssetDtoResult(AssetOperations.ALREADY_EXISTS, null);
 
-        updatedAsset.setModel(assetDTO.getModel());
-        updatedAsset.setBrand(assetDTO.getBrand());
-        updatedAsset.setSerialNumber(assetDTO.getSerialNumber());
+        updatedAsset.setModel(assetDTO.getModel().trim());
+        updatedAsset.setBrand(assetDTO.getBrand().trim());
+        updatedAsset.setSerialNumber(assetDTO.getSerialNumber().trim());
         updatedAsset.setAssetType(assetTypeByCode.get());
         updatedAsset.setBusinessUnit(businessUnitByCode.get());
-        updatedAsset.setNote(assetDTO.getNote());
+        updatedAsset.setNote(assetDTO.getNote().trim());
         updatedAsset.setRam(assetDTO.getRam());
-        updatedAsset.setHardDisk(assetDTO.getHardDisk());
+        updatedAsset.setStorage(assetDTO.getStorage().trim().replaceAll("\\s+", " "));
         updatedAsset.setUpdateDate(LocalDateTime.now());
         assetRepository.save(updatedAsset);
 
@@ -234,7 +259,7 @@ public class AssetService
         response.setBusinessUnitCode(updatedAsset.getBusinessUnit().getCode());
         response.setNote(updatedAsset.getNote());
         response.setRam(updatedAsset.getRam());
-        response.setHardDisk(updatedAsset.getHardDisk());
+        response.setStorage(updatedAsset.getStorage());
         response.setAssetStatusTypeCode(updatedAsset.getAssetStatusType().getCode());
         return response;
     }
@@ -328,7 +353,7 @@ public class AssetService
         assetSummaryDTO.setModel(movement.getAsset().getModel());
         assetSummaryDTO.setSerialNumber(movement.getAsset().getSerialNumber());
         assetSummaryDTO.setRam(movement.getAsset().getRam());
-        assetSummaryDTO.setHardDisk(movement.getAsset().getHardDisk());
+        assetSummaryDTO.setStorage(movement.getAsset().getStorage());
         assetSummaryDTO.setCode(movement.getAsset().getCode());
         assetSummaryDTO.setStatusCode(movement.getAsset().getAssetStatusType().getCode());
         dto.setAsset(assetSummaryDTO);
