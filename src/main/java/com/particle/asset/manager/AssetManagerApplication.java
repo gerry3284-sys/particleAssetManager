@@ -37,21 +37,9 @@ public class AssetManagerApplication
 	// TODO: Restituire il nome dello statusCode per "GET user/{code}/movement" ?
 	// TODO: Inserire un controllo che faccia si che non si possa inserire 0 come valore RAM
 	//		 se l'assetType lo possiede (stesso discorso per lo storage).
-	// TODO: Quando si prova a inserire un Asset che esiste già, compare l'errore sbagliato {OK}
-	// TODO: Aggiungere "MAINTENANCE" all'enum "BasicAssetStatuses" {OK}
-	// TODO: Creare un endpoint che restituisce solo gli asset in manutenzione {OK}
-	// TODO: Modificare la restituzione di un asset affinchè esso vada in manutenzione subito dopo {OK}
-	// TODO: Togliere l'API di AssetStatusType {OK}
 	// TODO: Modificare la PUT per lo status dell'asset
 	// TODO: Creare un API per la gestione delle richieste utenti - TBI
 	// TODO: Aggiungere la cache dove serve
-	// TODO: Creare un Dto per il ritorno dei valori in manutenzione {OK}
-	// TODO: Migliorare i controlli sul body di creazione asset (se tolto ram e/o storage che non
-	//		 sono richiesti non deve dare errore) {OK}
-	// TODO: Stesso discorso per il controllo sotto dello storage {OK}
-	// TODO: Rivedere per bene la creazione dell'asset in generale. [Non] deve essere possibile
-	//		 inserire certi tipi di dati sempre. {OK}
-	// TODO: Inserire un errore per la RAM mancante quando serve {OK}
 
 	public static void main(String[] args) {
 		SpringApplication.run(AssetManagerApplication.class, args);
