@@ -71,11 +71,11 @@ public class AssetController
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
                             examples = @ExampleObject(value = GenericResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
-    public ResponseEntity<?> getAssetById(@PathVariable String code)
+    public ResponseEntity<?> getAssetByCode(@PathVariable String code)
     {
-        Asset assetById = service.getAssetById(code);
+        Asset assetByCode = service.getAssetByCode(code);
 
-        return assetById != null ?ResponseEntity.ok(assetById)
+        return assetByCode != null ?ResponseEntity.ok(assetByCode)
                 :ResponseEntity.status(404).body(AssetResponses.NOT_FOUND);
     }
 
@@ -113,6 +113,8 @@ public class AssetController
             return ResponseEntity.status(400).body(AssetResponses.BAD_REQUEST);
         else if(createdAsset.getStatus() == AssetOperations.INVALID_STORAGE)
             return ResponseEntity.status(400).body(AssetResponses.INVALID_STORAGE);
+        else if(createdAsset.getStatus() == AssetOperations.INVALID_RAM)
+            return ResponseEntity.status(400).body(AssetResponses.INVALID_RAM);
         else // ALREADY_EXISTS
             return ResponseEntity.status(400).body(AssetResponses.ALREADY_EXISTS);
     }
@@ -156,6 +158,10 @@ public class AssetController
             return ResponseEntity.status(400).body(AssetResponses.BAD_REQUEST);
         else if(updatedAsset.getStatus() == AssetOperations.CANNOT_UPDATE)
             return ResponseEntity.status(409).body(AssetResponses.CANNOT_UPDATE);
+        else if(updatedAsset.getStatus() == AssetOperations.INVALID_STORAGE)
+            return ResponseEntity.status(400).body(AssetResponses.INVALID_STORAGE);
+        else if(updatedAsset.getStatus() == AssetOperations.INVALID_RAM)
+            return ResponseEntity.status(400).body(AssetResponses.INVALID_RAM);
         else // ALREADY_EXISTS
             return ResponseEntity.status(400).body(AssetResponses.ALREADY_EXISTS);
     }
@@ -199,6 +205,40 @@ public class AssetController
             return ResponseEntity.status(400).body(AssetResponses.BAD_REQUEST);
         else
             return  ResponseEntity.status(400).body(AssetResponses.STATUS_ERROR);
+    }
+
+    @GetMapping("/underMaintenanceAssets")
+    @Operation(summary = "Get all Assets in Under Maintenance")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200",
+                content = @Content(mediaType = "application/json",
+                        schema = @Schema(implementation = MovementSummaryResponseDto.class))),
+        @ApiResponse(responseCode = "401", description = "Not Authorized",
+                content = @Content(mediaType = "application/json",
+                        schema = @Schema(implementation = Error.class),
+                        examples = @ExampleObject(value = GenericResponses.UNAUTHORIZED_ACCESS_EXAMPLE))),
+        @ApiResponse(responseCode = "403", description = "Forbidden",
+                content = @Content(mediaType = "application/json",
+                        schema = @Schema(implementation = Error.class),
+                        examples = @ExampleObject(value = GenericResponses.FORBIDDEN_ACCESS_EXAMPLE))),
+        @ApiResponse(responseCode = "404", description = "Not Found",
+                content = @Content(mediaType = "application/json",
+                        schema = @Schema(implementation = Error.class),
+                        examples = @ExampleObject(value = GenericResponses.NOT_FOUND_EXAMPLE))),
+        @ApiResponse(responseCode = "423", description = "Table State is Blocked",
+                content = @Content(mediaType = "application/json",
+                        schema = @Schema(implementation = Error.class),
+                        examples = @ExampleObject(value = GenericResponses.TABLE_STATE_BLOCKS_OPERATION_EXAMPLE))),
+        @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                content = @Content(mediaType = "application/json",
+                        schema = @Schema(implementation = Error.class),
+                        examples = @ExampleObject(value = GenericResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
+    public ResponseEntity<?> getUnderMaintenanceAssets()
+    {
+        List<AssetMaintenanceListRowResponseDto> assetById = service.getUnderMaintenanceAssets();
+
+        return assetById != null ?ResponseEntity.ok(assetById)
+                :ResponseEntity.status(404).body(AssetResponses.NOT_FOUND);
     }
 
     // Stampa i movimenti di un asset dato il suo code

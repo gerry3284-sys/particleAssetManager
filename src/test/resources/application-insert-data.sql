@@ -16,7 +16,7 @@ INSERT INTO asset_status_type (creation_date, name, code, update_date) VALUES
 (NOW(), 'AVAILABLE', 'AV1', NULL),
 (NOW(), 'ASSIGNED', 'AS2', NULL),
 (NOW(), 'DISMISSED', 'DI3', NULL),
-(NOW(), 'Under Maintenance', 'UN4', NULL);
+(NOW(), 'MAINTENANCE', 'MA4', NULL);
 
 -- Asset Type con code (prime 2 lettere maiuscole + posizione)
 INSERT INTO asset_type (active, creation_date, name, code, storage, ram, update_date) VALUES
