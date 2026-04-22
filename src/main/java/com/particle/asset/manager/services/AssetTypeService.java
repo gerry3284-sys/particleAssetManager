@@ -33,7 +33,8 @@ public class AssetTypeService
     //               dal database e salvati i cache con la chiave "all". Le chiamata successive
     //               leggono direttamente dalla cache per 8 ore.
     @Cacheable(value = "assetTypes", key = "'all'")
-    public List<AssetType> getAllTypes() {
+    public List<AssetType> getAllTypes()
+    {
         System.out.println(">>> Fetching ALL AssetTypes from database...");
         List<AssetType> types = repository.findAll();
 
@@ -45,7 +46,7 @@ public class AssetTypeService
         return types;
     }
 
-    public AssetType getAssetTypeById(String code) {
+    public AssetType getAssetTypeByCode(String code) {
         Cache cache = cacheManager.getCache("assetTypes");
 
         // 1. Cerca prima nella cache del singolo ID

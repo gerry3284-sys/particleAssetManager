@@ -41,6 +41,7 @@ public class SecurityConfig
                         .requestMatchers(new AntPathRequestMatcher("/assetType/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/businessUnit/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/assetStatusType/**")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/ticket/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/user/**")).permitAll()
 
 

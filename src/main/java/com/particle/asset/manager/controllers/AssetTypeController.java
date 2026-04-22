@@ -70,7 +70,7 @@ public class AssetTypeController
                             examples = @ExampleObject(value = GenericResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
     public ResponseEntity<?> getTypeByCode(@PathVariable String code)
     {
-        AssetType searchedAssetType = service.getAssetTypeById(code);
+        AssetType searchedAssetType = service.getAssetTypeByCode(code);
 
         return searchedAssetType != null ?ResponseEntity.ok(searchedAssetType)
                 :ResponseEntity.status(404).body(AssetTypeResponses.NOT_FOUND);

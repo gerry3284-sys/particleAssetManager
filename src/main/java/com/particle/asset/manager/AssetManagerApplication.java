@@ -40,6 +40,10 @@ public class AssetManagerApplication
 	// TODO: Modificare la PUT per lo status dell'asset
 	// TODO: Creare un API per la gestione delle richieste utenti - TBI
 	// TODO: Aggiungere la cache dove serve
+	// TODO: Creare Ticket (model, controller, service, repository) {OK}
+	// TODO: Modificare gli "schema" delle varie ApiResponse
+	// TODO: Modificare il valore di ritorno delle GET generiche
+	// TODO: Appena possibile, inserire il code anche per il ticket
 
 	public static void main(String[] args) {
 		SpringApplication.run(AssetManagerApplication.class, args);

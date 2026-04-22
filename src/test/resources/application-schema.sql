@@ -1,10 +1,13 @@
 -- Cancellazione tabelle esistenti
+SET FOREIGN_KEY_CHECKS = 0; -- Disattiviamo i vincoli di FK
+DROP TABLE IF EXISTS ticket;
 DROP TABLE IF EXISTS movement;
 DROP TABLE IF EXISTS asset;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS business_unit;
 DROP TABLE IF EXISTS asset_type;
 DROP TABLE IF EXISTS asset_status_type;
+SET FOREIGN_KEY_CHECKS = 1; -- Riattiviamo i vincoli di FK
 
 -- Tabella business_unit
 CREATE TABLE business_unit (
@@ -106,3 +109,23 @@ CREATE TABLE movement (
     CONSTRAINT fk_movement_asset FOREIGN KEY (asset_code) REFERENCES asset(code),
     CONSTRAINT fk_movement_users FOREIGN KEY (users_id) REFERENCES users(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Tabella ticket
+CREATE TABLE ticket
+(
+    id BIGINT(20) NOT NULL AUTO_INCREMENT,
+    user_code VARCHAR(255) NOT NULL,
+    operation ENUM('ASSIGNED', 'RETURNED', 'DISMISSED') NOT NULL,
+    type_code VARCHAR(255),
+    asset_code VARCHAR(255),
+    message VARCHAR(500) NOT NULL,
+    status ENUM('OPEN', 'WORKING', 'CLOSED'),
+    date DATETIME(6) NOT NULL,
+    PRIMARY KEY (id),
+    KEY (user_code),
+    KEY (type_code),
+    KEY (asset_code),
+    CONSTRAINT fk_ticket_users FOREIGN KEY (user_code) REFERENCES users(oid),
+    CONSTRAINT fk_ticket_type FOREIGN KEY (type_code) REFERENCES asset_type(code),
+    CONSTRAINT fk_ticket_asset FOREIGN KEY (asset_code) REFERENCES asset(code)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

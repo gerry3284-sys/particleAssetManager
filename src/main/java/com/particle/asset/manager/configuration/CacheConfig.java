@@ -33,7 +33,8 @@ public class CacheConfig
                 "businessUnits",
                 "assetStatusTypes",
                 "assets",
-                "movements"
+                "movements",
+                "tickets"
         );
 
         cacheManager.setCaffeine(Caffeine.newBuilder()
