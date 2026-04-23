@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Data
 public class TicketResponseBodyDto
 {
-    @JsonIgnore
+    //@JsonIgnore
     private Long id;
 
     private String userCode;

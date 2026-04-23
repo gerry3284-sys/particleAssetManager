@@ -145,6 +145,7 @@ public class TicketService
     private TicketResponseBodyDto toResponseDto(Ticket ticket)
     {
         TicketResponseBodyDto dto = new TicketResponseBodyDto();
+        dto.setId(ticket.getId());
         dto.setUserCode(ticket.getUsers().getOid());
         dto.setOperation(ticket.getOperation());
         dto.setAssetTypeCode(ticket.getAssetType() != null ? ticket.getAssetType().getCode() : null);
