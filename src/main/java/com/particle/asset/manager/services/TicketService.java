@@ -47,7 +47,7 @@ public class TicketService
     // @Chacheable → Quando si chiama "getAllTypes()" la prima volta, i dati vengono recuperati
     //               dal database e salvati i cache con la chiave "all". Le chiamata successive
     //               leggono direttamente dalla cache per 8 ore.
-    @Cacheable(value = "assetTypes", key = "'all'")
+    @Cacheable(value = "tickets", key = "'all'")
     public List<TicketResponseBodyDto> getAllTickets()
     {
         System.out.println(">>> Fetching ALL Tickets from database...");
