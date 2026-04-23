@@ -60,4 +60,12 @@ public class GenericResponses
                 "errorDescription": "Another Table Prevents This Operation"
             }
             """;
+
+    public static final String UNPROCESSABLE_ENTITY =
+            """
+            {
+                "errorCode": "422",
+                "errorDescription": "The requested operation is not valid for the provided data"
+            }
+            """;
 }

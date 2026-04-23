@@ -80,6 +80,7 @@ CREATE TABLE asset (
     status_code VARCHAR(255) NOT NULL,           -- Cambiato da status_id
     type_code VARCHAR(255) NOT NULL,             -- Cambiato da type_id
     business_unit_code VARCHAR(255) NOT NULL,    -- Cambiato da business_unit_code
+    end_maintenance_date DATE DEFAULT NULL,
     code VARCHAR(255) NOT NULL,
     PRIMARY KEY (id),
     UNIQUE KEY (serial_number),

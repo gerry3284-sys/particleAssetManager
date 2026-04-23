@@ -2,6 +2,9 @@ package com.particle.asset.manager.services;
 
 import com.particle.asset.manager.DTO.TicketRequestDto;
 import com.particle.asset.manager.DTO.TicketResponseBodyDto;
+import com.particle.asset.manager.enums.MovementTypes;
+import com.particle.asset.manager.enums.TicketOperations;
+import com.particle.asset.manager.enums.TicketStatuses;
 import com.particle.asset.manager.models.Asset;
 import com.particle.asset.manager.models.AssetType;
 import com.particle.asset.manager.models.Ticket;
@@ -10,6 +13,7 @@ import com.particle.asset.manager.repositories.AssetRepository;
 import com.particle.asset.manager.repositories.AssetTypeRepository;
 import com.particle.asset.manager.repositories.TicketRepository;
 import com.particle.asset.manager.repositories.UserRepository;
+import com.particle.asset.manager.results.Result;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
@@ -44,20 +48,24 @@ public class TicketService
     //               dal database e salvati i cache con la chiave "all". Le chiamata successive
     //               leggono direttamente dalla cache per 8 ore.
     @Cacheable(value = "assetTypes", key = "'all'")
-    public List<Ticket> getAllTickets()
+    public List<TicketResponseBodyDto> getAllTickets()
     {
         System.out.println(">>> Fetching ALL Tickets from database...");
         List<Ticket> tickets = ticketRepository.findAll();
 
+        List<TicketResponseBodyDto> ticketsDto = tickets.stream()
+                .map(this::toResponseDto)
+                .toList();
+
         // Popola anche le cache per i singoli ID
         Cache cache = cacheManager.getCache("tickets");
         if(cache != null)
-            tickets.forEach(ticket -> cache.put("id::" + ticket.getId(), ticket));
+            tickets.forEach(ticket -> cache.put("id::" + ticket.getId(), toResponseDto(ticket)));
 
-        return tickets;
+        return ticketsDto;
     }
 
-    public Ticket getTicketById(Long id)
+    public TicketResponseBodyDto getTicketById(Long id)
     {
         Cache cache = cacheManager.getCache("tickets");
 
@@ -66,7 +74,7 @@ public class TicketService
         if(idWrapper != null)
         {
             System.out.println(">>> getTicketById(" + id + ") - CACHE (singolo ID)");
-            return (Ticket) idWrapper.get();
+            return (TicketResponseBodyDto) idWrapper.get();
         }
 
         // 2. Se non c'è, cerca nella cache "all"
@@ -76,7 +84,7 @@ public class TicketService
             // Concludere di risolvere
             System.out.println(">>> getTicketById(" + id + ") - CACHE (filtrato da 'all')");
             @SuppressWarnings("unchecked")
-            List<Ticket> allTickets = (List<Ticket>) allWrapper.get();
+            List<TicketResponseBodyDto> allTickets = (List<TicketResponseBodyDto>) allWrapper.get();
             return allTickets.stream()
                     .filter(ticket -> ticket.getId().equals(id))
                     .findFirst()
@@ -89,7 +97,7 @@ public class TicketService
         if (cache != null && ticket != null)
             cache.put("id::" + id, ticket);
 
-        return ticket;
+        return ticket != null ?toResponseDto(ticket) :null; // NOT_FOUND
     }
 
     // Crea un Type (reset cache)
@@ -97,23 +105,29 @@ public class TicketService
     //               completamente svuotata (clear). Alla prossima chiamata GET,
     //               i dati verrano caricati direttamente dal database.
     @CacheEvict(value = "tickets", allEntries = true)
-    public TicketRequestDto createTicket(TicketRequestDto ticket)
+    public Result.TicketResult createTicket(TicketRequestDto ticket)
     {
         if(ticket.getUserCode() == null || ticket.getOperation() == null ||
-            (ticket.getAssetTypeCode() == null && ticket.getAssetCode() == null) ||
-            (ticket.getAssetTypeCode() != null && ticket.getAssetCode() != null) ||
-            ticket.getMessage() == null || ticket.getStatus() == null)
-            return null;
+                (ticket.getAssetTypeCode() == null && ticket.getAssetCode() == null) ||
+                (ticket.getAssetTypeCode() != null && ticket.getAssetCode() != null) ||
+                ticket.getMessage() == null || ticket.getStatus() == null)
+            return new Result.TicketResult(TicketOperations.BAD_REQUEST, null);
 
-        //TicketResponseBodyDto createdTicket = new TicketResponseBodyDto();
+        if(ticket.getOperation().name().equals(MovementTypes.ASSIGNED.name()) && ticket.getAssetCode() != null ||
+            ticket.getOperation().name().equals(MovementTypes.RETURNED.name()) && ticket.getAssetTypeCode() != null ||
+                ticket.getOperation().name().equals(MovementTypes.DISMISSED.name()) && ticket.getAssetTypeCode() != null)
+            return new Result.TicketResult(TicketOperations.OPERATION_ERROR, null);
 
         Optional<User> userOpt = userRepository.findByOid(ticket.getUserCode());
         Optional<AssetType> assetTypeOpt = assetTypeRepository.findByCode(ticket.getAssetTypeCode());
         Optional<Asset> assetOpt = assetRepository.findByCode(ticket.getAssetCode());
 
-        if(userOpt.isEmpty() || (assetTypeOpt.isEmpty() && ticket.getAssetTypeCode() != null) ||
-                (assetOpt.isEmpty() && ticket.getAssetCode() != null))
-            return null;
+        if(userOpt.isEmpty())
+            return new Result.TicketResult(TicketOperations.USER_NOT_FOUND, null);
+        else if(assetOpt.isEmpty() && ticket.getAssetCode() != null)
+            return new Result.TicketResult(TicketOperations.ASSET_NOT_FOUND, null);
+        else if(assetTypeOpt.isEmpty() && ticket.getAssetTypeCode() != null)
+            return new Result.TicketResult(TicketOperations.ASSET_TYPE_NOT_FOUND, null);
 
         Ticket createdTicket = new Ticket();
         createdTicket.setUsers(userOpt.get());
@@ -125,6 +139,19 @@ public class TicketService
 
         ticketRepository.save(createdTicket);
 
-        return ticket;
+        return new Result.TicketResult(TicketOperations.OK, toResponseDto(createdTicket));
+    }
+
+    private TicketResponseBodyDto toResponseDto(Ticket ticket)
+    {
+        TicketResponseBodyDto dto = new TicketResponseBodyDto();
+        dto.setUserCode(ticket.getUsers().getOid());
+        dto.setOperation(ticket.getOperation());
+        dto.setAssetTypeCode(ticket.getAssetType() != null ? ticket.getAssetType().getCode() : null);
+        dto.setAssetCode(ticket.getAsset() != null ? ticket.getAsset().getCode() : null);
+        dto.setMessage(ticket.getMessage());
+        dto.setStatus(ticket.getStatus());
+        dto.setDate(ticket.getDate());
+        return dto;
     }
 }

@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import jakarta.annotation.PostConstruct;
@@ -299,6 +300,25 @@ public class AssetService
         return new Result.AssetDtoResult(AssetOperations.OK, response);
     }
 
+    public Result.AssetDtoResult updateEndMaintenance(String code, EndMaintenanceRequestDto date)
+    {
+        if(code == null || (date != null && date.getEndMaintenance() != null &&
+                (date.getEndMaintenance().isBefore(LocalDate.now()) ||
+                        date.getEndMaintenance().isEqual(LocalDate.now()))))
+            return new Result.AssetDtoResult(AssetOperations.INVALID_DATE, null);
+
+        Optional<Asset> assetOpt = assetRepository.findByCode(code);
+        if(assetOpt.isEmpty())
+            return new Result.AssetDtoResult(AssetOperations.NOT_FOUND, null);
+
+        Asset updatedAssetMaintenanceDate = assetOpt.get();
+        updatedAssetMaintenanceDate.setEndMaintenanceDate(date.getEndMaintenance());
+        updatedAssetMaintenanceDate.setUpdateDate(LocalDateTime.now());
+        assetRepository.save(updatedAssetMaintenanceDate);
+
+        return new Result.AssetDtoResult(AssetOperations.OK, getAssetResponseDto(updatedAssetMaintenanceDate));
+    }
+
     // Metodo di conversione per convertire da Asset ad AssetResponse
     private static AssetResponseDto getAssetResponseDto(Asset updatedAsset)
     {
@@ -312,6 +332,7 @@ public class AssetService
         response.setRam(updatedAsset.getRam());
         response.setStorage(updatedAsset.getStorage());
         response.setAssetStatusTypeCode(updatedAsset.getAssetStatusType().getCode());
+        response.setEndMaintenance(updatedAsset.getEndMaintenanceDate());
         return response;
     }
 

@@ -36,14 +36,14 @@ public class AssetManagerApplication
 	// TODO: Se si dovesse togliere Hard Disk e Ram di un Tipo di Asset deve azzerarsi a DB ?
 	// TODO: Restituire il nome dello statusCode per "GET user/{code}/movement" ?
 	// TODO: Inserire un controllo che faccia si che non si possa inserire 0 come valore RAM
-	//		 se l'assetType lo possiede (stesso discorso per lo storage).
+	//		 se l'assetType lo possiede (stesso discorso per lo storage). {OK - solo per RAM}
 	// TODO: Modificare la PUT per lo status dell'asset
 	// TODO: Creare un API per la gestione delle richieste utenti - TBI
 	// TODO: Aggiungere la cache dove serve
-	// TODO: Creare Ticket (model, controller, service, repository) {OK}
 	// TODO: Modificare gli "schema" delle varie ApiResponse
 	// TODO: Modificare il valore di ritorno delle GET generiche
 	// TODO: Appena possibile, inserire il code anche per il ticket
+	// TODO: Inserire gli errori personalizzati per i ticket {OK}
 
 	public static void main(String[] args) {
 		SpringApplication.run(AssetManagerApplication.class, args);

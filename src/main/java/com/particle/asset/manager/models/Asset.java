@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 //import java.util.ArrayList;
@@ -53,6 +54,8 @@ public class Asset
 
     @Column(nullable = false, unique = true)
     private String code; // Codice univoco per ogni record "primi due caratteri + id"
+
+    private LocalDate endMaintenanceDate;
 
     // "mappedBy = *nome*" --> nome del lato di chi passa la chiave
     // "cascade = CascadeType.ALL" --> salva/aggiorna/cancella anche i figli

@@ -18,4 +18,6 @@ public class AssetResponses
             new Error("400", "Invalid Storage Type, Data Size or Number is Invalid");
     public static final Error INVALID_RAM =
             new Error("400", "Invalid RAM Value");
+    public static final Error INVALID_DATE =
+            new Error("400", "Null Code or Date must be after today");
 }

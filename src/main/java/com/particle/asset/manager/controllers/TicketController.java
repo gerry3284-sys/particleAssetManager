@@ -2,10 +2,12 @@ package com.particle.asset.manager.controllers;
 
 import com.particle.asset.manager.DTO.TicketRequestDto;
 import com.particle.asset.manager.DTO.TicketResponseBodyDto;
+import com.particle.asset.manager.enums.TicketOperations;
 import com.particle.asset.manager.models.Error;
-import com.particle.asset.manager.models.Ticket;
+import com.particle.asset.manager.results.Result;
 import com.particle.asset.manager.services.TicketService;
 import com.particle.asset.manager.swaggerResponses.GenericResponses;
+import com.particle.asset.manager.swaggerResponses.TicketResponses;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -34,7 +36,7 @@ public class TicketController
     @ApiResponses({
             @ApiResponse(responseCode = "200",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Ticket.class))),
+                            schema = @Schema(implementation = TicketResponseBodyDto.class))),
             @ApiResponse(responseCode = "401", description = "Not Authorized",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = com.particle.asset.manager.models.Error.class),
@@ -43,28 +45,32 @@ public class TicketController
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
                             examples = @ExampleObject(value = GenericResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
-    public ResponseEntity<List<Ticket>> getAllTypes() { return ResponseEntity.ok(service.getAllTickets()); }
+    public ResponseEntity<List<TicketResponseBodyDto>> getAllTypes() { return ResponseEntity.ok(service.getAllTickets()); }
 
     @GetMapping("/{id}")
     @Operation(summary = "Get a specific Ticket through its id")
     @ApiResponses({
             @ApiResponse(responseCode = "200",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Ticket.class))),
+                            schema = @Schema(implementation = TicketResponseBodyDto.class))),
             @ApiResponse(responseCode = "401", description = "Not Authorized",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = com.particle.asset.manager.models.Error.class),
+                            schema = @Schema(implementation = Error.class),
                             examples = @ExampleObject(value = GenericResponses.UNAUTHORIZED_ACCESS_EXAMPLE))),
+            @ApiResponse(responseCode = "404", description = "Not Found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Error.class),
+                            examples = @ExampleObject(value = GenericResponses.NOT_FOUND_EXAMPLE))),
             @ApiResponse(responseCode = "500", description = "Internal Server Error",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
                             examples = @ExampleObject(value = GenericResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
     public ResponseEntity<?> getTicketById(@PathVariable Long id)
     {
-        Ticket searchedTicket = service.getTicketById(id);
+        TicketResponseBodyDto searchedTicket = service.getTicketById(id);
 
         return searchedTicket != null ?ResponseEntity.ok(searchedTicket)
-                :ResponseEntity.status(404).body("No Ticket Has Been Found");
+                :ResponseEntity.status(404).body(TicketResponses.USER_NOT_FOUND);
     }
 
     @PostMapping
@@ -72,7 +78,7 @@ public class TicketController
     @ApiResponses({
             @ApiResponse(responseCode = "201",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Ticket.class))),
+                            schema = @Schema(implementation = TicketResponseBodyDto.class))),
             @ApiResponse(responseCode = "400", description = "Business Error",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
@@ -81,19 +87,33 @@ public class TicketController
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
                             examples = @ExampleObject(value = GenericResponses.UNAUTHORIZED_ACCESS_EXAMPLE))),
-            @ApiResponse(responseCode = "403", description = "Forbidden",
+            @ApiResponse(responseCode = "404", description = "Not Found",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
-                            examples = @ExampleObject(value = GenericResponses.FORBIDDEN_ACCESS_EXAMPLE))),
+                            examples = @ExampleObject(value = GenericResponses.NOT_FOUND_EXAMPLE))),
+            @ApiResponse(responseCode = "422", description = "Unprocessable Entity",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Error.class),
+                            examples = @ExampleObject(value = GenericResponses.UNPROCESSABLE_ENTITY))),
             @ApiResponse(responseCode = "500", description = "Internal Server Error",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
                             examples = @ExampleObject(value = GenericResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
     public ResponseEntity<?> createTicket(@RequestBody TicketRequestDto ticket)
     {
-        TicketRequestDto createdTicket = service.createTicket(ticket);
+        Result.TicketResult createdTicket = service.createTicket(ticket);
 
-        return createdTicket != null ? ResponseEntity.ok(createdTicket)
-                            : ResponseEntity.status(400).body("Data Error");
+        if(createdTicket.getStatus().equals(TicketOperations.OK))
+            return ResponseEntity.ok(createdTicket.getResponse());
+        else if(createdTicket.getStatus().equals(TicketOperations.BAD_REQUEST))
+            return ResponseEntity.status(400).body(TicketResponses.BAD_REQUEST);
+        else if(createdTicket.getStatus().equals(TicketOperations.OPERATION_ERROR))
+            return ResponseEntity.status(422).body(TicketResponses.OPERATION_ERROR);
+        else if(createdTicket.getStatus().equals(TicketOperations.USER_NOT_FOUND))
+            return ResponseEntity.status(404).body(TicketResponses.USER_NOT_FOUND);
+        else if(createdTicket.getStatus().equals(TicketOperations.ASSET_NOT_FOUND))
+            return ResponseEntity.status(404).body(TicketResponses.ASSET_NOT_FOUND);
+        else // ASSET_TYPE_NOT_FOUND
+            return ResponseEntity.status(404).body(TicketResponses.ASSET_TYPE_NOT_FOUND);
     }
 }

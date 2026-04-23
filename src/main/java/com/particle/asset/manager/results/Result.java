@@ -83,6 +83,14 @@ public class Result
 
     @AllArgsConstructor
     @Getter
+    public static class TicketResult
+    {
+        private TicketOperations status;
+        private TicketResponseBodyDto response;
+    }
+
+    @AllArgsConstructor
+    @Getter
     public static class MovementDtoResult
     {
         private MovementOperations status;
