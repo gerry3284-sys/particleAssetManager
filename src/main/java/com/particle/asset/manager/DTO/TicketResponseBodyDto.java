@@ -13,9 +13,9 @@ import java.time.LocalDateTime;
 public class TicketResponseBodyDto
 {
     //@JsonIgnore
-    private Long id;
+    //private Long id;
 
-    private String userCode;
+    private String ticketCode, userCode;
     @Enumerated(EnumType.STRING)
     private MovementTypes operation;
     private String assetTypeCode, assetCode, message;

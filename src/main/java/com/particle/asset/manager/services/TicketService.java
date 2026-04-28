@@ -5,6 +5,7 @@ import com.particle.asset.manager.DTO.TicketResponseBodyDto;
 import com.particle.asset.manager.enums.MovementTypes;
 import com.particle.asset.manager.enums.TicketOperations;
 import com.particle.asset.manager.enums.TicketStatuses;
+import com.particle.asset.manager.enums.UserTypes;
 import com.particle.asset.manager.models.Asset;
 import com.particle.asset.manager.models.AssetType;
 import com.particle.asset.manager.models.Ticket;
@@ -65,15 +66,15 @@ public class TicketService
         return ticketsDto;
     }
 
-    public TicketResponseBodyDto getTicketById(Long id)
+    public TicketResponseBodyDto getTicketByCode(String code)
     {
         Cache cache = cacheManager.getCache("tickets");
 
         // 1. Cerca prima nella cache del singolo ID
-        Cache.ValueWrapper idWrapper = cache != null ? cache.get("id::" + id) : null;
+        Cache.ValueWrapper idWrapper = cache != null ? cache.get("id::" + code) : null;
         if(idWrapper != null)
         {
-            System.out.println(">>> getTicketById(" + id + ") - CACHE (singolo ID)");
+            System.out.println(">>> getTicketById(" + code + ") - CACHE (singolo ID)");
             return (TicketResponseBodyDto) idWrapper.get();
         }
 
@@ -81,21 +82,20 @@ public class TicketService
         Cache.ValueWrapper allWrapper = cache != null ? cache.get("all") : null;
         if(allWrapper != null)
         {
-            // Concludere di risolvere
-            System.out.println(">>> getTicketById(" + id + ") - CACHE (filtrato da 'all')");
+            System.out.println(">>> getTicketById(" + code + ") - CACHE (filtrato da 'all')");
             @SuppressWarnings("unchecked")
             List<TicketResponseBodyDto> allTickets = (List<TicketResponseBodyDto>) allWrapper.get();
             return allTickets.stream()
-                    .filter(ticket -> ticket.getId().equals(id))
+                    .filter(ticket -> ticket.getTicketCode().equals(code))
                     .findFirst()
                     .orElse(null);
         }
 
         // 3. Cache vuota - va al DB e salva SOLO questo ID
-        System.out.println(">>> getTicketById(" + id + ") - DATABASE (salvando singolo ID in cache)");
-        Ticket ticket = ticketRepository.findById(id).orElse(null);
+        System.out.println(">>> getTicketById(" + code + ") - DATABASE (salvando singolo ID in cache)");
+        Ticket ticket = ticketRepository.findByCode(code).orElse(null);
         if (cache != null && ticket != null)
-            cache.put("id::" + id, ticket);
+            cache.put("id::" + code, toResponseDto(ticket));
 
         return ticket != null ?toResponseDto(ticket) :null; // NOT_FOUND
     }
@@ -136,7 +136,19 @@ public class TicketService
         createdTicket.setOperation(ticket.getOperation());
         createdTicket.setMessage(ticket.getMessage());
         createdTicket.setStatus(ticket.getStatus());
-
+        String userName = userOpt.get().getName().toUpperCase().substring(0, Math.min(2, userOpt.get().getName().length()));
+        if(userOpt.get().getUserType().name().equals(UserTypes.ADMIN.name()))
+        {
+            String role = userOpt.get().getUserType().name().toUpperCase()
+                    .substring(0, 2);
+            createdTicket.setCode(userName + role + (ticketRepository.count()+1));
+        }
+        else
+        {
+            String businessUnit = userOpt.get().getBusinessUnit().getName().toUpperCase()
+                    .substring(0, Math.min(2, userOpt.get().getBusinessUnit().getName().length()));
+            createdTicket.setCode(userName + businessUnit + (ticketRepository.count()+1));
+        }
         ticketRepository.save(createdTicket);
 
         return new Result.TicketResult(TicketOperations.OK, toResponseDto(createdTicket));
@@ -145,7 +157,7 @@ public class TicketService
     private TicketResponseBodyDto toResponseDto(Ticket ticket)
     {
         TicketResponseBodyDto dto = new TicketResponseBodyDto();
-        dto.setId(ticket.getId());
+        dto.setTicketCode(ticket.getCode());
         dto.setUserCode(ticket.getUsers().getOid());
         dto.setOperation(ticket.getOperation());
         dto.setAssetTypeCode(ticket.getAssetType() != null ? ticket.getAssetType().getCode() : null);

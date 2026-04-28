@@ -61,18 +61,21 @@ public class AssetService
     // ============================================
 
     @Cacheable(value = "assets", key = "'all'")
-    public List<Asset> getAllAssets()
+    public List<FetchAssetResponseDto> getAllAssets()
     {
         System.out.println(">>> Fetching ALL Assets from database...");
-
         List<Asset> assets = assetRepository.findAll();
+
+        List<FetchAssetResponseDto> assetsDto = assets.stream()
+                .map(this::toResponseDto)
+                .toList();
 
         // Popola anche le cache per singoli ID
         Cache cache = cacheManager.getCache("assets");
         if (cache != null)
-            assets.forEach(asset -> cache.put("id::" + asset.getCode(), asset));
+            assetsDto.forEach(dto -> cache.put("id::" + dto.getCode(), dto));
 
-        return assets;
+        return assetsDto;
     }
 
     public List<AssetListRowResponseDto> getAssetList()
@@ -108,6 +111,41 @@ public class AssetService
                     );
                 })
                 .toList();
+    }
+
+    private FetchAssetResponseDto toResponseDto(Asset asset)
+    {
+        FetchAssetResponseDto assetDto = new FetchAssetResponseDto();
+        AssetTypeResponseDto assetTypeDto = new AssetTypeResponseDto();
+        BusinessUnitResponseDto businessUnitDto = new BusinessUnitResponseDto();
+        AssetStatusTypeStatusResponseDto assetStatusTypeDto = new AssetStatusTypeStatusResponseDto();
+
+        assetDto.setCode(asset.getCode());
+        assetDto.setBrand(asset.getBrand());
+        assetDto.setModel(asset.getModel());
+        assetDto.setSerialNumber(asset.getSerialNumber());
+        assetDto.setNote(asset.getNote());
+        assetDto.setRam(asset.getRam());
+        assetDto.setStorage(asset.getStorage());
+        assetDto.setEndMaintenance(asset.getEndMaintenanceDate());
+
+        assetTypeDto.setCode(asset.getAssetType().getCode());
+        assetTypeDto.setName(asset.getAssetType().getName());
+        assetTypeDto.setRam(asset.getAssetType().isRam());
+        assetTypeDto.setStorage(asset.getAssetType().isStorage());
+        assetTypeDto.setActive(asset.getAssetType().isActive());
+        assetDto.setAssetType(assetTypeDto);
+
+        businessUnitDto.setName(asset.getBusinessUnit().getName());
+        businessUnitDto.setCode(asset.getBusinessUnit().getCode());
+        businessUnitDto.setActive(asset.getBusinessUnit().isActive());
+        assetDto.setBusinessUnit(businessUnitDto);
+
+        assetStatusTypeDto.setName(asset.getAssetStatusType().getName());
+        assetStatusTypeDto.setCode(asset.getAssetStatusType().getCode());
+        assetDto.setAssetStatusType(assetStatusTypeDto);
+
+        return assetDto;
     }
 
     @CacheEvict(value = "assets", allEntries = true)
@@ -179,12 +217,12 @@ public class AssetService
                 .collect(Collectors.joining("|"));
 
         // Pattern finale: "SSD 500 GB" oppure "HDD 1 TB" ecc.
-        String regex = "(?i)(" + storagePattern + ")\\s+\\d+\\s+(" + unitPattern + ")";
+        String regex = "(?i)(" + storagePattern + ")\\s+[1-9]\\d*\\s+(" + unitPattern + ")";
 
         return storage != null && storage.matches(regex);
     }
 
-    public Asset getAssetByCode(String code)
+    public FetchAssetResponseDto getAssetByCode(String code)
     {
         Cache cache = cacheManager.getCache("assets");
 
@@ -192,7 +230,7 @@ public class AssetService
         Cache.ValueWrapper idWrapper = cache != null ? cache.get("id::" + code) : null;
         if (idWrapper != null) {
             System.out.println(">>> getAssetById(" + code + ") - CACHE (singolo ID)");
-            return (Asset) idWrapper.get();
+            return (FetchAssetResponseDto) idWrapper.get();
         }
 
         // 2. Se non c'è, cerca nella cache "all"
@@ -200,7 +238,7 @@ public class AssetService
         if (allWrapper != null) {
             System.out.println(">>> getAssetById(" + code + ") - CACHE (filtrato da 'all')");
             @SuppressWarnings("unchecked")
-            List<Asset> allAssets = (List<Asset>) allWrapper.get();
+            List<FetchAssetResponseDto> allAssets = (List<FetchAssetResponseDto>) allWrapper.get();
             return allAssets.stream()
                     .filter(asset -> asset.getCode().equals(code))
                     .findFirst()
@@ -210,10 +248,14 @@ public class AssetService
         // 3. Cache vuota - va al DB e salva SOLO questo ID
         System.out.println(">>> getAssetById(" + code + ") - DATABASE (salvando singolo ID in cache)");
         Asset asset = assetRepository.findByCode(code).orElse(null);
-        if (cache != null && asset != null)
-            cache.put("id::" + code, asset);
+        if(asset == null) return null;
 
-        return asset;
+        FetchAssetResponseDto dto = toResponseDto(asset);
+
+        if (cache != null)
+            cache.put("id::" + code, dto);
+
+        return dto;
     }
 
     public List<AssetMaintenanceListRowResponseDto> getUnderMaintenanceAssets()
@@ -232,6 +274,7 @@ public class AssetService
                         returnedDate = lastMovement.get().getDate();
 
                     return new AssetMaintenanceListRowResponseDto(
+                            asset.getCode(),
                             asset.getBrand(),
                             asset.getModel(),
                             asset.getSerialNumber(),
@@ -337,20 +380,20 @@ public class AssetService
     }
 
     @CacheEvict(value = "assets", allEntries = true)
-    public Result.AssetDtoResult updateStatusByCode(String code, AssetStatusUpdateRequestDto statusCode)
+    public Result.AssetDtoResult updateStatusByCode(String assetCode/*, String statusCode*/)
     {
-        if(code == null || statusCode == null || statusCode.getAssetStatusTypeCode() == null)
-            return new Result.AssetDtoResult(AssetOperations.BAD_REQUEST, null);
+        if(assetCode == null)
+            return new Result.AssetDtoResult(AssetOperations.INVALID_ASSET_OR_TYPE_VALUE, null);
 
-        Optional<Asset> assetByCode = assetRepository.findByCode(code);
-        Optional<AssetStatusType> assetStatusByCode =
-                assetStatusTypeRepository.findByCode(statusCode.getAssetStatusTypeCode());
+        Optional<Asset> assetByCode = assetRepository.findByCode(assetCode);
+//        Optional<AssetStatusType> assetStatusByCode =
+//                assetStatusTypeRepository.findByCode(statusCode);
+//
+//        if(assetByCode.isEmpty() || assetStatusByCode.isEmpty())
+//            return new Result.AssetDtoResult(AssetOperations.NO_ASSET_OR_TYPE_FOUND, null);
 
-        if(assetByCode.isEmpty() || assetStatusByCode.isEmpty())
-            return new Result.AssetDtoResult(AssetOperations.NOT_FOUND, null);
-
-        if(assetStatusByCode.get().getCode().equals(assetByCode.get().getAssetStatusType().getCode()))
-            return new Result.AssetDtoResult(AssetOperations.BAD_REQUEST, null);
+        /*if(assetStatusByCode.get().getCode().equals(assetByCode.get().getAssetStatusType().getCode()))
+            return new Result.AssetDtoResult(AssetOperations.BAD_REQUEST, null);*/
 
         if(assetByCode.get().getAssetStatusType().getName().equals(BasicAssetStatuses.ASSIGNED.name()) ||
             assetByCode.get().getAssetStatusType().getName().equals(BasicAssetStatuses.DISMISSED.name()))
@@ -359,14 +402,19 @@ public class AssetService
         // ↓ Non è possibile effettuare questa operazione perchè sono dei Movement
         // Da un qualcosa come "Under Maintenance" ad "Available" va bene perchè
         // non viene effettuato nessun Movement effettivo.
-        if(assetStatusByCode.get().getName().equals(BasicAssetStatuses.ASSIGNED.name()) ||
-            assetStatusByCode.get().getName().equals(BasicAssetStatuses.DISMISSED.name()))
-            return new Result.AssetDtoResult(AssetOperations.STATUS_ERROR, null);
+//        if(assetStatusByCode.get().getName().equals(BasicAssetStatuses.ASSIGNED.name()) ||
+//            assetStatusByCode.get().getName().equals(BasicAssetStatuses.DISMISSED.name()))
+//            return new Result.AssetDtoResult(AssetOperations.STATUS_ERROR, null);
 
         Asset updatedAssetStatus = assetByCode.get();
-        updatedAssetStatus.setAssetStatusType(assetStatusByCode.get());
-        assetRepository.save(updatedAssetStatus);
+//        updatedAssetStatus.setAssetStatusType(assetStatusByCode.get());
+        // TODO: Da Modificare
+        if(updatedAssetStatus.getAssetStatusType().getName().equals(BasicAssetStatuses.MAINTENANCE.name()))
+            updatedAssetStatus.setAssetStatusType(assetStatusTypeRepository.findByCode("AV1").get());
+        else
+            updatedAssetStatus.setAssetStatusType(assetStatusTypeRepository.findByCode("MA4").get());
 
+        assetRepository.save(updatedAssetStatus);
         AssetResponseDto response = getAssetResponseDto(assetByCode.get());
 
         return new Result.AssetDtoResult(AssetOperations.OK, response);

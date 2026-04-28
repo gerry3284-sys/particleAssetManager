@@ -9,7 +9,7 @@ import java.util.Optional;
 public interface MovementRepository extends JpaRepository<Movement, Long>
 {
     // Ritorna una List <> se lo userId combacia con quello della tabella users
-    List<Movement> findByUsersId(Long userId);
+    List<Movement> findByUsersOid(String userId);
 
     // Ritorna una List<> se l'assetId combacia con quello della tabella movement
     //List<Movement> findByAssetId(Long assetId);

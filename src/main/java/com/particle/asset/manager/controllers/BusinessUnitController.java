@@ -39,7 +39,7 @@ public class BusinessUnitController
     @ApiResponses({
             @ApiResponse(responseCode = "200",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = BusinessUnit.class))),
+                            schema = @Schema(implementation = BusinessUnitResponseDto.class))),
             @ApiResponse(responseCode = "401", description = "Not Authorized",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
@@ -48,7 +48,7 @@ public class BusinessUnitController
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
                             examples = @ExampleObject(value = GenericResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
-    public ResponseEntity<List<BusinessUnit>> getAllBusinessUnits() { return ResponseEntity.ok(service.getAllBusinessUnits()); }
+    public ResponseEntity<List<BusinessUnitResponseDto>> getAllBusinessUnits() { return ResponseEntity.ok(service.getAllBusinessUnits()); }
 
     // Stampa una businessUnit tramite un dato ID
     @GetMapping("/{code}")
@@ -56,7 +56,7 @@ public class BusinessUnitController
     @ApiResponses({
             @ApiResponse(responseCode = "200",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = BusinessUnit.class))),
+                            schema = @Schema(implementation = BusinessUnitResponseDto.class))),
             @ApiResponse(responseCode = "401", description = "Not Authorized",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
@@ -71,7 +71,7 @@ public class BusinessUnitController
                             examples = @ExampleObject(value = GenericResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
     public ResponseEntity<?> getBusinessUnitById(@PathVariable String code)
     {
-        BusinessUnit searchedBusinessUnit = service.getBusinessUnitById(code);
+        BusinessUnitResponseDto searchedBusinessUnit = service.getBusinessUnitById(code);
 
         return searchedBusinessUnit != null ?ResponseEntity.ok(searchedBusinessUnit)
                 :ResponseEntity.status(404).body(BusinessUnitResponses.NOT_FOUND);

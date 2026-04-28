@@ -47,8 +47,8 @@ public class TicketController
                             examples = @ExampleObject(value = GenericResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
     public ResponseEntity<List<TicketResponseBodyDto>> getAllTypes() { return ResponseEntity.ok(service.getAllTickets()); }
 
-    @GetMapping("/{id}")
-    @Operation(summary = "Get a specific Ticket through its id")
+    @GetMapping("/{code}")
+    @Operation(summary = "Get a specific Ticket through its code")
     @ApiResponses({
             @ApiResponse(responseCode = "200",
                     content = @Content(mediaType = "application/json",
@@ -65,9 +65,9 @@ public class TicketController
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
                             examples = @ExampleObject(value = GenericResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
-    public ResponseEntity<?> getTicketById(@PathVariable Long id)
+    public ResponseEntity<?> getTicketById(@PathVariable String code)
     {
-        TicketResponseBodyDto searchedTicket = service.getTicketById(id);
+        TicketResponseBodyDto searchedTicket = service.getTicketByCode(code);
 
         return searchedTicket != null ?ResponseEntity.ok(searchedTicket)
                 :ResponseEntity.status(404).body(TicketResponses.USER_NOT_FOUND);

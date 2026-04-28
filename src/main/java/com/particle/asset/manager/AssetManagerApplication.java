@@ -36,14 +36,21 @@ public class AssetManagerApplication
 	// TODO: Se si dovesse togliere Hard Disk e Ram di un Tipo di Asset deve azzerarsi a DB ?
 	// TODO: Restituire il nome dello statusCode per "GET user/{code}/movement" ?
 	// TODO: Inserire un controllo che faccia si che non si possa inserire 0 come valore RAM
-	//		 se l'assetType lo possiede (stesso discorso per lo storage). {OK - solo per RAM}
-	// TODO: Modificare la PUT per lo status dell'asset
+	//		 se l'assetType lo possiede (stesso discorso per lo storage). {OK}
+	// TODO: Modificare la PUT per lo status dell'asset {OK} - La modifica è temporanea. Da cambiare con gli enum
 	// TODO: Creare un API per la gestione delle richieste utenti - TBI
 	// TODO: Aggiungere la cache dove serve
 	// TODO: Modificare gli "schema" delle varie ApiResponse
-	// TODO: Modificare il valore di ritorno delle GET generiche
-	// TODO: Appena possibile, inserire il code anche per il ticket
-	// TODO: Inserire gli errori personalizzati per i ticket {OK}
+	// TODO: Modificare il valore di ritorno delle GET generiche {OK}
+	// TODO: Appena possibile, inserire il code per il ticket {OK}
+	// TODO: Creare una tabella per i ticket che funziona esattamente come quella dei movement
+	// TODO: Modificare la GET di users per far si che lavori con oid e non con id {OK}
+	// TODO: Risolvere l'errore della cache che non salva bene i valori (causando un 500) {OK}
+	// TODO: Mostrare l'errore corretto per quando si cambia lo stato in uno stesso {OK}
+	// TODO: Quando si aggiorna un dato senza cambiare i dati, serve effettuare il salvataggio
+	//		 dei dati quando non cambia nulla.
+	// TODO: Modificare i codici/messaggi d'errore per il cambio di stato di un Asset
+	// TODO: Inserire un blocco che impedisca di creare più di due ticket in uno stesso giorno ?
 
 	public static void main(String[] args) {
 		SpringApplication.run(AssetManagerApplication.class, args);

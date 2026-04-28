@@ -29,21 +29,21 @@ public class UserService
     public List<User> getAllUsers() { return userRepository.findAll(); }
 
     // Ottiene uno specifico utente tramite l'id
-    public User getUserById(Long id)
+    public User getUserById(String oid)
     {
-        Optional<User> findUser = userRepository.findById(id);
+        Optional<User> findUser = userRepository.findByOid(oid);
 
         // Restituisco l'utente se Optional contiene uno User, null altrimenti
         return findUser.orElse(null);
     }
 
     // Ottiene tutti i movimenti degli utenti
-    public List<MovementSummaryResponseDto> getUserMovements(Long userId)
+    public List<MovementSummaryResponseDto> getUserMovements(String userOid)
     {
-        if(!userRepository.existsById(userId))
+        if(!userRepository.existsByOid(userOid))
            return null;
 
-        List<Movement> movements = movementRepository.findByUsersId(userId);
+        List<Movement> movements = movementRepository.findByUsersOid(userOid);
 
         return movements.stream().map(this::convertToDTO).collect(Collectors.toList());
     }

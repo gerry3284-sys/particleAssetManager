@@ -9,11 +9,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class AssetMaintenanceListRowResponseDto
 {
-    private String brand;
-    private String model;
-    private String serialNumber;
-    private String assetCode;
-    private String assetType;
-    private String businessUnit;
+    private String code, brand, model, serialNumber, assetCode, assetType, businessUnit;
     private LocalDateTime returnedDate, endMaintenanceDate;
 }

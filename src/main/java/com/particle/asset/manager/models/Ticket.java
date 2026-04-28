@@ -40,4 +40,7 @@ public class Ticket
 
     @Column(nullable = false)
     private LocalDateTime date = LocalDateTime.now();
+
+    @Column(nullable = false, unique = true)
+    private String code;
 }

@@ -1,5 +1,6 @@
 HELP.md
-*/target/
+# ↓ Before it was "*/target/"
+/target/
 !.mvn/wrapper/maven-wrapper.jar
 
 ### STS ###

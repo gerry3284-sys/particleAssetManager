@@ -47,24 +47,24 @@ INSERT INTO movement (date, movement_type, note, asset_code, users_id, receipt_f
 (TIMESTAMP '2024-02-01 11:00:00', 'RETURNED', 'Monitor inviato in manutenzione', 'SN2', 3, 'SN2_Bianchi_RETURNED_3.pdf', 'RE3SN2202402113'),
 (TIMESTAMP '2024-02-05 16:00:00', 'DISMISSED', 'Smartphone dismesso', 'IM4', NULL, 'IM4_DISMISSED_4.pdf', 'DIIM4202402054');
 
-INSERT INTO ticket (user_code, operation, type_code, asset_code, message, status, date) VALUES
+INSERT INTO ticket (user_code, operation, type_code, asset_code, message, status, date, code) VALUES
 
 -- Marco Rossi chiede assegnazione di un nuovo laptop
 ('a72d4c10-3f55-4b8e-bc9f-0c1e2d44f7b3', 'ASSIGNED', 'LA1', NULL,
- 'Ho bisogno di un laptop per il nuovo progetto.', 'OPEN', NOW()),
+ 'Ho bisogno di un laptop per il nuovo progetto.', 'OPEN', NOW(), 'MAPA1'),
 
 -- Luca Bianchi vuole restituire il suo laptop (SN2 che aveva assegnato)
 ('c9e1a4f7-2b88-4f0d-8d11-5a6c9e2f3b44', 'RETURNED', 'LA1', 'SN2',
- 'Restituzione laptop HP EliteBook 840, non più necessario.', 'WORKING', '2024-02-01 10:00:00'),
+ 'Restituzione laptop HP EliteBook 840, non più necessario.', 'WORKING', '2024-02-01 10:00:00', 'LUVA2'),
 
 -- Giulia Neri chiede assegnazione di uno smartphone
 ('f0a8c3d1-6e22-4b9a-9a33-7c4e1f2b8d90', 'ASSIGNED', 'SM4', NULL,
- 'Richiesta smartphone aziendale per trasferte.', 'OPEN', '2024-03-01 09:00:00'),
+ 'Richiesta smartphone aziendale per trasferte.', 'OPEN', '2024-03-01 09:00:00', 'GIKI3'),
 
 -- Marco Rossi segnala dismissione del suo laptop (SN1)
-('a72d4c10-3f55-4b8e-bc9f-0c1e2d44f7b3', 'DISMISSED', 'LA1', 'SN1',
- 'Laptop Dell Latitude 5420 non funzionante, richiedo dismissione.', 'CLOSED', '2024-03-10 11:00:00'),
+('1f3c9b82-7a41-4e3d-9c2a-91f4b0d7e8a1', 'DISMISSED', 'LA1', 'SN1',
+ 'Laptop Dell Latitude 5420 non funzionante, richiedo dismissione.', 'CLOSED', '2024-03-10 11:00:00', 'LEAD4'),
 
 -- Luca Bianchi richiede assegnazione di un monitor
 ('c9e1a4f7-2b88-4f0d-8d11-5a6c9e2f3b44', 'ASSIGNED', 'MO2', 'SN3',
- 'Richiesta monitor per postazione fissa.', 'WORKING', '2024-03-15 14:00:00');
+ 'Richiesta monitor per postazione fissa.', 'WORKING', '2024-03-15 14:00:00', 'GIKI5');

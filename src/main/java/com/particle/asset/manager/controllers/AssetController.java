@@ -43,7 +43,7 @@ public class AssetController
     @ApiResponses({
             @ApiResponse(responseCode = "200",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Asset.class))),
+                            schema = @Schema(implementation = FetchAssetResponseDto.class))),
             @ApiResponse(responseCode = "401", description = "Not Authorized",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
@@ -52,7 +52,7 @@ public class AssetController
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
                             examples = @ExampleObject(value = GenericResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
-    public ResponseEntity<List<Asset>> getAllAssets() { return ResponseEntity.ok(service.getAllAssets()); }
+    public ResponseEntity<List<FetchAssetResponseDto>> getAllAssets() { return ResponseEntity.ok(service.getAllAssets()); }
 
     // Stampa i valori di un asset dato il suo id
     @GetMapping("/{code}")
@@ -60,7 +60,7 @@ public class AssetController
     @ApiResponses({
             @ApiResponse(responseCode = "200",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Asset.class))),
+                            schema = @Schema(implementation = FetchAssetResponseDto.class))),
             @ApiResponse(responseCode = "401", description = "Not Authorized",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
@@ -75,7 +75,7 @@ public class AssetController
                             examples = @ExampleObject(value = GenericResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
     public ResponseEntity<?> getAssetByCode(@PathVariable String code)
     {
-        Asset assetByCode = service.getAssetByCode(code);
+        FetchAssetResponseDto assetByCode = service.getAssetByCode(code);
 
         return assetByCode != null ?ResponseEntity.ok(assetByCode)
                 :ResponseEntity.status(404).body(AssetResponses.NOT_FOUND);
@@ -208,7 +208,7 @@ public class AssetController
     }
 
     // Aggiorna lo stato dell'asset attraverso il code
-    @PutMapping("/updateAssetStatus/{code}")
+    @PutMapping("/updateAssetStatus/{assetCode}")
     @Operation(summary = "Update the Status of a specific Asset through its code")
     @ApiResponses({
             @ApiResponse(responseCode = "200",
@@ -234,18 +234,20 @@ public class AssetController
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
                             examples = @ExampleObject(value = GenericResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
-    public ResponseEntity<?> updateAssetStatusByCode(@PathVariable String code,
-                                                     @RequestBody AssetStatusUpdateRequestDto statusCode)
+    public ResponseEntity<?> updateAssetStatusByCode(@PathVariable String assetCode/*,
+                                                     @PathVariable String statusCode*/)
     {
-        Result.AssetDtoResult updatedStatus = service.updateStatusByCode(code, statusCode);
+        Result.AssetDtoResult updatedStatus = service.updateStatusByCode(assetCode/*, statusCode*/);
 
         if(updatedStatus.getStatus() == AssetOperations.OK)
             return ResponseEntity.ok(updatedStatus.getPutResponse());
         else if(updatedStatus.getStatus() == AssetOperations.NOT_FOUND)
             return ResponseEntity.status(404).body(AssetResponses.NOT_FOUND);
-        else if(updatedStatus.getStatus() == AssetOperations.BAD_REQUEST)
-            return ResponseEntity.status(400).body(AssetResponses.BAD_REQUEST);
-        else
+        else if(updatedStatus.getStatus() == AssetOperations.INVALID_ASSET_OR_TYPE_VALUE)
+            return ResponseEntity.status(400).body(AssetResponses.INVALID_ASSET_OR_TYPE_VALUE);
+        else if(updatedStatus.getStatus() == AssetOperations.NO_ASSET_OR_TYPE_FOUND)
+            return ResponseEntity.status(404).body(AssetResponses.NO_ASSET_OR_TYPE_FOUND);
+        else // STATUS_ERROR
             return  ResponseEntity.status(400).body(AssetResponses.STATUS_ERROR);
     }
 
@@ -254,7 +256,7 @@ public class AssetController
     @ApiResponses({
         @ApiResponse(responseCode = "200",
                 content = @Content(mediaType = "application/json",
-                        schema = @Schema(implementation = MovementSummaryResponseDto.class))),
+                        schema = @Schema(implementation = AssetMaintenanceListRowResponseDto.class))),
         @ApiResponse(responseCode = "401", description = "Not Authorized",
                 content = @Content(mediaType = "application/json",
                         schema = @Schema(implementation = Error.class),

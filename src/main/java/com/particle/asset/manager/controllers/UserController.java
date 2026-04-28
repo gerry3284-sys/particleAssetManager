@@ -51,8 +51,8 @@ public class UserController
     public ResponseEntity<List<User>> getAllUsers() { return ResponseEntity.ok(service.getAllUsers()); }
 
     // Stampa i valori di uno user dato il suo id
-    @GetMapping("/{id}")
-    @Operation(summary = "Get a specific User through their ID")
+    @GetMapping("/{oid}")
+    @Operation(summary = "Get a specific User through their oid")
     @ApiResponses({
             @ApiResponse(responseCode = "200",
                     content = @Content(mediaType = "application/json",
@@ -73,16 +73,16 @@ public class UserController
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
                             examples = @ExampleObject(value = GenericResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
-    public ResponseEntity<?> getUserById(@PathVariable Long id)
+    public ResponseEntity<?> getUserById(@PathVariable String oid)
     {
-        User userById = service.getUserById(id);
+        User userById = service.getUserById(oid);
 
         return userById != null ?ResponseEntity.ok(userById)
                 :ResponseEntity.status(404).body(GenericResponses.NOT_FOUND);
     }
 
     // Stampa tutti i movimenti dello user dato il suo id
-    @GetMapping("/{id}/movement")
+    @GetMapping("/{oid}/movement")
     @Operation(summary = "Get all the Movements for a specific User through their ID")
     @ApiResponses({
             @ApiResponse(responseCode = "200",
@@ -104,9 +104,9 @@ public class UserController
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
                             examples = @ExampleObject(value = GenericResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
-    public ResponseEntity<?> getUserMovements(@PathVariable Long id)
+    public ResponseEntity<?> getUserMovements(@PathVariable String oid)
     {
-        List<MovementSummaryResponseDto> movements = service.getUserMovements(id);
+        List<MovementSummaryResponseDto> movements = service.getUserMovements(oid);
 
         return movements != null ?ResponseEntity.ok(movements)
                 :ResponseEntity.status(404).body(MovementResponses.USER_NOT_FOUND);

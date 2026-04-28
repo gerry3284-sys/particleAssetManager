@@ -38,7 +38,7 @@ public class AssetTypeController
     @ApiResponses({
                 @ApiResponse(responseCode = "200",
                         content = @Content(mediaType = "application/json",
-                                schema = @Schema(implementation = AssetType.class))),
+                                schema = @Schema(implementation = AssetTypeResponseDto.class))),
                 @ApiResponse(responseCode = "401", description = "Not Authorized",
                         content = @Content(mediaType = "application/json",
                                 schema = @Schema(implementation = Error.class),
@@ -47,7 +47,7 @@ public class AssetTypeController
                         content = @Content(mediaType = "application/json",
                                 schema = @Schema(implementation = Error.class),
                                 examples = @ExampleObject(value = GenericResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
-    public ResponseEntity<List<AssetType>> getAllTypes() { return ResponseEntity.ok(service.getAllTypes()); }
+    public ResponseEntity<List<AssetTypeResponseDto>> getAllTypes() { return ResponseEntity.ok(service.getAllTypes()); }
 
     // Stampa un AssetType tramite un dato id
     @GetMapping("/{code}")
@@ -55,7 +55,7 @@ public class AssetTypeController
     @ApiResponses({
             @ApiResponse(responseCode = "200",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = AssetType.class))),
+                            schema = @Schema(implementation = AssetTypeResponseDto.class))),
             @ApiResponse(responseCode = "401", description = "Not Authorized",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
@@ -70,7 +70,7 @@ public class AssetTypeController
                             examples = @ExampleObject(value = GenericResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
     public ResponseEntity<?> getTypeByCode(@PathVariable String code)
     {
-        AssetType searchedAssetType = service.getAssetTypeByCode(code);
+        AssetTypeResponseDto searchedAssetType = service.getAssetTypeByCode(code);
 
         return searchedAssetType != null ?ResponseEntity.ok(searchedAssetType)
                 :ResponseEntity.status(404).body(AssetTypeResponses.NOT_FOUND);

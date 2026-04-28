@@ -1,6 +1,7 @@
 package com.particle.asset.manager.services;
 
 import com.particle.asset.manager.DTO.AssetTypeRequestDto;
+import com.particle.asset.manager.DTO.AssetTypeResponseDto;
 import com.particle.asset.manager.DTO.AssetTypeStatusResponseDto;
 import com.particle.asset.manager.enums.AssetTypeOperations;
 import com.particle.asset.manager.models.AssetType;
@@ -33,27 +34,31 @@ public class AssetTypeService
     //               dal database e salvati i cache con la chiave "all". Le chiamata successive
     //               leggono direttamente dalla cache per 8 ore.
     @Cacheable(value = "assetTypes", key = "'all'")
-    public List<AssetType> getAllTypes()
+    public List<AssetTypeResponseDto> getAllTypes()
     {
         System.out.println(">>> Fetching ALL AssetTypes from database...");
         List<AssetType> types = repository.findAll();
 
+        List<AssetTypeResponseDto> assetTypes = types.stream()
+                .map(this::toResponseDto)
+                .toList();
+
         // Popola anche le cache per singoli ID
         Cache cache = cacheManager.getCache("assetTypes");
         if (cache != null)
-            types.forEach(type -> cache.put("id::" + type.getId(), type));
+            types.forEach(type -> cache.put("id::" + type.getId(), toResponseDto(type)));
 
-        return types;
+        return assetTypes;
     }
 
-    public AssetType getAssetTypeByCode(String code) {
+    public AssetTypeResponseDto getAssetTypeByCode(String code) {
         Cache cache = cacheManager.getCache("assetTypes");
 
         // 1. Cerca prima nella cache del singolo ID
         Cache.ValueWrapper idWrapper = cache != null ? cache.get("id::" + code) : null;
         if (idWrapper != null) {
-            System.out.println(">>> getAssetTypeById(" + code + ") - CACHE (singolo ID)");
-            return (AssetType) idWrapper.get();
+            System.out.println(">>> getAssetTypeById(" + code + ") - CACHE (singolo code)");
+            return (AssetTypeResponseDto) idWrapper.get();
         }
 
         // 2. Se non c'è, cerca nella cache "all"
@@ -61,7 +66,7 @@ public class AssetTypeService
         if (allWrapper != null) {
             System.out.println(">>> getAssetTypeById(" + code + ") - CACHE (filtrato da 'all')");
             @SuppressWarnings("unchecked")
-            List<AssetType> allAssetTypes = (List<AssetType>) allWrapper.get();
+            List<AssetTypeResponseDto> allAssetTypes = (List<AssetTypeResponseDto>) allWrapper.get();
             return allAssetTypes.stream()
                     .filter(type -> type.getCode().equals(code))
                     .findFirst()
@@ -72,9 +77,20 @@ public class AssetTypeService
         System.out.println(">>> getAssetTypeById(" + code + ") - DATABASE (salvando singolo ID in cache)");
         AssetType assetType = repository.findByCode(code).orElse(null);
         if (cache != null && assetType != null)
-            cache.put("id::" + code, assetType);
+            cache.put("id::" + code, toResponseDto(assetType));
 
-        return assetType;
+        return assetType != null ?toResponseDto(assetType) :null;
+    }
+
+    private AssetTypeResponseDto toResponseDto(AssetType type)
+    {
+        AssetTypeResponseDto dto = new AssetTypeResponseDto();
+        dto.setCode(type.getCode());
+        dto.setName(type.getName());
+        dto.setRam(type.isRam());
+        dto.setStorage(type.isStorage());
+        dto.setActive(type.isActive());
+        return dto;
     }
 
     // Crea un Type (reset cache)

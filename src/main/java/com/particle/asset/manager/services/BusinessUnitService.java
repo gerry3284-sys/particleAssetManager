@@ -1,6 +1,7 @@
 package com.particle.asset.manager.services;
 
 import com.particle.asset.manager.DTO.BusinessUnitRequestDto;
+import com.particle.asset.manager.DTO.BusinessUnitResponseDto;
 import com.particle.asset.manager.DTO.BusinessUnitStatusResponseDto;
 import com.particle.asset.manager.enums.BusinessUnitOperations;
 import com.particle.asset.manager.models.BusinessUnit;
@@ -33,21 +34,25 @@ public class BusinessUnitService
     //               dal database e salvati i cache con la chiave "all". Le chiamata successive
     //               leggono direttamente dalla cache per 8 ore.
     @Cacheable(value = "businessUnits", key = "'all'")
-    public List<BusinessUnit> getAllBusinessUnits()
+    public List<BusinessUnitResponseDto> getAllBusinessUnits()
     {
         System.out.println(">>> Fetching ALL BusinessUnits from database...");
         List<BusinessUnit> businessUnits = repository.findAll();
 
+        List<BusinessUnitResponseDto> businessUnitsDto = businessUnits.stream()
+                .map(this::toResponseDto)
+                .toList();
 
         // Popola anche le cache per singoli ID
         Cache cache = cacheManager.getCache("businessUnits");
         if (cache != null)
-            businessUnits.forEach(type -> cache.put("id::" + type.getId(), type));
+            businessUnits.forEach(businessUnit ->
+                    cache.put("id::" + businessUnit.getCode(), toResponseDto(businessUnit)));
 
-        return businessUnits;
+        return businessUnitsDto;
     }
 
-    public BusinessUnit getBusinessUnitById(String code)
+    public BusinessUnitResponseDto getBusinessUnitById(String code)
     {
         Cache cache = cacheManager.getCache("businessUnits");
 
@@ -55,7 +60,7 @@ public class BusinessUnitService
         Cache.ValueWrapper idWrapper = cache != null ? cache.get("id::" + code) : null;
         if (idWrapper != null) {
             System.out.println(">>> getBusinessUnitById(" + code + ") - CACHE (singolo ID)");
-            return (BusinessUnit) idWrapper.get();
+            return (BusinessUnitResponseDto) idWrapper.get();
         }
 
         // 2. Se non c'è, cerca nella cache "all"
@@ -63,7 +68,7 @@ public class BusinessUnitService
         if (allWrapper != null) {
             System.out.println(">>> getBusinessUnitById(" + code + ") - CACHE (filtrato da 'all')");
             @SuppressWarnings("unchecked")
-            List<BusinessUnit> allBusinessUnits = (List<BusinessUnit>) allWrapper.get();
+            List<BusinessUnitResponseDto> allBusinessUnits = (List<BusinessUnitResponseDto>) allWrapper.get();
             return allBusinessUnits.stream()
                     .filter(type -> type.getCode().equals(code))
                     .findFirst()
@@ -74,10 +79,18 @@ public class BusinessUnitService
         System.out.println(">>> getBusinessUnitById(" + code + ") - DATABASE (salvando singolo ID in cache)");
         BusinessUnit businessUnit = repository.findByCode(code).orElse(null);
         if (cache != null && businessUnit != null)
-            cache.put("id::" + code, businessUnit);
+            cache.put("id::" + code, toResponseDto(businessUnit));
 
+        return businessUnit != null ?toResponseDto(businessUnit) :null;
+    }
 
-        return businessUnit;
+    public BusinessUnitResponseDto toResponseDto(BusinessUnit businessUnit)
+    {
+        BusinessUnitResponseDto dto = new BusinessUnitResponseDto();
+        dto.setCode(businessUnit.getCode());
+        dto.setName(businessUnit.getName());
+        dto.setActive(businessUnit.isActive());
+        return dto;
     }
 
     // Crea una businessUnit (reset cache)

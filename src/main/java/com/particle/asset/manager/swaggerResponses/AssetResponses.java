@@ -11,7 +11,7 @@ public class AssetResponses
     public static final Error ALREADY_EXISTS =
             new Error("400", "Asset With That Serial Number Already Exists");
     public static final Error STATUS_ERROR =
-            new Error("400", "Asset Status Cannot Be Changed Now");
+            new Error("400", "Asset Cannot Change to Assigned or Dismissed from here");
     public static final Error CANNOT_UPDATE =
             new Error("409", "Asset Cannot Be Updated Because it's not AVAILABLE");
     public static final Error INVALID_STORAGE =
@@ -20,4 +20,8 @@ public class AssetResponses
             new Error("400", "Invalid RAM Value");
     public static final Error INVALID_DATE =
             new Error("400", "Null Code or Date must be after today");
+    public static final Error NO_ASSET_OR_TYPE_FOUND =
+            new Error("404", "Asset or Asset Type Record Not Found");
+    public static final Error INVALID_ASSET_OR_TYPE_VALUE =
+            new Error("404", "Invalid Asset or Asset Type Code");
 }
