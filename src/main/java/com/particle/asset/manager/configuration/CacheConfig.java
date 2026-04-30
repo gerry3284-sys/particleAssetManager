@@ -34,7 +34,8 @@ public class CacheConfig
                 "assetStatusTypes",
                 "assets",
                 "movements",
-                "tickets"
+                "tickets",
+                "ticketReplies"
         );
 
         cacheManager.setCaffeine(Caffeine.newBuilder()

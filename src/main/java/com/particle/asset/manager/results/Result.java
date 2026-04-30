@@ -86,7 +86,15 @@ public class Result
     public static class TicketResult
     {
         private TicketOperations status;
-        private TicketResponseBodyDto response;
+        private CreateTicketResponseBodyDto response;
+    }
+
+    @AllArgsConstructor
+    @Getter
+    public static class TicketReplyResult
+    {
+        private TicketOperations status;
+        private TicketReplyResponseDto response;
     }
 
     @AllArgsConstructor

@@ -41,11 +41,18 @@ INSERT INTO users (name, surname, email, phone_number, user_type, business_unit_
 ('Giulia', 'Neri', 'giulia.neri@example.com', '3334445555', 'USER', 'KI4', "f0a8c3d1-6e22-4b9a-9a33-7c4e1f2b8d90");
 
 -- Movement usando asset_code (prime 2 lettere del serial_number + posizione)
-INSERT INTO movement (date, movement_type, note, asset_code, users_id, receipt_file_name, code) VALUES
-(TIMESTAMP '2024-01-10 09:00:00', 'ASSIGNED', 'Assegnato notebook a Marco', 'SN1', 2, 'SN1_Rossi_ASSIGNED_1.pdf', 'AS2SN1202401101'),
-(TIMESTAMP '2024-01-15 14:30:00', 'ASSIGNED', NULL, 'SN2', 3, 'SN2_Bianchi_ASSIGNED_2.pdf', 'AS3SN2202401152'),
-(TIMESTAMP '2024-02-01 11:00:00', 'RETURNED', 'Monitor inviato in manutenzione', 'SN2', 3, 'SN2_Bianchi_RETURNED_3.pdf', 'RE3SN2202402113'),
-(TIMESTAMP '2024-02-05 16:00:00', 'DISMISSED', 'Smartphone dismesso', 'IM4', NULL, 'IM4_DISMISSED_4.pdf', 'DIIM4202402054');
+INSERT INTO movement (date, movement_type, note, asset_code, user_code, receipt_file_name, code) VALUES
+(TIMESTAMP '2024-01-10 09:00:00', 'ASSIGNED', 'Assegnato notebook a Marco',
+'SN1', 'a72d4c10-3f55-4b8e-bc9f-0c1e2d44f7b3', 'SN1_Rossi_ASSIGNED_1.pdf', 'AS2SN1202401101'),
+
+(TIMESTAMP '2024-01-15 14:30:00', 'ASSIGNED', NULL,
+'SN2', 'c9e1a4f7-2b88-4f0d-8d11-5a6c9e2f3b44', 'SN2_Bianchi_ASSIGNED_2.pdf', 'AS3SN2202401152'),
+
+(TIMESTAMP '2024-02-01 11:00:00', 'RETURNED', 'Monitor inviato in manutenzione',
+'SN2', 'c9e1a4f7-2b88-4f0d-8d11-5a6c9e2f3b44', 'SN2_Bianchi_RETURNED_3.pdf', 'RE3SN2202402113'),
+
+(TIMESTAMP '2024-02-05 16:00:00', 'DISMISSED', 'Smartphone dismesso',
+'IM4', NULL, 'IM4_DISMISSED_4.pdf', 'DIIM4202402054');
 
 INSERT INTO ticket (user_code, operation, type_code, asset_code, message, status, date, code) VALUES
 
@@ -68,3 +75,25 @@ INSERT INTO ticket (user_code, operation, type_code, asset_code, message, status
 -- Luca Bianchi richiede assegnazione di un monitor
 ('c9e1a4f7-2b88-4f0d-8d11-5a6c9e2f3b44', 'ASSIGNED', 'MO2', 'SN3',
  'Richiesta monitor per postazione fissa.', 'WORKING', '2024-03-15 14:00:00', 'GIKI5');
+
+INSERT INTO ticket_reply (ticket_code, user_code, message, creation_date, code) VALUES
+
+-- MAPA1: Marco chiede un laptop, admin risponde
+('MAPA1', 'a72d4c10-3f55-4b8e-bc9f-0c1e2d44f7b3', 'Ho bisogno di un laptop per il nuovo progetto.', NOW(), 'MAPA11'),
+('MAPA1', '1f3c9b82-7a41-4e3d-9c2a-91f4b0d7e8a1', 'Ricevuto, stiamo verificando la disponibilità.', NOW(), 'MAPA12'),
+
+-- LUVA2: Luca vuole restituire il laptop
+('LUVA2', 'c9e1a4f7-2b88-4f0d-8d11-5a6c9e2f3b44', 'Restituzione laptop HP EliteBook 840, non più necessario.', '2024-02-01 10:00:00', 'LUVA21'),
+('LUVA2', '1f3c9b82-7a41-4e3d-9c2a-91f4b0d7e8a1', 'Preso in carico, procederemo con il ritiro.', '2024-02-01 10:30:00', 'LUVA22'),
+
+-- GIKI3: Giulia chiede uno smartphone
+('GIKI3', 'f0a8c3d1-6e22-4b9a-9a33-7c4e1f2b8d90', 'Richiesta smartphone aziendale per trasferte.', '2024-03-01 09:00:00', 'GIKI31'),
+('GIKI3', 'e54b7d22-91c3-4a0f-8f77-2d9a1c0e5f66', 'Richiesta ricevuta, verifichiamo le disponibilità.', '2024-03-01 09:30:00', 'GIKI32'),
+
+-- LEAD4: Dismissione laptop SN1, ticket CLOSED
+('LEAD4', '1f3c9b82-7a41-4e3d-9c2a-91f4b0d7e8a1', 'Laptop Dell Latitude 5420 non funzionante, richiedo dismissione.', '2024-03-10 11:00:00', 'LEAD41'),
+('LEAD4', 'e54b7d22-91c3-4a0f-8f77-2d9a1c0e5f66', 'Dismissione approvata, ticket chiuso.', '2024-03-10 11:30:00', 'LEAD42'),
+
+-- GIKI5: Luca chiede un monitor
+('GIKI5', 'c9e1a4f7-2b88-4f0d-8d11-5a6c9e2f3b44', 'Richiesta monitor per postazione fissa.', '2024-03-15 14:00:00', 'GIKI51'),
+('GIKI5', '1f3c9b82-7a41-4e3d-9c2a-91f4b0d7e8a1', 'Monitor disponibile, procederemo con l assegnazione.', '2024-03-15 14:30:00', 'GIKI52');

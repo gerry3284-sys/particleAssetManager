@@ -8,6 +8,5 @@ public class MovementRequestBodyDto
 {
     private String note;
     private MovementTypes movementType;
-    private Long user;
-    private String receiptBase64;
+    private String userCode, receiptBase64;
 }

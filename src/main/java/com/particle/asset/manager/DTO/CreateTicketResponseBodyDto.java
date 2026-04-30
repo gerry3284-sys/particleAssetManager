@@ -1,6 +1,5 @@
 package com.particle.asset.manager.DTO;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.particle.asset.manager.enums.MovementTypes;
 import com.particle.asset.manager.enums.TicketStatuses;
 import jakarta.persistence.EnumType;
@@ -10,11 +9,8 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class TicketResponseBodyDto
+public class CreateTicketResponseBodyDto
 {
-    //@JsonIgnore
-    //private Long id;
-
     private String ticketCode, userCode;
     @Enumerated(EnumType.STRING)
     private MovementTypes operation;

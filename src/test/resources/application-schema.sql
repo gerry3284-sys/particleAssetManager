@@ -1,5 +1,6 @@
 -- Cancellazione tabelle esistenti
 SET FOREIGN_KEY_CHECKS = 0; -- Disattiviamo i vincoli di FK
+DROP TABLE IF EXISTS ticket_reply;
 DROP TABLE IF EXISTS ticket;
 DROP TABLE IF EXISTS movement;
 DROP TABLE IF EXISTS asset;
@@ -100,15 +101,15 @@ CREATE TABLE movement (
     movement_type ENUM('ASSIGNED', 'RETURNED', 'DISMISSED') NOT NULL,
     note VARCHAR(255) DEFAULT NULL,
     asset_code VARCHAR(255) NOT NULL,
-    users_id BIGINT(20),
+    user_code VARCHAR(255),
     receipt_file_name VARCHAR(255),
     code VARCHAR(255) NOT NULL,
     PRIMARY KEY (id),
     UNIQUE KEY (code),
     KEY (asset_code),
-    KEY (users_id),
+    KEY (user_code),
     CONSTRAINT fk_movement_asset FOREIGN KEY (asset_code) REFERENCES asset(code),
-    CONSTRAINT fk_movement_users FOREIGN KEY (users_id) REFERENCES users(id)
+    CONSTRAINT fk_movement_users FOREIGN KEY (user_code) REFERENCES users(oid)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Tabella ticket
@@ -131,4 +132,20 @@ CREATE TABLE ticket
     CONSTRAINT fk_ticket_users FOREIGN KEY (user_code) REFERENCES users(oid),
     CONSTRAINT fk_ticket_type FOREIGN KEY (type_code) REFERENCES asset_type(code),
     CONSTRAINT fk_ticket_asset FOREIGN KEY (asset_code) REFERENCES asset(code)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE ticket_reply
+(
+    id BIGINT(20) NOT NULL AUTO_INCREMENT,
+    ticket_code VARCHAR(255) NOT NULL,
+    user_code VARCHAR(255) NOT NULL,
+    message VARCHAR(500) NOT NULL,
+    creation_date DATETIME(6) NOT NULL,
+    code VARCHAR(255) NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY (code),
+    KEY (user_code),
+    KEY (ticket_code),
+    CONSTRAINT fk_ticket_reply_users FOREIGN KEY (user_code) REFERENCES users(oid),
+    CONSTRAINT fk_ticket_reply_type FOREIGN KEY (ticket_code) REFERENCES ticket(code)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

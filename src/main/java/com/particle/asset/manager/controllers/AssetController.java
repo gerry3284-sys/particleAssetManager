@@ -237,7 +237,7 @@ public class AssetController
     public ResponseEntity<?> updateAssetStatusByCode(@PathVariable String assetCode/*,
                                                      @PathVariable String statusCode*/)
     {
-        Result.AssetDtoResult updatedStatus = service.updateStatusByCode(assetCode/*, statusCode*/);
+        Result.AssetDtoResult updatedStatus = service.updateStatusByCode(assetCode /*, statusCode*/);
 
         if(updatedStatus.getStatus() == AssetOperations.OK)
             return ResponseEntity.ok(updatedStatus.getPutResponse());
@@ -248,7 +248,7 @@ public class AssetController
         else if(updatedStatus.getStatus() == AssetOperations.NO_ASSET_OR_TYPE_FOUND)
             return ResponseEntity.status(404).body(AssetResponses.NO_ASSET_OR_TYPE_FOUND);
         else // STATUS_ERROR
-            return  ResponseEntity.status(400).body(AssetResponses.STATUS_ERROR);
+            return  ResponseEntity.status(409).body(AssetResponses.STATUS_ERROR);
     }
 
     @GetMapping("/underMaintenanceAssets")

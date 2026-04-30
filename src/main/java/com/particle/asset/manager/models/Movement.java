@@ -38,7 +38,7 @@ public class Movement
     // Quando l'asset viene dismesso, lo user_id indica l'utente che ha effettuato questa operazione
     @ManyToOne
     //@JoinColumn(name = "users_id", nullable = false)
-    @JoinColumn(name = "users_id")
+    @JoinColumn(name = "user_code", referencedColumnName = "oid")
     private User users;
 
     @Column(name = "receipt_file_name") // Al momento è Nullable, poi non lo sarà più

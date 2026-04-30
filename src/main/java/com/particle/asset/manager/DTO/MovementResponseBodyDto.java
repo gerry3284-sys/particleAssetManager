@@ -8,6 +8,5 @@ import lombok.Data;
 public class MovementResponseBodyDto
 {
     private String asset;
-    private Long user;
-    private String movementType, note;
+    private String userCode, movementType, note;
 }

@@ -31,8 +31,8 @@ public class Ticket
     @JoinColumn(name = "asset_code", referencedColumnName = "code")
     private Asset asset;
 
-    @Column(nullable = false)
-    private String message;
+    /*@Column(nullable = false)
+    private String message;*/
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)

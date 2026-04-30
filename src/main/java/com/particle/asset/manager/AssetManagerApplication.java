@@ -35,22 +35,28 @@ public class AssetManagerApplication
 	// TODO: Creare un "Operations" in "enums" anche per "User" ?
 	// TODO: Se si dovesse togliere Hard Disk e Ram di un Tipo di Asset deve azzerarsi a DB ?
 	// TODO: Restituire il nome dello statusCode per "GET user/{code}/movement" ?
-	// TODO: Inserire un controllo che faccia si che non si possa inserire 0 come valore RAM
-	//		 se l'assetType lo possiede (stesso discorso per lo storage). {OK}
 	// TODO: Modificare la PUT per lo status dell'asset {OK} - La modifica è temporanea. Da cambiare con gli enum
 	// TODO: Creare un API per la gestione delle richieste utenti - TBI
 	// TODO: Aggiungere la cache dove serve
 	// TODO: Modificare gli "schema" delle varie ApiResponse
-	// TODO: Modificare il valore di ritorno delle GET generiche {OK}
-	// TODO: Appena possibile, inserire il code per il ticket {OK}
-	// TODO: Creare una tabella per i ticket che funziona esattamente come quella dei movement
-	// TODO: Modificare la GET di users per far si che lavori con oid e non con id {OK}
-	// TODO: Risolvere l'errore della cache che non salva bene i valori (causando un 500) {OK}
-	// TODO: Mostrare l'errore corretto per quando si cambia lo stato in uno stesso {OK}
+	// TODO: Creare una tabella per i ticket che funziona esattamente come quella dei movement {OK} - ticketReply
 	// TODO: Quando si aggiorna un dato senza cambiare i dati, serve effettuare il salvataggio
 	//		 dei dati quando non cambia nulla.
 	// TODO: Modificare i codici/messaggi d'errore per il cambio di stato di un Asset
 	// TODO: Inserire un blocco che impedisca di creare più di due ticket in uno stesso giorno ?
+	// TODO: Nell'operazione del movimento si deve inserire oid e non id
+	//  	 dell'utente e deve anche essere salvato tale dato {OK}
+	// TODO: Ha senso tenere il message alla creazione del ticket ? (Così come gli altri dati di Ticket)
+	// TODO: Un Admin non può aprire Ticket. {OK}
+	// TODO: Un ticket non può ricevere messaggi dopo che viene chiuso. {OK}
+	// TODO: Una persona non può inviare più di una risposta per volta (se x manda il messaggio
+	//		 prima di inviare l'altro e deve rispondere) {OK}
+	// TODO: Un Utente non può chiudere un ticket {OK}
+	// TODO: Modificare i messaggi d'errore per l'aggiornamento dell'aggiornamento dello status {OK}
+	// TODO: Fixare l'errore che permette a un Asset dismesso di cambiare stato {OK}
+	// TODO: Fixare l'errore che impedisce di dismettere un Asset se è in Manutenzione {OK}
+	// TODO: Fixare l'errore 500 che esce fuori nel momento in cui si prova a dare MAINTENANCE come movimento {OK}
+	// TODO: Fixare l'errore che permette a un altro Utente di rispondere al messaggio del Ticket
 
 	public static void main(String[] args) {
 		SpringApplication.run(AssetManagerApplication.class, args);

@@ -6,11 +6,19 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
-public class TicketRequestDto
+public class FetchTicketResponseBodyDto
 {
-    private String userCode;
+    //@JsonIgnore
+    //private Long id;
+
+    private String ticketCode, userCode;
     @Enumerated(EnumType.STRING)
     private MovementTypes operation;
-    private String assetTypeCode, assetCode, message;
+    private String assetTypeCode, assetCode;
+    @Enumerated(EnumType.STRING)
+    private TicketStatuses status;
+    private LocalDateTime date;
 }

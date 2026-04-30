@@ -10,8 +10,10 @@ public class AssetResponses
             new Error("404", "No Asset Record Was Found");
     public static final Error ALREADY_EXISTS =
             new Error("400", "Asset With That Serial Number Already Exists");
+    /*public static final Error STATUS_ERROR =
+            new Error("400", "Asset Cannot Change to Assigned or Dismissed from here");*/
     public static final Error STATUS_ERROR =
-            new Error("400", "Asset Cannot Change to Assigned or Dismissed from here");
+            new Error("409", "Asset Cannot Change from Assigned from here or it can't change status if it's already Dismissed");
     public static final Error CANNOT_UPDATE =
             new Error("409", "Asset Cannot Be Updated Because it's not AVAILABLE");
     public static final Error INVALID_STORAGE =
