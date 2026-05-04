@@ -68,4 +68,12 @@ public class GenericResponses
                 "errorDescription": "The requested operation is not valid for the provided data"
             }
             """;
+
+    public static final String CONFLICT =
+            """
+            {
+                "errorCode": "409",
+                "errorDescription": "Operation cannot be completed due to a resource state conflict"
+            }
+            """;
 }

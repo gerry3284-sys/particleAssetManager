@@ -26,8 +26,6 @@ public class AssetManagerApplication
 	// Divisi in 5 gruppi separati da trattini → Formato: 8-4-4-4-12 (36 caratteri totali per via del separatore)
 	// TODO: Concludere di Risolvere - scritto il 20/04/2026 da Gerry (Nome Segreto: Geremia)
 
-	// TODO: Per il nome dello storage usare un enum (inserire più tipi)
-	// TODO: Per la quantità di spazio dello storage usare un enum
 	// TODO: Implementare la creazione del token attraverso l'Office 365 (token SDK) - TBA
 	// TODO: Modificare da "boolean" a "Boolean" (per avere "NULL") ?
 	//		 Potrebbe avere senso per far si che serva obbligatoriamente il valore
@@ -36,27 +34,13 @@ public class AssetManagerApplication
 	// TODO: Se si dovesse togliere Hard Disk e Ram di un Tipo di Asset deve azzerarsi a DB ?
 	// TODO: Restituire il nome dello statusCode per "GET user/{code}/movement" ?
 	// TODO: Modificare la PUT per lo status dell'asset {OK} - La modifica è temporanea. Da cambiare con gli enum
-	// TODO: Creare un API per la gestione delle richieste utenti - TBI
 	// TODO: Aggiungere la cache dove serve
-	// TODO: Modificare gli "schema" delle varie ApiResponse
-	// TODO: Creare una tabella per i ticket che funziona esattamente come quella dei movement {OK} - ticketReply
+	// TODO: Modificare gli "schema" delle varie ApiResponse {OK} - dare un'altra occhiata per sicurezza
 	// TODO: Quando si aggiorna un dato senza cambiare i dati, serve effettuare il salvataggio
 	//		 dei dati quando non cambia nulla.
-	// TODO: Modificare i codici/messaggi d'errore per il cambio di stato di un Asset
-	// TODO: Inserire un blocco che impedisca di creare più di due ticket in uno stesso giorno ?
-	// TODO: Nell'operazione del movimento si deve inserire oid e non id
-	//  	 dell'utente e deve anche essere salvato tale dato {OK}
 	// TODO: Ha senso tenere il message alla creazione del ticket ? (Così come gli altri dati di Ticket)
-	// TODO: Un Admin non può aprire Ticket. {OK}
-	// TODO: Un ticket non può ricevere messaggi dopo che viene chiuso. {OK}
-	// TODO: Una persona non può inviare più di una risposta per volta (se x manda il messaggio
-	//		 prima di inviare l'altro e deve rispondere) {OK}
-	// TODO: Un Utente non può chiudere un ticket {OK}
-	// TODO: Modificare i messaggi d'errore per l'aggiornamento dell'aggiornamento dello status {OK}
-	// TODO: Fixare l'errore che permette a un Asset dismesso di cambiare stato {OK}
-	// TODO: Fixare l'errore che impedisce di dismettere un Asset se è in Manutenzione {OK}
-	// TODO: Fixare l'errore 500 che esce fuori nel momento in cui si prova a dare MAINTENANCE come movimento {OK}
-	// TODO: Fixare l'errore che permette a un altro Utente di rispondere al messaggio del Ticket
+	// TODO: Fixare l'errore che permette a un altro Utente di rispondere al messaggio del Ticket {OK}
+	// TODO: Inserire una GET dei ticket per l'utente oid {OK}
 
 	public static void main(String[] args) {
 		SpringApplication.run(AssetManagerApplication.class, args);

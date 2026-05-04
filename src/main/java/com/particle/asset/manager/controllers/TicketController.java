@@ -161,10 +161,18 @@ public class TicketController
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
                             examples = @ExampleObject(value = GenericResponses.UNAUTHORIZED_ACCESS_EXAMPLE))),
+            @ApiResponse(responseCode = "403", description = "Forbidden Access",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Error.class),
+                            examples = @ExampleObject(value = GenericResponses.FORBIDDEN_ACCESS_EXAMPLE))),
             @ApiResponse(responseCode = "404", description = "Not Found",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
                             examples = @ExampleObject(value = GenericResponses.NOT_FOUND_EXAMPLE))),
+            @ApiResponse(responseCode = "409", description = "Conflict",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Error.class),
+                            examples = @ExampleObject(value = GenericResponses.CONFLICT))),
             @ApiResponse(responseCode = "422", description = "Unprocessable Entity",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
@@ -190,6 +198,8 @@ public class TicketController
             return ResponseEntity.status(404).body(TicketResponses.USER_NOT_FOUND);
         else if(replied.getStatus().equals(TicketOperations.CANNOT_CLOSE))
             return ResponseEntity.status(403).body(TicketResponses.CANNOT_CLOSE);
+        else if(replied.getStatus().equals(TicketOperations.DIFFERENT_USER))
+            return ResponseEntity.status(403).body(TicketResponses.DIFFERENT_USER);
         else // BAD_REQUEST
             return ResponseEntity.status(400).body(TicketResponses.BAD_REQUEST);
     }

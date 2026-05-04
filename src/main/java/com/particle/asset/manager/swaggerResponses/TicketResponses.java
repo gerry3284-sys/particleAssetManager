@@ -25,4 +25,6 @@ public class TicketResponses
             new Error("409", "You already replied. Wait for the other party to respond");
     public static final Error CANNOT_CLOSE =
             new Error("403", "Only Admins can Close Tickets");
+    public static final Error DIFFERENT_USER =
+            new Error("403", "You're not allowed to reply to another user's Ticket");
 }

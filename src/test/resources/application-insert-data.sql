@@ -61,7 +61,7 @@ INSERT INTO ticket (user_code, operation, type_code, asset_code, message, status
  'Ho bisogno di un laptop per il nuovo progetto.', 'OPEN', NOW(), 'MAPA1'),
 
 -- Luca Bianchi vuole restituire il suo laptop (SN2 che aveva assegnato)
-('c9e1a4f7-2b88-4f0d-8d11-5a6c9e2f3b44', 'RETURNED', 'LA1', 'SN2',
+('c9e1a4f7-2b88-4f0d-8d11-5a6c9e2f3b44', 'RETURNED', NULL, 'SN2',
  'Restituzione laptop HP EliteBook 840, non più necessario.', 'WORKING', '2024-02-01 10:00:00', 'LUVA2'),
 
 -- Giulia Neri chiede assegnazione di uno smartphone
@@ -69,11 +69,11 @@ INSERT INTO ticket (user_code, operation, type_code, asset_code, message, status
  'Richiesta smartphone aziendale per trasferte.', 'OPEN', '2024-03-01 09:00:00', 'GIKI3'),
 
 -- Marco Rossi segnala dismissione del suo laptop (SN1)
-('1f3c9b82-7a41-4e3d-9c2a-91f4b0d7e8a1', 'DISMISSED', 'LA1', 'SN1',
+('a72d4c10-3f55-4b8e-bc9f-0c1e2d44f7b3', 'DISMISSED', NULL, 'SN1',
  'Laptop Dell Latitude 5420 non funzionante, richiedo dismissione.', 'CLOSED', '2024-03-10 11:00:00', 'LEAD4'),
 
 -- Luca Bianchi richiede assegnazione di un monitor
-('c9e1a4f7-2b88-4f0d-8d11-5a6c9e2f3b44', 'ASSIGNED', 'MO2', 'SN3',
+('c9e1a4f7-2b88-4f0d-8d11-5a6c9e2f3b44', 'ASSIGNED', 'MO2', NULL,
  'Richiesta monitor per postazione fissa.', 'WORKING', '2024-03-15 14:00:00', 'GIKI5');
 
 INSERT INTO ticket_reply (ticket_code, user_code, message, creation_date, code) VALUES
@@ -91,7 +91,7 @@ INSERT INTO ticket_reply (ticket_code, user_code, message, creation_date, code) 
 ('GIKI3', 'e54b7d22-91c3-4a0f-8f77-2d9a1c0e5f66', 'Richiesta ricevuta, verifichiamo le disponibilità.', '2024-03-01 09:30:00', 'GIKI32'),
 
 -- LEAD4: Dismissione laptop SN1, ticket CLOSED
-('LEAD4', '1f3c9b82-7a41-4e3d-9c2a-91f4b0d7e8a1', 'Laptop Dell Latitude 5420 non funzionante, richiedo dismissione.', '2024-03-10 11:00:00', 'LEAD41'),
+('LEAD4', 'a72d4c10-3f55-4b8e-bc9f-0c1e2d44f7b3', 'Laptop Dell Latitude 5420 non funzionante, richiedo dismissione.', '2024-03-10 11:00:00', 'LEAD41'),
 ('LEAD4', 'e54b7d22-91c3-4a0f-8f77-2d9a1c0e5f66', 'Dismissione approvata, ticket chiuso.', '2024-03-10 11:30:00', 'LEAD42'),
 
 -- GIKI5: Luca chiede un monitor

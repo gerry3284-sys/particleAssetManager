@@ -1,6 +1,7 @@
 package com.particle.asset.manager.controllers;
 
 import com.particle.asset.manager.DTO.MovementSummaryResponseDto;
+import com.particle.asset.manager.DTO.TicketSummaryResponseDto;
 import com.particle.asset.manager.models.Error;
 import com.particle.asset.manager.models.User;
 import com.particle.asset.manager.services.UserService;
@@ -83,7 +84,7 @@ public class UserController
 
     // Stampa tutti i movimenti dello user dato il suo id
     @GetMapping("/{oid}/movement")
-    @Operation(summary = "Get all the Movements for a specific User through their ID")
+    @Operation(summary = "Get all the Movements for a specific User through their Oid")
     @ApiResponses({
             @ApiResponse(responseCode = "200",
                     content = @Content(mediaType = "application/json",
@@ -107,6 +108,36 @@ public class UserController
     public ResponseEntity<?> getUserMovements(@PathVariable String oid)
     {
         List<MovementSummaryResponseDto> movements = service.getUserMovements(oid);
+
+        return movements != null ?ResponseEntity.ok(movements)
+                :ResponseEntity.status(404).body(MovementResponses.USER_NOT_FOUND);
+    }
+
+    @GetMapping("/{oid}/ticket")
+    @Operation(summary = "Get all the Tickets for a specific User through their Oid")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = MovementSummaryResponseDto.class))),
+            @ApiResponse(responseCode = "401", description = "Not Authorized",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Error.class),
+                            examples = @ExampleObject(value = GenericResponses.UNAUTHORIZED_ACCESS_EXAMPLE))),
+            @ApiResponse(responseCode = "403", description = "Forbidden",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Error.class),
+                            examples = @ExampleObject(value = GenericResponses.FORBIDDEN_ACCESS_EXAMPLE))),
+            @ApiResponse(responseCode = "404", description = "Not Found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Error.class),
+                            examples = @ExampleObject(value = GenericResponses.NOT_FOUND_EXAMPLE))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Error.class),
+                            examples = @ExampleObject(value = GenericResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
+    public ResponseEntity<?> getUserTickets(@PathVariable String oid)
+    {
+        List<TicketSummaryResponseDto> movements = service.getUserTickets(oid);
 
         return movements != null ?ResponseEntity.ok(movements)
                 :ResponseEntity.status(404).body(MovementResponses.USER_NOT_FOUND);

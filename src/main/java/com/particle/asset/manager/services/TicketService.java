@@ -245,6 +245,10 @@ public class TicketService
         if(userOpt.isEmpty())
             return new Result.TicketReplyResult(TicketOperations.USER_NOT_FOUND, null);
 
+        if(!(ticketOpt.get().getUsers().getOid().equals(reply.getOid())) &&
+                userOpt.get().getUserType().equals(UserTypes.USER))
+            return new Result.TicketReplyResult(TicketOperations.DIFFERENT_USER, null);
+
         if(reply.isClosed() && userOpt.get().getUserType().equals(UserTypes.USER))
             return new Result.TicketReplyResult(TicketOperations.CANNOT_CLOSE, null);
 
@@ -278,7 +282,7 @@ public class TicketService
         if(ticketReply.getUsers().getUserType().name().equals(UserTypes.ADMIN.name()))
             dto.setUser("ADMIN");
         else
-            dto.setUser(ticketReply.getUsers().getName() + ticketReply.getUsers().getSurname());
+            dto.setUser(ticketReply.getUsers().getName() + " " + ticketReply.getUsers().getSurname());
         dto.setMessage(ticketReply.getMessage());
         dto.setStatus(ticketReply.getTickets().getStatus().name());
         dto.setDate(ticketReply.getCreationDate().toLocalDate());

@@ -97,6 +97,7 @@ public class Result
         private TicketReplyResponseDto response;
     }
 
+
     @AllArgsConstructor
     @Getter
     public static class MovementDtoResult

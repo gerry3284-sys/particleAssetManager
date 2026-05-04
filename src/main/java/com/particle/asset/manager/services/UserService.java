@@ -2,10 +2,14 @@ package com.particle.asset.manager.services;
 
 import com.particle.asset.manager.DTO.AssetSummaryDto;
 import com.particle.asset.manager.DTO.MovementSummaryResponseDto;
+import com.particle.asset.manager.DTO.TicketSummaryResponseDto;
 import com.particle.asset.manager.DTO.UserSummaryDto;
+import com.particle.asset.manager.enums.UserTypes;
 import com.particle.asset.manager.models.Movement;
+import com.particle.asset.manager.models.Ticket;
 import com.particle.asset.manager.models.User;
 import com.particle.asset.manager.repositories.MovementRepository;
+import com.particle.asset.manager.repositories.TicketRepository;
 import com.particle.asset.manager.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -18,11 +22,13 @@ public class UserService
 {
     private final UserRepository userRepository;
     private final MovementRepository movementRepository;
+    private final TicketRepository ticketRepository;
 
-    public UserService(UserRepository repository, MovementRepository movementRepository)
+    public UserService(UserRepository repository, MovementRepository movementRepository, TicketRepository ticketRepository)
     {
         this.userRepository = repository;
         this.movementRepository = movementRepository;
+        this.ticketRepository = ticketRepository;
     }
 
     // Mostra tutti gli utenti
@@ -73,6 +79,29 @@ public class UserService
         userSummaryDTO.setSurname(movement.getUsers().getSurname());
         userSummaryDTO.setEmail(movement.getUsers().getEmail());
         dto.setUser(userSummaryDTO);
+
+        return dto;
+    }
+
+    public List<TicketSummaryResponseDto> getUserTickets(String userOid)
+    {
+        if(!userRepository.existsByOid(userOid))
+            return null;
+
+        List<Ticket> tickets = ticketRepository.findByUsersOid(userOid);
+
+        return tickets.stream().map(this::convertToTicketDto).collect(Collectors.toList());
+    }
+
+    private TicketSummaryResponseDto convertToTicketDto(Ticket ticket)
+    {
+        TicketSummaryResponseDto dto = new TicketSummaryResponseDto();
+        dto.setTicketCode(ticket.getCode());
+        dto.setOperation(ticket.getOperation());
+        dto.setAssetCode(ticket.getAsset() == null ?null :ticket.getAsset().getCode());
+        dto.setAssetTypeCode(ticket.getAssetType() == null ?null :ticket.getAssetType().getCode());
+        dto.setUser(ticket.getUsers().getName() + " " + ticket.getUsers().getSurname());
+        dto.setDate(ticket.getDate().toLocalDate());
 
         return dto;
     }
