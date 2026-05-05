@@ -238,8 +238,8 @@ public class TicketService
 
         Optional<TicketReply> checkRepliability = ticketReplyRepository.findFirstByTicketsCodeOrderByCreationDateDesc(ticketCode);
 
-        if(checkRepliability.isPresent() && checkRepliability.get().getUsers().getOid().equals(reply.getOid()))
-            return new Result.TicketReplyResult(TicketOperations.ALREADY_REPLIED, null);
+        /*if(checkRepliability.isPresent() && checkRepliability.get().getUsers().getOid().equals(reply.getOid()))
+            return new Result.TicketReplyResult(TicketOperations.ALREADY_REPLIED, null);*/
 
         Optional<User> userOpt = userRepository.findByOid(reply.getOid());
         if(userOpt.isEmpty())
@@ -290,5 +290,43 @@ public class TicketService
         return dto;
     }
 
+    public Result.TicketResult putInProgress(String ticketCode)
+    {
+        if(ticketCode == null || ticketCode.isEmpty())
+            return new Result.TicketResult(TicketOperations.BAD_REQUEST, null);
 
+        Optional<Ticket> ticketOpt = ticketRepository.findByCode(ticketCode);
+        if(ticketOpt.isEmpty())
+            return new Result.TicketResult(TicketOperations.TICKET_NOT_FOUND, null);
+
+        Ticket inProgress = ticketOpt.get();
+        inProgress.setInProgress(true);
+        ticketRepository.save(inProgress);
+
+        return new Result.TicketResult(TicketOperations.OK, toResponseDto(inProgress, ""));
+    }
+
+    public Result.TicketResult changeTicketStatus(String ticketCode, String statusCode)
+    {
+        if(ticketCode == null || ticketCode.isEmpty() || statusCode == null || statusCode.isEmpty())
+            return new Result.TicketResult(TicketOperations.BAD_REQUEST, null);
+
+        Optional<Ticket> ticketOpt = ticketRepository.findByCode(ticketCode);
+        if(ticketOpt.isEmpty())
+            return new Result.TicketResult(TicketOperations.TICKET_NOT_FOUND, null);
+
+        Optional<AssetType> assetTypeOpt = assetTypeRepository.findByCode(statusCode);
+        if(assetTypeOpt.isEmpty())
+            return new Result.TicketResult(TicketOperations.ASSET_TYPE_NOT_FOUND, null);
+
+        Ticket changedStatus = ticketOpt.get();
+        if(assetTypeOpt.get().getName().equals(TicketStatuses.WORKING.name()))
+            changedStatus.setStatus(TicketStatuses.WORKING);
+        else if(assetTypeOpt.get().getName().equals(TicketStatuses.CLOSED.name()))
+            changedStatus.setStatus(TicketStatuses.CLOSED);
+        else
+            return new Result.TicketResult(TicketOperations.BAD_REQUEST, null); // INVALID_STATUS
+
+        return new Result.TicketResult(TicketOperations.OK, toResponseDto(changedStatus, ""));
+    }
 }

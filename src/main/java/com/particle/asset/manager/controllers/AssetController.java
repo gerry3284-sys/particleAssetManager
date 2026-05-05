@@ -438,4 +438,42 @@ public class AssetController
                     .body(GenericResponses.INTERNAL_SERVER_ERROR);
         };
     }
+
+    @PutMapping("/inProgress/{assetCode}")
+    @Operation(summary = "Update a specific Asset through its code")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = AssetResponseDto.class))),
+            @ApiResponse(responseCode = "400", description = "Business Error",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Error.class),
+                            examples = @ExampleObject(value = GenericResponses.BAD_REQUEST_EXAMPLE))),
+            @ApiResponse(responseCode = "401", description = "Not Authorized",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Error.class),
+                            examples = @ExampleObject(value = GenericResponses.UNAUTHORIZED_ACCESS_EXAMPLE))),
+            @ApiResponse(responseCode = "403", description = "Forbidden",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Error.class),
+                            examples = @ExampleObject(value = GenericResponses.FORBIDDEN_ACCESS_EXAMPLE))),
+            @ApiResponse(responseCode = "404", description = "Not Found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Error.class),
+                            examples = @ExampleObject(value = GenericResponses.NOT_FOUND_EXAMPLE))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Error.class),
+                            examples = @ExampleObject(value = GenericResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
+    public ResponseEntity<?> putInProgress(@PathVariable String assetCode)
+    {
+        Result.AssetDtoResult inProgress = service.putInProgress(assetCode);
+
+        if(inProgress.getStatus().equals(AssetOperations.OK))
+            return ResponseEntity.ok(inProgress.getPutResponse());
+        else if(inProgress.getStatus().equals(AssetOperations.BAD_REQUEST))
+            return ResponseEntity.status(400).body(AssetResponses.BAD_REQUEST);
+        else // NOT_FOUND
+            return ResponseEntity.status(404).body(AssetResponses.NOT_FOUND);
+    }
 }

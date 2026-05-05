@@ -43,4 +43,7 @@ public class Ticket
 
     @Column(nullable = false, unique = true)
     private String code;
+
+    @Column(nullable = false)
+    private boolean inProgress = false;
 }

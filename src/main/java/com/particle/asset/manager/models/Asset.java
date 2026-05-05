@@ -57,6 +57,9 @@ public class Asset
 
     private LocalDate endMaintenanceDate;
 
+    @Column(nullable = false)
+    private boolean inProgress;
+
     // "mappedBy = *nome*" --> nome del lato di chi passa la chiave
     // "cascade = CascadeType.ALL" --> salva/aggiorna/cancella anche i figli
     // "orphanRemoval = true" --> se rimuovo una bu, cancella anche il record ad esso collegato

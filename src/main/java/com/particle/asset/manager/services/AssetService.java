@@ -747,4 +747,20 @@ public class AssetService
             System.err.println(">>> Error during orphaned receipts cleanup: " + e.getMessage());
         }
     }
+
+    public Result.AssetDtoResult putInProgress(String assetCode)
+    {
+        if(assetCode == null || assetCode.isEmpty())
+            return new Result.AssetDtoResult(AssetOperations.BAD_REQUEST, null);
+
+        Optional<Asset> assetOpt = assetRepository.findByCode(assetCode);
+        if(assetOpt.isEmpty())
+            return new Result.AssetDtoResult(AssetOperations.NOT_FOUND, null);
+
+        Asset inProgress = assetOpt.get();
+        inProgress.setInProgress(true);
+        assetRepository.save(inProgress);
+
+        return new Result.AssetDtoResult(AssetOperations.OK, getAssetResponseDto(inProgress));
+    }
 }

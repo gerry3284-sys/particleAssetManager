@@ -39,8 +39,25 @@ public class AssetManagerApplication
 	// TODO: Quando si aggiorna un dato senza cambiare i dati, serve effettuare il salvataggio
 	//		 dei dati quando non cambia nulla.
 	// TODO: Ha senso tenere il message alla creazione del ticket ? (Così come gli altri dati di Ticket)
-	// TODO: Fixare l'errore che permette a un altro Utente di rispondere al messaggio del Ticket {OK}
-	// TODO: Inserire una GET dei ticket per l'utente oid {OK}
+	// TODO: Assegnare un livello di priorità per i ticket
+	// TODO: Cancellare la possibilità di poter inviare al massimo un messaggio e poi dover aspettare
+	//		 la risposta per poterne inviare un altro per i Ticket {OK}
+	// TODO: "message doesn't have a default value" per la creazione ticket. Fixare l'errore {OK} - message in ticket
+	//		 che non doveva esistere
+	// TODO: Creare la PUT per il cambio di stato per il ticket (OPEN → WORKING → CLOSED, OPEN → CLOSED)
+	// TODO: Togliere il cambio di stato automatico per i ticket dopo che l'admin risponde.Rispondere ai messaggi
+	//  	 non vale più per passare da OPEN a Working/OPEN a CLOSED/OPEN a WORKING A CLOSED (In altre parole
+	//		 è possibile avere una conversazione con lo stato del ticket aperto)
+	// TODO: Inserire un commento (obbligatorio da FE) per quando si entra all'interno di un asset in manutenzione
+	// TODO: Effettuare un collegamento molti a molti tra Ticket e Manutenzione ?
+	// TODO: Inserire i sotto-stati per ticket e manutenzione di tipo "Presa in Carico" per quando si lavora con essi
+	//		 - ↓ {OK} - Momentaneo
+	// TODO: Inserire un attributo per avere lo stato "in lavorazione" per un asset in manutenzione {OK} - Momentaneo
+	// TODO: Aggiungere un altro ResponseDto per quando si cambia lo status del ticket/asset manutenzione
+	// TODO: Mettere la possibilità di "inProgress" di passare da 1 a 0 dopo un tot. di tempo
+	// TODO: Completare l'implementazione di "changeTicketStatus" con i controlli per il tipo.
+	//		 Sostanzialmente, non si può tornare indietro di tipo. WORKING → OPEN = Error
+	//		 CLOSED → WORKING, CLOSED → OPEN = Error, anche per sè stesso
 
 	public static void main(String[] args) {
 		SpringApplication.run(AssetManagerApplication.class, args);

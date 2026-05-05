@@ -21,8 +21,8 @@ public class TicketResponses
             new Error("400", "Admins Cannot Open Tickets");
     public static final Error CANNOT_REPLY =
             new Error("423", "Can't Reply To Closed Tickets");
-    public static final Error ALREADY_REPLIED =
-            new Error("409", "You already replied. Wait for the other party to respond");
+    /*public static final Error ALREADY_REPLIED =
+            new Error("409", "You already replied. Wait for the other party to respond");*/
     public static final Error CANNOT_CLOSE =
             new Error("403", "Only Admins can Close Tickets");
     public static final Error DIFFERENT_USER =

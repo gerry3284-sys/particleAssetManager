@@ -83,6 +83,7 @@ CREATE TABLE asset (
     business_unit_code VARCHAR(255) NOT NULL,    -- Cambiato da business_unit_code
     end_maintenance_date DATE DEFAULT NULL,
     code VARCHAR(255) NOT NULL,
+    in_progress BIT(1) NOT NULL,
     PRIMARY KEY (id),
     UNIQUE KEY (serial_number),
     UNIQUE KEY (code), -- Aggiunto vincolo UNIQUE
@@ -120,10 +121,10 @@ CREATE TABLE ticket
     operation ENUM('ASSIGNED', 'RETURNED', 'DISMISSED') NOT NULL,
     type_code VARCHAR(255),
     asset_code VARCHAR(255),
-    message VARCHAR(500) NOT NULL,
     status ENUM('OPEN', 'WORKING', 'CLOSED'),
     date DATETIME(6) NOT NULL,
     code VARCHAR(255) NOT NULL,
+    in_progress BIT(1) NOT NULL,
     PRIMARY KEY (id),
     UNIQUE KEY (code),
     KEY (user_code),
