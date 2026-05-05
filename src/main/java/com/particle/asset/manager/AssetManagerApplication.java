@@ -55,9 +55,7 @@ public class AssetManagerApplication
 	// TODO: Inserire un attributo per avere lo stato "in lavorazione" per un asset in manutenzione {OK} - Momentaneo
 	// TODO: Aggiungere un altro ResponseDto per quando si cambia lo status del ticket/asset manutenzione
 	// TODO: Mettere la possibilità di "inProgress" di passare da 1 a 0 dopo un tot. di tempo per i Ticket
-	// TODO: Inserire una data di inizio manutenzione
-	// TODO: Creare un modo per controllare qual è effettivamente lo stato nel momento in cui era stato
-	//		 mandato un messaggio nello storico del ticket {OK}
+	// TODO: Inserire una data di inizio manutenzione {OK}
 
 	public static void main(String[] args) {
 		SpringApplication.run(AssetManagerApplication.class, args);

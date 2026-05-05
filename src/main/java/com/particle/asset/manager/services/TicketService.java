@@ -290,7 +290,7 @@ public class TicketService
             dto.setUser(ticketReply.getUsers().getName() + " " + ticketReply.getUsers().getSurname());
         dto.setMessage(ticketReply.getMessage());
         dto.setStatus(ticketReply.getMessageStatus().name());
-        dto.setDate(ticketReply.getCreationDate().toLocalDate());
+        dto.setDate(ticketReply.getCreationDate());
 
         return dto;
     }

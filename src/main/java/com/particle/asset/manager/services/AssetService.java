@@ -355,7 +355,7 @@ public class AssetService
             return new Result.AssetDtoResult(AssetOperations.NOT_FOUND, null);
 
         Asset updatedAssetMaintenanceDate = assetOpt.get();
-        updatedAssetMaintenanceDate.setEndMaintenanceDate(date.getEndMaintenance());
+        updatedAssetMaintenanceDate.setEndMaintenanceDate(date != null ?date.getEndMaintenance() :null);
         updatedAssetMaintenanceDate.setUpdateDate(LocalDateTime.now());
         assetRepository.save(updatedAssetMaintenanceDate);
 
@@ -410,9 +410,15 @@ public class AssetService
 //        updatedAssetStatus.setAssetStatusType(assetStatusByCode.get());
         // TODO: Da Modificare
         if(updatedAssetStatus.getAssetStatusType().getName().equals(BasicAssetStatuses.MAINTENANCE.name()))
+        {
+            updatedAssetStatus.setMaintenanceStartDate(null);
             updatedAssetStatus.setAssetStatusType(assetStatusTypeRepository.findByCode("AV1").get());
+        }
         else
+        {
+            updatedAssetStatus.setMaintenanceStartDate(LocalDateTime.now());
             updatedAssetStatus.setAssetStatusType(assetStatusTypeRepository.findByCode("MA4").get());
+        }
 
         //updatedAssetStatus.setAssetStatusType(assetStatusByCode.get());
         updatedAssetStatus.setInProgress(false);
@@ -626,14 +632,23 @@ public class AssetService
         // Trovare un modo per inserire "isPresent()" ?
         Asset updatedAssetStatus = assetOpt.get();
         if(movementDTO.getMovementType().name().equals(MovementTypes.RETURNED.name()))
+        {
+            updatedAssetStatus.setMaintenanceStartDate(LocalDateTime.now());
             updatedAssetStatus.setAssetStatusType
                     (assetStatusTypeRepository.findByName(BasicAssetStatuses.MAINTENANCE.name()).get());
+        }
         else if(movementDTO.getMovementType().name().equals(MovementTypes.ASSIGNED.name()))
+        {
+            updatedAssetStatus.setMaintenanceStartDate(null);
             updatedAssetStatus.setAssetStatusType
                     (assetStatusTypeRepository.findByName(MovementTypes.ASSIGNED.name()).get());
+        }
         else // "DISMISSED"
+        {
+            updatedAssetStatus.setMaintenanceStartDate(null);
             updatedAssetStatus.setAssetStatusType
                     (assetStatusTypeRepository.findByName(BasicAssetStatuses.DISMISSED.name()).get());
+        }
 
         movementRepository.save(addedMovement);
         updatedAssetStatus.setInProgress(false);
