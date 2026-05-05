@@ -250,7 +250,7 @@ public class TicketController
             return ResponseEntity.status(404).body(TicketResponses.TICKET_NOT_FOUND);
     }
 
-    @PutMapping("/changeStatus/{ticketCode}")
+    @PutMapping("/changeStatus/{ticketCode}/{statusCode}")
     @Operation(summary = "Reply to a ticket")
     @ApiResponses({
             @ApiResponse(responseCode = "201",
@@ -285,7 +285,7 @@ public class TicketController
                             schema = @Schema(implementation = Error.class),
                             examples = @ExampleObject(value = GenericResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
     public ResponseEntity<?> changeTicketStatus(@PathVariable String ticketCode,
-                                          @PathVariable String statusCode)
+                                                @PathVariable String statusCode)
     {
         Result.TicketResult inProgress = service.changeTicketStatus(ticketCode, statusCode);
 

@@ -57,7 +57,7 @@ public class AssetManagerApplication
 	// TODO: Mettere la possibilità di "inProgress" di passare da 1 a 0 dopo un tot. di tempo
 	// TODO: Completare l'implementazione di "changeTicketStatus" con i controlli per il tipo.
 	//		 Sostanzialmente, non si può tornare indietro di tipo. WORKING → OPEN = Error
-	//		 CLOSED → WORKING, CLOSED → OPEN = Error, anche per sè stesso
+	//		 CLOSED → WORKING, CLOSED → OPEN = Error, anche per sè stesso {OK}
 
 	public static void main(String[] args) {
 		SpringApplication.run(AssetManagerApplication.class, args);

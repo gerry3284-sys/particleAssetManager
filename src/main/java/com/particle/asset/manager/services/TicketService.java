@@ -25,17 +25,20 @@ public class TicketService
     private final UserRepository userRepository;
     private final AssetRepository assetRepository;
     private final AssetTypeRepository assetTypeRepository;
+    private final AssetStatusTypeRepository assetStatusTypeRepository;
     private final CacheManager cacheManager;
 
     public TicketService(TicketRepository ticketRepository, UserRepository userRepository,
                          AssetRepository assetRepository, AssetTypeRepository assetTypeRepository,
-                         CacheManager cacheManager, TicketReplyRepository ticketReplyRepository)
+                         CacheManager cacheManager, TicketReplyRepository ticketReplyRepository,
+                         AssetStatusTypeRepository assetStatusTypeRepository)
     {
         this.ticketRepository = ticketRepository;
         this.ticketReplyRepository = ticketReplyRepository;
         this.userRepository = userRepository;
         this.assetRepository = assetRepository;
         this.assetTypeRepository = assetTypeRepository;
+        this.assetStatusTypeRepository = assetStatusTypeRepository;
         this.cacheManager = cacheManager;
     }
 
@@ -315,17 +318,18 @@ public class TicketService
         if(ticketOpt.isEmpty())
             return new Result.TicketResult(TicketOperations.TICKET_NOT_FOUND, null);
 
-        Optional<AssetType> assetTypeOpt = assetTypeRepository.findByCode(statusCode);
-        if(assetTypeOpt.isEmpty())
-            return new Result.TicketResult(TicketOperations.ASSET_TYPE_NOT_FOUND, null);
-
         Ticket changedStatus = ticketOpt.get();
-        if(assetTypeOpt.get().getName().equals(TicketStatuses.WORKING.name()))
+        if(statusCode.equals(TicketStatuses.WORKING.name()) &&
+                changedStatus.getStatus().equals(TicketStatuses.OPEN))
             changedStatus.setStatus(TicketStatuses.WORKING);
-        else if(assetTypeOpt.get().getName().equals(TicketStatuses.CLOSED.name()))
+        else if(statusCode.equals(TicketStatuses.CLOSED.name()) &&
+                (changedStatus.getStatus().equals(TicketStatuses.WORKING) ||
+                 changedStatus.getStatus().equals(TicketStatuses.OPEN)))
             changedStatus.setStatus(TicketStatuses.CLOSED);
         else
             return new Result.TicketResult(TicketOperations.BAD_REQUEST, null); // INVALID_STATUS
+
+        ticketRepository.save(changedStatus);
 
         return new Result.TicketResult(TicketOperations.OK, toResponseDto(changedStatus, ""));
     }
