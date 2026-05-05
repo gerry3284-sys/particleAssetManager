@@ -163,6 +163,7 @@ public class TicketService
         tr.setMessage(message);
         tr.setUsers(ticket.getUsers());
         tr.setCode(ticket.getCode() + (ticketReplyRepository.count()+1));
+        tr.setMessageStatus(TicketStatuses.OPEN);
         ticketReplyRepository.save(tr);
     }
 
@@ -259,6 +260,7 @@ public class TicketService
         ticketReply.setTickets(ticketOpt.get());
         ticketReply.setUsers(userOpt.get());
         ticketReply.setMessage(reply.getMessage());
+        ticketReply.setMessageStatus(ticketOpt.get().getStatus());
         ticketReply.setCode(ticketOpt.get().getCode() + (ticketReplyRepository.count()+1));
         ticketReplyRepository.save(ticketReply);
 
@@ -287,7 +289,7 @@ public class TicketService
         else
             dto.setUser(ticketReply.getUsers().getName() + " " + ticketReply.getUsers().getSurname());
         dto.setMessage(ticketReply.getMessage());
-        dto.setStatus(ticketReply.getTickets().getStatus().name());
+        dto.setStatus(ticketReply.getMessageStatus().name());
         dto.setDate(ticketReply.getCreationDate().toLocalDate());
 
         return dto;

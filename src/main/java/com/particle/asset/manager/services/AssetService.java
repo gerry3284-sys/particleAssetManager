@@ -483,7 +483,7 @@ public class AssetService
         UserSummaryDto userSummaryDTO = new UserSummaryDto();
         if(movement.getUsers() != null)
         {
-            userSummaryDTO.setId(movement.getUsers().getId());
+            userSummaryDTO.setOid(movement.getUsers().getOid());
             userSummaryDTO.setName(movement.getUsers().getName());
             userSummaryDTO.setSurname(movement.getUsers().getSurname());
             userSummaryDTO.setEmail(movement.getUsers().getEmail());

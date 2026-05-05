@@ -5,11 +5,10 @@ import lombok.Data;
 @Data
 public class UserSummaryDto
 {
-    private Long id;
-    private String name, surname, email;
+    private String oid, name, surname, email;
 
-    public UserSummaryDto(Long id, String name, String surname, String email) {
-        this.id = id;
+    public UserSummaryDto(String oid, String name, String surname, String email) {
+        this.oid = oid;
         this.name = name;
         this.surname = surname;
         this.email = email;

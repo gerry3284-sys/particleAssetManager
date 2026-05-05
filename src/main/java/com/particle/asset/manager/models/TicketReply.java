@@ -1,5 +1,6 @@
 package com.particle.asset.manager.models;
 
+import com.particle.asset.manager.enums.TicketStatuses;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -29,4 +30,8 @@ public class TicketReply
 
     @Column(nullable = false)
     private LocalDateTime creationDate = LocalDateTime.now();
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    public TicketStatuses messageStatus;
 }

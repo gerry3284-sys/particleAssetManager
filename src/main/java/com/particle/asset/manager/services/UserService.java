@@ -74,7 +74,7 @@ public class UserService
         dto.setAsset(assetSummaryDTO);
 
         UserSummaryDto userSummaryDTO = new UserSummaryDto();
-        userSummaryDTO.setId(movement.getUsers().getId());
+        userSummaryDTO.setOid(movement.getUsers().getOid());
         userSummaryDTO.setName(movement.getUsers().getName());
         userSummaryDTO.setSurname(movement.getUsers().getSurname());
         userSummaryDTO.setEmail(movement.getUsers().getEmail());

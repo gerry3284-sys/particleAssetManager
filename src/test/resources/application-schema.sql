@@ -143,6 +143,7 @@ CREATE TABLE ticket_reply
     message VARCHAR(500) NOT NULL,
     creation_date DATETIME(6) NOT NULL,
     code VARCHAR(255) NOT NULL,
+    message_status ENUM ('OPEN', 'WORKING', 'CLOSED') NOT NULL,
     PRIMARY KEY (id),
     UNIQUE KEY (code),
     KEY (user_code),

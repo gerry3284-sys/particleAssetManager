@@ -50,13 +50,14 @@ public class AssetManagerApplication
 	//		 è possibile avere una conversazione con lo stato del ticket aperto)
 	// TODO: Inserire un commento (obbligatorio da FE) per quando si entra all'interno di un asset in manutenzione
 	// TODO: Effettuare un collegamento molti a molti tra Ticket e Manutenzione ?
-	// TODO: Inserire i sotto-stati per ticket e manutenzione di tipo "Presa in Carico" per quando si lavora con essi
-	//		 - ↓ {OK} - Momentaneo
+	// TODO: Inserire i sotto-stati per ticket e manutenzione per una priorità per quando si lavora con essi
+	//		 Bassa, Medio, Alta
 	// TODO: Inserire un attributo per avere lo stato "in lavorazione" per un asset in manutenzione {OK} - Momentaneo
 	// TODO: Aggiungere un altro ResponseDto per quando si cambia lo status del ticket/asset manutenzione
-	// TODO: Mettere la possibilità di "inProgress" di passare da 1 a 0 dopo un tot. di tempo per gli
-	//		 asset in manutenzione {OK}
-	// TODO: Fixare l'errore che mostra "Only Admins Can Close Tickets" nel reply.
+	// TODO: Mettere la possibilità di "inProgress" di passare da 1 a 0 dopo un tot. di tempo per i Ticket
+	// TODO: Inserire una data di inizio manutenzione
+	// TODO: Creare un modo per controllare qual è effettivamente lo stato nel momento in cui era stato
+	//		 mandato un messaggio nello storico del ticket {OK}
 
 	public static void main(String[] args) {
 		SpringApplication.run(AssetManagerApplication.class, args);

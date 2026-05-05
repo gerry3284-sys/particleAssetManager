@@ -38,6 +38,7 @@ public class Ticket
     @Enumerated(EnumType.STRING)
     private TicketStatuses status = TicketStatuses.OPEN;
 
+    // ↓ Funge da creationDate
     @Column(nullable = false)
     private LocalDateTime date = LocalDateTime.now();
 
