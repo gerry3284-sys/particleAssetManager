@@ -252,8 +252,8 @@ public class TicketService
                 userOpt.get().getUserType().equals(UserTypes.USER))
             return new Result.TicketReplyResult(TicketOperations.DIFFERENT_USER, null);
 
-        if(reply.isClosed() && userOpt.get().getUserType().equals(UserTypes.USER))
-            return new Result.TicketReplyResult(TicketOperations.CANNOT_CLOSE, null);
+        /*if(reply.isClosed() && userOpt.get().getUserType().equals(UserTypes.USER))
+            return new Result.TicketReplyResult(TicketOperations.CANNOT_CLOSE, null);*/
 
         TicketReply ticketReply = new TicketReply();
         ticketReply.setTickets(ticketOpt.get());
@@ -262,7 +262,7 @@ public class TicketService
         ticketReply.setCode(ticketOpt.get().getCode() + (ticketReplyRepository.count()+1));
         ticketReplyRepository.save(ticketReply);
 
-        if(ticketOpt.get().getStatus().name().equals(TicketStatuses.OPEN.name()) && !reply.isClosed())
+        /*if(ticketOpt.get().getStatus().name().equals(TicketStatuses.OPEN.name()) && !reply.isClosed())
         {
             Ticket changeStatus = ticketOpt.get();
             changeStatus.setStatus(TicketStatuses.WORKING);
@@ -273,7 +273,7 @@ public class TicketService
             Ticket changeStatus = ticketOpt.get();
             changeStatus.setStatus(TicketStatuses.CLOSED);
             ticketRepository.save(changeStatus);
-        }
+        }*/
 
         return new Result.TicketReplyResult(TicketOperations.OK, toReplyResponseDto(ticketReply));
     }

@@ -415,6 +415,7 @@ public class AssetService
             updatedAssetStatus.setAssetStatusType(assetStatusTypeRepository.findByCode("MA4").get());
 
         //updatedAssetStatus.setAssetStatusType(assetStatusByCode.get());
+        updatedAssetStatus.setInProgress(false);
         assetRepository.save(updatedAssetStatus);
         AssetResponseDto response = getAssetResponseDto(assetByCode.get());
 
@@ -635,6 +636,7 @@ public class AssetService
                     (assetStatusTypeRepository.findByName(BasicAssetStatuses.DISMISSED.name()).get());
 
         movementRepository.save(addedMovement);
+        updatedAssetStatus.setInProgress(false);
         assetRepository.save(updatedAssetStatus);
 
         if(!(movementDTO.getMovementType().name().equals(MovementTypes.DISMISSED.name())))

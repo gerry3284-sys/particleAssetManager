@@ -6,5 +6,5 @@ import lombok.Data;
 public class TicketReplyRequestDto
 {
     String message, oid;
-    boolean closed;
+    //boolean closed;
 }

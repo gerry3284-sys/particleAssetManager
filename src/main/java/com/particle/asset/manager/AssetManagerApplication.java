@@ -54,10 +54,9 @@ public class AssetManagerApplication
 	//		 - ↓ {OK} - Momentaneo
 	// TODO: Inserire un attributo per avere lo stato "in lavorazione" per un asset in manutenzione {OK} - Momentaneo
 	// TODO: Aggiungere un altro ResponseDto per quando si cambia lo status del ticket/asset manutenzione
-	// TODO: Mettere la possibilità di "inProgress" di passare da 1 a 0 dopo un tot. di tempo
-	// TODO: Completare l'implementazione di "changeTicketStatus" con i controlli per il tipo.
-	//		 Sostanzialmente, non si può tornare indietro di tipo. WORKING → OPEN = Error
-	//		 CLOSED → WORKING, CLOSED → OPEN = Error, anche per sè stesso {OK}
+	// TODO: Mettere la possibilità di "inProgress" di passare da 1 a 0 dopo un tot. di tempo per gli
+	//		 asset in manutenzione {OK}
+	// TODO: Fixare l'errore che mostra "Only Admins Can Close Tickets" nel reply.
 
 	public static void main(String[] args) {
 		SpringApplication.run(AssetManagerApplication.class, args);
