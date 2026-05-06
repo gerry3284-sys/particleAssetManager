@@ -9,6 +9,7 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -333,6 +334,10 @@ public class TicketService
         return new Result.TicketResult(TicketOperations.OK, toResponseDto(changedStatus, ""));
     }
 
+    @Caching(evict = {
+            @CacheEvict(value = "tickets", allEntries = true),
+            @CacheEvict(value = "ticketReplies", allEntries = true)
+    })
     public Result.TicketResult changeTicketPriority(String ticketCode, TicketsAssetsPriorities priority)
     {
         if(ticketCode == null || ticketCode.isEmpty() || priority == null)

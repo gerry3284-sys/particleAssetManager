@@ -298,7 +298,7 @@ public class TicketController
             return ResponseEntity.status(404).body(TicketResponses.TICKET_NOT_FOUND);
     }
 
-    @PutMapping("/changeStatus/{ticketCode}/{priority}")
+    @PutMapping("/changePriority/{ticketCode}/{priority}")
     @Operation(summary = "Reply to a ticket")
     @ApiResponses({
             @ApiResponse(responseCode = "201",
