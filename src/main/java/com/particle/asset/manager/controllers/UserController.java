@@ -118,7 +118,7 @@ public class UserController
     @ApiResponses({
             @ApiResponse(responseCode = "200",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = MovementSummaryResponseDto.class))),
+                            schema = @Schema(implementation = TicketSummaryResponseDto.class))),
             @ApiResponse(responseCode = "401", description = "Not Authorized",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),

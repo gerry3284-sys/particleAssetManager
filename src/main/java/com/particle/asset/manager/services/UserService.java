@@ -101,6 +101,7 @@ public class UserService
         dto.setAssetCode(ticket.getAsset() == null ?null :ticket.getAsset().getCode());
         dto.setAssetTypeCode(ticket.getAssetType() == null ?null :ticket.getAssetType().getCode());
         dto.setUser(ticket.getUsers().getName() + " " + ticket.getUsers().getSurname());
+        dto.setStatus(ticket.getStatus().name());
         dto.setDate(ticket.getDate().toLocalDate());
 
         return dto;

@@ -14,6 +14,6 @@ public class TicketSummaryResponseDto
     private String ticketCode, user;
     @Enumerated(EnumType.STRING)
     private MovementTypes operation;
-    private String assetTypeCode, assetCode;
+    private String assetTypeCode, assetCode, status;
     private LocalDate date;
 }

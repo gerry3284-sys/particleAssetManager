@@ -51,11 +51,14 @@ public class AssetManagerApplication
 	// TODO: Inserire un commento (obbligatorio da FE) per quando si entra all'interno di un asset in manutenzione
 	// TODO: Effettuare un collegamento molti a molti tra Ticket e Manutenzione ?
 	// TODO: Inserire i sotto-stati per ticket e manutenzione per una priorità per quando si lavora con essi
-	//		 Bassa, Medio, Alta
+	//		 Bassa, Medio, Alta → Il livello di priorità deve diventare maggiore quando passa molto tempo
+	//		 dall'ultima interazione, dell'admin da esso
 	// TODO: Inserire un attributo per avere lo stato "in lavorazione" per un asset in manutenzione {OK} - Momentaneo
 	// TODO: Aggiungere un altro ResponseDto per quando si cambia lo status del ticket/asset manutenzione
 	// TODO: Mettere la possibilità di "inProgress" di passare da 1 a 0 dopo un tot. di tempo per i Ticket
-	// TODO: Inserire una data di inizio manutenzione {OK}
+	// TODO: I ticket reply devono essere gestiti con i socket
+	// TODO: Inserire la priorità dei ticket alla creazione di essi
+	// TODO: Cancellare il valore di default per priority in Ticket
 
 	public static void main(String[] args) {
 		SpringApplication.run(AssetManagerApplication.class, args);

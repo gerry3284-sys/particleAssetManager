@@ -2,6 +2,7 @@ package com.particle.asset.manager.models;
 
 import com.particle.asset.manager.enums.MovementTypes;
 import com.particle.asset.manager.enums.TicketStatuses;
+import com.particle.asset.manager.enums.TicketsAssetsPriorities;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -47,4 +48,8 @@ public class Ticket
 
     @Column(nullable = false)
     private boolean inProgress = false;
+
+    // Valore di default temporaneo
+    @Column(nullable = false)
+    private TicketsAssetsPriorities priority = TicketsAssetsPriorities.LOW;
 }

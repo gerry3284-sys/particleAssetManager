@@ -1,10 +1,7 @@
 package com.particle.asset.manager.services;
 
 import com.particle.asset.manager.DTO.*;
-import com.particle.asset.manager.enums.MovementTypes;
-import com.particle.asset.manager.enums.TicketOperations;
-import com.particle.asset.manager.enums.TicketStatuses;
-import com.particle.asset.manager.enums.UserTypes;
+import com.particle.asset.manager.enums.*;
 import com.particle.asset.manager.models.*;
 import com.particle.asset.manager.repositories.*;
 import com.particle.asset.manager.results.Result;
@@ -334,5 +331,21 @@ public class TicketService
         ticketRepository.save(changedStatus);
 
         return new Result.TicketResult(TicketOperations.OK, toResponseDto(changedStatus, ""));
+    }
+
+    public Result.TicketResult changeTicketPriority(String ticketCode, TicketsAssetsPriorities priority)
+    {
+        if(ticketCode == null || ticketCode.isEmpty() || priority == null)
+            return new Result.TicketResult(TicketOperations.BAD_REQUEST, null);
+
+        Optional<Ticket> ticketOpt = ticketRepository.findByCode(ticketCode);
+        if(ticketOpt.isEmpty())
+            return new Result.TicketResult(TicketOperations.TICKET_NOT_FOUND, null);
+
+        Ticket changedPriority = ticketOpt.get();
+        changedPriority.setPriority(priority);
+        ticketRepository.save(changedPriority);
+
+        return new Result.TicketResult(TicketOperations.OK, toResponseDto(changedPriority, ""));
     }
 }

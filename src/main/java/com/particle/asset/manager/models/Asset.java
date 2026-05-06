@@ -1,6 +1,7 @@
 package com.particle.asset.manager.models;
 
 //import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.particle.asset.manager.enums.TicketsAssetsPriorities;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -61,6 +62,8 @@ public class Asset
 
     @Column(nullable = false)
     private boolean inProgress;
+
+    private TicketsAssetsPriorities priority;
 
     // "mappedBy = *nome*" --> nome del lato di chi passa la chiave
     // "cascade = CascadeType.ALL" --> salva/aggiorna/cancella anche i figli

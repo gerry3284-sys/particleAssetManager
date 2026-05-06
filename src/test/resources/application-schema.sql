@@ -85,6 +85,7 @@ CREATE TABLE asset (
     end_maintenance_date DATE DEFAULT NULL,
     code VARCHAR(255) NOT NULL,
     in_progress BIT(1) NOT NULL,
+    priority ENUM('LOW', 'MEDIUM', 'HIGH') DEFAULT NULL,
     PRIMARY KEY (id),
     UNIQUE KEY (serial_number),
     UNIQUE KEY (code), -- Aggiunto vincolo UNIQUE
@@ -126,6 +127,7 @@ CREATE TABLE ticket
     date DATETIME(6) NOT NULL,
     code VARCHAR(255) NOT NULL,
     in_progress BIT(1) NOT NULL,
+    priority ENUM('LOW', 'MEDIUM', 'HIGH') NOT NULL,
     PRIMARY KEY (id),
     UNIQUE KEY (code),
     KEY (user_code),

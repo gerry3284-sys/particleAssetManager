@@ -54,22 +54,22 @@ INSERT INTO movement (date, movement_type, note, asset_code, user_code, receipt_
 (TIMESTAMP '2024-02-05 16:00:00', 'DISMISSED', 'Smartphone dismesso',
 'IM4', NULL, 'IM4_DISMISSED_4.pdf', 'DIIM4202402054');
 
-INSERT INTO ticket (user_code, operation, type_code, asset_code, status, date, code, in_progress) VALUES
+INSERT INTO ticket (user_code, operation, type_code, asset_code, status, date, code, in_progress, priority) VALUES
 
 -- Marco Rossi chiede assegnazione di un nuovo laptop
-('a72d4c10-3f55-4b8e-bc9f-0c1e2d44f7b3', 'ASSIGNED', 'LA1', NULL, 'OPEN', NOW(), 'MAPA1', 0),
+('a72d4c10-3f55-4b8e-bc9f-0c1e2d44f7b3', 'ASSIGNED', 'LA1', NULL, 'OPEN', NOW(), 'MAPA1', 0, 'MEDIUM'),
 
 -- Luca Bianchi vuole restituire il suo laptop (SN2 che aveva assegnato)
-('c9e1a4f7-2b88-4f0d-8d11-5a6c9e2f3b44', 'RETURNED', NULL, 'SN2', 'WORKING', '2024-02-01 10:00:00', 'LUVA2', 0),
+('c9e1a4f7-2b88-4f0d-8d11-5a6c9e2f3b44', 'RETURNED', NULL, 'SN2', 'WORKING', '2024-02-01 10:00:00', 'LUVA2', 0, 'HIGH'),
 
 -- Giulia Neri chiede assegnazione di uno smartphone
-('f0a8c3d1-6e22-4b9a-9a33-7c4e1f2b8d90', 'ASSIGNED', 'SM4', NULL, 'OPEN', '2024-03-01 09:00:00', 'GIKI3', 0),
+('f0a8c3d1-6e22-4b9a-9a33-7c4e1f2b8d90', 'ASSIGNED', 'SM4', NULL, 'OPEN', '2024-03-01 09:00:00', 'GIKI3', 0, 'HIGH'),
 
 -- Marco Rossi segnala dismissione del suo laptop (SN1)
-('a72d4c10-3f55-4b8e-bc9f-0c1e2d44f7b3', 'DISMISSED', NULL, 'SN1', 'CLOSED', '2024-03-10 11:00:00', 'LEAD4', 0),
+('a72d4c10-3f55-4b8e-bc9f-0c1e2d44f7b3', 'DISMISSED', NULL, 'SN1', 'CLOSED', '2024-03-10 11:00:00', 'LEAD4', 0, 'LOW'),
 
 -- Luca Bianchi richiede assegnazione di un monitor
-('c9e1a4f7-2b88-4f0d-8d11-5a6c9e2f3b44', 'ASSIGNED', 'MO2', NULL, 'WORKING', '2024-03-15 14:00:00', 'GIKI5', 0);
+('c9e1a4f7-2b88-4f0d-8d11-5a6c9e2f3b44', 'ASSIGNED', 'MO2', NULL, 'WORKING', '2024-03-15 14:00:00', 'GIKI5', 0, 'MEDIUM');
 
 INSERT INTO ticket_reply (ticket_code, user_code, message, creation_date, code, message_status) VALUES
 
