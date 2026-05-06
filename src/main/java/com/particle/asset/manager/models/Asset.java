@@ -56,7 +56,7 @@ public class Asset
     @Column(nullable = false, unique = true)
     private String code; // Codice univoco per ogni record "primi due caratteri + id"
 
-    private LocalDateTime maintenanceStartDate;
+    private LocalDateTime startMaintenanceDate;
 
     private LocalDate endMaintenanceDate;
 

@@ -411,12 +411,12 @@ public class AssetService
         // TODO: Da Modificare
         if(updatedAssetStatus.getAssetStatusType().getName().equals(BasicAssetStatuses.MAINTENANCE.name()))
         {
-            updatedAssetStatus.setMaintenanceStartDate(null);
+            updatedAssetStatus.setStartMaintenanceDate(null);
             updatedAssetStatus.setAssetStatusType(assetStatusTypeRepository.findByCode("AV1").get());
         }
         else
         {
-            updatedAssetStatus.setMaintenanceStartDate(LocalDateTime.now());
+            updatedAssetStatus.setStartMaintenanceDate(LocalDateTime.now());
             updatedAssetStatus.setAssetStatusType(assetStatusTypeRepository.findByCode("MA4").get());
         }
 
@@ -633,19 +633,19 @@ public class AssetService
         Asset updatedAssetStatus = assetOpt.get();
         if(movementDTO.getMovementType().name().equals(MovementTypes.RETURNED.name()))
         {
-            updatedAssetStatus.setMaintenanceStartDate(LocalDateTime.now());
+            updatedAssetStatus.setStartMaintenanceDate(LocalDateTime.now());
             updatedAssetStatus.setAssetStatusType
                     (assetStatusTypeRepository.findByName(BasicAssetStatuses.MAINTENANCE.name()).get());
         }
         else if(movementDTO.getMovementType().name().equals(MovementTypes.ASSIGNED.name()))
         {
-            updatedAssetStatus.setMaintenanceStartDate(null);
+            updatedAssetStatus.setStartMaintenanceDate(null);
             updatedAssetStatus.setAssetStatusType
                     (assetStatusTypeRepository.findByName(MovementTypes.ASSIGNED.name()).get());
         }
         else // "DISMISSED"
         {
-            updatedAssetStatus.setMaintenanceStartDate(null);
+            updatedAssetStatus.setStartMaintenanceDate(null);
             updatedAssetStatus.setAssetStatusType
                     (assetStatusTypeRepository.findByName(BasicAssetStatuses.DISMISSED.name()).get());
         }

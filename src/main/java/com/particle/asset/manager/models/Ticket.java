@@ -51,5 +51,6 @@ public class Ticket
 
     // Valore di default temporaneo
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private TicketsAssetsPriorities priority = TicketsAssetsPriorities.LOW;
 }
