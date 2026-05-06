@@ -128,6 +128,7 @@ public class AssetService
         assetDto.setRam(asset.getRam());
         assetDto.setStorage(asset.getStorage());
         assetDto.setEndMaintenance(asset.getEndMaintenanceDate());
+        assetDto.setInProgress(asset.isInProgress());
 
         assetTypeDto.setCode(asset.getAssetType().getCode());
         assetTypeDto.setName(asset.getAssetType().getName());
@@ -281,6 +282,7 @@ public class AssetService
                             asset.getCode(),
                             asset.getAssetType().getName(),
                             asset.getBusinessUnit().getName(),
+                            asset.isInProgress(),
                             returnedDate,
                             null
                     );

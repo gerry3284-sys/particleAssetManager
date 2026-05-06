@@ -12,5 +12,6 @@ public class FetchAssetResponseDto
     BusinessUnitResponseDto businessUnit;
     AssetStatusTypeStatusResponseDto assetStatusType;
     private Short ram;
+    private boolean inProgress;
     private LocalDate endMaintenance;
 }
