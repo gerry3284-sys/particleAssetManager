@@ -26,4 +26,6 @@ public class AssetResponses
             new Error("404", "Asset or Asset Type Record Not Found");
     public static final Error INVALID_ASSET_OR_TYPE_VALUE =
             new Error("404", "Invalid Asset or Asset Type Code");
+    public static final Error INVALID_OPERATION =
+            new Error("422", "Can't put an Asset In Progress if it's not Under Maintenance");
 }

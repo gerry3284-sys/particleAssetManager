@@ -473,6 +473,8 @@ public class AssetController
             return ResponseEntity.ok(inProgress.getPutResponse());
         else if(inProgress.getStatus().equals(AssetOperations.BAD_REQUEST))
             return ResponseEntity.status(400).body(AssetResponses.BAD_REQUEST);
+        else if(inProgress.getStatus().equals(AssetOperations.INVALID_OPERATION))
+            return ResponseEntity.status(422).body(AssetResponses.INVALID_OPERATION);
         else // NOT_FOUND
             return ResponseEntity.status(404).body(AssetResponses.NOT_FOUND);
     }

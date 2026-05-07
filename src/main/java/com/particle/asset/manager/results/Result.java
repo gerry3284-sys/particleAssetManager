@@ -2,6 +2,8 @@ package com.particle.asset.manager.results;
 
 import com.particle.asset.manager.DTO.*;
 import com.particle.asset.manager.enums.*;
+import com.particle.asset.manager.models.User;
+import com.particle.asset.manager.swaggerResponses.UserResponses;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -121,5 +123,13 @@ public class Result
         private MovementOperations status;
         private byte[] pdfBytes;
         private String fileName;
+    }
+
+    @AllArgsConstructor
+    @Getter
+    public static class UserResult
+    {
+        private UserOperations status;
+        private User response;
     }
 }

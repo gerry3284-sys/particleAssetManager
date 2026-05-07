@@ -2,11 +2,14 @@ package com.particle.asset.manager.controllers;
 
 import com.particle.asset.manager.DTO.MovementSummaryResponseDto;
 import com.particle.asset.manager.DTO.TicketSummaryResponseDto;
+import com.particle.asset.manager.enums.UserOperations;
 import com.particle.asset.manager.models.Error;
 import com.particle.asset.manager.models.User;
+import com.particle.asset.manager.results.Result;
 import com.particle.asset.manager.services.UserService;
 import com.particle.asset.manager.swaggerResponses.GenericResponses;
 import com.particle.asset.manager.swaggerResponses.MovementResponses;
+import com.particle.asset.manager.swaggerResponses.UserResponses;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -79,7 +82,7 @@ public class UserController
         User userById = service.getUserById(oid);
 
         return userById != null ?ResponseEntity.ok(userById)
-                :ResponseEntity.status(404).body(GenericResponses.NOT_FOUND);
+                :ResponseEntity.status(404).body(UserResponses.USER_NOT_FOUND);
     }
 
     // Stampa tutti i movimenti dello user dato il suo id
@@ -110,7 +113,7 @@ public class UserController
         List<MovementSummaryResponseDto> movements = service.getUserMovements(oid);
 
         return movements != null ?ResponseEntity.ok(movements)
-                :ResponseEntity.status(404).body(MovementResponses.USER_NOT_FOUND);
+                :ResponseEntity.status(404).body(UserResponses.USER_NOT_FOUND);
     }
 
     @GetMapping("/{oid}/ticket")
@@ -140,6 +143,40 @@ public class UserController
         List<TicketSummaryResponseDto> movements = service.getUserTickets(oid);
 
         return movements != null ?ResponseEntity.ok(movements)
-                :ResponseEntity.status(404).body(MovementResponses.USER_NOT_FOUND);
+                :ResponseEntity.status(404).body(UserResponses.USER_NOT_FOUND);
+    }
+
+    @PutMapping("/{oid}/darkTheme")
+    @Operation(summary = "Change the Dark Theme for a specific User through their Oid")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = TicketSummaryResponseDto.class))),
+            @ApiResponse(responseCode = "401", description = "Not Authorized",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Error.class),
+                            examples = @ExampleObject(value = GenericResponses.UNAUTHORIZED_ACCESS_EXAMPLE))),
+            @ApiResponse(responseCode = "403", description = "Forbidden",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Error.class),
+                            examples = @ExampleObject(value = GenericResponses.FORBIDDEN_ACCESS_EXAMPLE))),
+            @ApiResponse(responseCode = "404", description = "Not Found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Error.class),
+                            examples = @ExampleObject(value = GenericResponses.NOT_FOUND_EXAMPLE))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Error.class),
+                            examples = @ExampleObject(value = GenericResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
+    public ResponseEntity<?> changeUserDarkTheme(@PathVariable String oid)
+    {
+        Result.UserResult changedTheme = service.darkThemeOnOff(oid);
+
+        if(changedTheme.getStatus().equals(UserOperations.OK))
+            return ResponseEntity.ok(changedTheme);
+        else if(changedTheme.getStatus().equals(UserOperations.USER_NOT_FOUND))
+            return ResponseEntity.status(404).body(UserResponses.USER_NOT_FOUND);
+        else // BAD_REQUEST
+            return ResponseEntity.status(400).body(UserResponses.BAD_REQUEST);
     }
 }

@@ -2,6 +2,7 @@ package com.particle.asset.manager.DTO;
 
 import com.particle.asset.manager.enums.MovementTypes;
 import com.particle.asset.manager.enums.TicketStatuses;
+import com.particle.asset.manager.enums.TicketsAssetsPriorities;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.Data;
@@ -20,5 +21,6 @@ public class FetchTicketResponseBodyDto
     private String assetTypeCode, assetCode;
     @Enumerated(EnumType.STRING)
     private TicketStatuses status;
+    private TicketsAssetsPriorities priority;
     private LocalDateTime date;
 }

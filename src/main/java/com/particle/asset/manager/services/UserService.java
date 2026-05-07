@@ -4,6 +4,7 @@ import com.particle.asset.manager.DTO.AssetSummaryDto;
 import com.particle.asset.manager.DTO.MovementSummaryResponseDto;
 import com.particle.asset.manager.DTO.TicketSummaryResponseDto;
 import com.particle.asset.manager.DTO.UserSummaryDto;
+import com.particle.asset.manager.enums.UserOperations;
 import com.particle.asset.manager.enums.UserTypes;
 import com.particle.asset.manager.models.Movement;
 import com.particle.asset.manager.models.Ticket;
@@ -11,6 +12,7 @@ import com.particle.asset.manager.models.User;
 import com.particle.asset.manager.repositories.MovementRepository;
 import com.particle.asset.manager.repositories.TicketRepository;
 import com.particle.asset.manager.repositories.UserRepository;
+import com.particle.asset.manager.results.Result;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -105,5 +107,21 @@ public class UserService
         dto.setDate(ticket.getDate().toLocalDate());
 
         return dto;
+    }
+
+    public Result.UserResult darkThemeOnOff(String oid)
+    {
+        if(oid == null || oid.isEmpty())
+            return new Result.UserResult(UserOperations.BAD_REQUEST, null);
+
+        Optional<User> userOpt = userRepository.findByOid(oid);
+        if(userOpt.isEmpty())
+            return new Result.UserResult(UserOperations.USER_NOT_FOUND, null);
+
+        User changedTheme = userOpt.get();
+        changedTheme.setDarkTheme(!changedTheme.isDarkTheme());
+        userRepository.save(changedTheme);
+
+        return new Result.UserResult(UserOperations.OK, changedTheme);
     }
 }

@@ -377,6 +377,7 @@ public class AssetService
         response.setRam(updatedAsset.getRam());
         response.setStorage(updatedAsset.getStorage());
         response.setAssetStatusTypeCode(updatedAsset.getAssetStatusType().getCode());
+        response.setInProgress(updatedAsset.isInProgress());
         response.setEndMaintenance(updatedAsset.getEndMaintenanceDate());
         return response;
     }
@@ -775,6 +776,9 @@ public class AssetService
         Optional<Asset> assetOpt = assetRepository.findByCode(assetCode);
         if(assetOpt.isEmpty())
             return new Result.AssetDtoResult(AssetOperations.NOT_FOUND, null);
+
+        if(!assetOpt.get().getAssetStatusType().getCode().equals("MA4"))
+            return new Result.AssetDtoResult(AssetOperations.INVALID_OPERATION, null);
 
         Asset inProgress = assetOpt.get();
         inProgress.setInProgress(true);

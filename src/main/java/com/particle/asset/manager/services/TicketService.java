@@ -175,6 +175,7 @@ public class TicketService
         dto.setAssetCode(ticket.getAsset() != null ? ticket.getAsset().getCode() : null);
         //dto.setMessage(ticket.getMessage());
         dto.setStatus(ticket.getStatus());
+        dto.setPriority(ticket.getPriority());
         dto.setDate(ticket.getDate());
         return dto;
     }
@@ -189,6 +190,7 @@ public class TicketService
         dto.setAssetCode(ticket.getAsset() != null ? ticket.getAsset().getCode() : null);
         dto.setMessage(message);
         dto.setStatus(ticket.getStatus());
+        dto.setPriority(ticket.getPriority());
         dto.setDate(ticket.getDate());
         return dto;
     }
@@ -236,7 +238,7 @@ public class TicketService
             return new Result.TicketReplyResult(TicketOperations.TICKET_NOT_FOUND, null);
 
         if(ticketOpt.get().getStatus() == TicketStatuses.CLOSED)
-            return new Result.TicketReplyResult(TicketOperations.CANNOT_REPLY, null);
+            return new Result.TicketReplyResult(TicketOperations.CANNOT_INTERACT_WITH, null);
 
         Optional<TicketReply> checkRepliability = ticketReplyRepository.findFirstByTicketsCodeOrderByCreationDateDesc(ticketCode);
 
@@ -327,7 +329,7 @@ public class TicketService
                  changedStatus.getStatus().equals(TicketStatuses.OPEN)))
             changedStatus.setStatus(TicketStatuses.CLOSED);
         else
-            return new Result.TicketResult(TicketOperations.BAD_REQUEST, null); // INVALID_STATUS
+            return new Result.TicketResult(TicketOperations.INVALID_STATUS, null);
 
         ticketRepository.save(changedStatus);
 
@@ -346,6 +348,9 @@ public class TicketService
         Optional<Ticket> ticketOpt = ticketRepository.findByCode(ticketCode);
         if(ticketOpt.isEmpty())
             return new Result.TicketResult(TicketOperations.TICKET_NOT_FOUND, null);
+
+        if(ticketOpt.get().getStatus().equals(TicketStatuses.CLOSED))
+            return new Result.TicketResult(TicketOperations.CANNOT_INTERACT_WITH, null);
 
         Ticket changedPriority = ticketOpt.get();
         changedPriority.setPriority(priority);

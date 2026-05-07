@@ -191,8 +191,8 @@ public class TicketController
             return ResponseEntity.ok(replied.getResponse());
         else if(replied.getStatus().equals(TicketOperations.TICKET_NOT_FOUND))
             return ResponseEntity.status(404).body(TicketResponses.TICKET_NOT_FOUND);
-        else if(replied.getStatus().equals(TicketOperations.CANNOT_REPLY))
-            return ResponseEntity.status(423).body(TicketResponses.CANNOT_REPLY);
+        else if(replied.getStatus().equals(TicketOperations.CANNOT_INTERACT_WITH))
+            return ResponseEntity.status(423).body(TicketResponses.CANNOT_INTERACT_WITH);
         /*else if(replied.getStatus().equals(TicketOperations.ALREADY_REPLIED))
             return ResponseEntity.status(409).body(TicketResponses.ALREADY_REPLIED); */// Conflict
         else if(replied.getStatus().equals(TicketOperations.USER_NOT_FOUND))
@@ -206,7 +206,7 @@ public class TicketController
     }
 
     @PutMapping("/inProgress/{ticketCode}")
-    @Operation(summary = "Reply to a ticket")
+    @Operation(summary = "Put a Ticket in progress")
     @ApiResponses({
             @ApiResponse(responseCode = "201",
                     content = @Content(mediaType = "application/json",
@@ -219,22 +219,10 @@ public class TicketController
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
                             examples = @ExampleObject(value = GenericResponses.UNAUTHORIZED_ACCESS_EXAMPLE))),
-            @ApiResponse(responseCode = "403", description = "Forbidden Access",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Error.class),
-                            examples = @ExampleObject(value = GenericResponses.FORBIDDEN_ACCESS_EXAMPLE))),
             @ApiResponse(responseCode = "404", description = "Not Found",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
                             examples = @ExampleObject(value = GenericResponses.NOT_FOUND_EXAMPLE))),
-            /*@ApiResponse(responseCode = "409", description = "Conflict",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Error.class),
-                            examples = @ExampleObject(value = GenericResponses.CONFLICT))),*/
-            @ApiResponse(responseCode = "422", description = "Unprocessable Entity",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Error.class),
-                            examples = @ExampleObject(value = GenericResponses.UNPROCESSABLE_ENTITY))),
             @ApiResponse(responseCode = "500", description = "Internal Server Error",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
@@ -251,7 +239,7 @@ public class TicketController
             return ResponseEntity.status(404).body(TicketResponses.TICKET_NOT_FOUND);
     }
 
-    @PutMapping("/changeStatus/{ticketCode}/{statusCode}")
+    @PutMapping("/changeStatus/{ticketCode}/{statusName}")
     @Operation(summary = "Reply to a ticket")
     @ApiResponses({
             @ApiResponse(responseCode = "201",
@@ -273,10 +261,6 @@ public class TicketController
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
                             examples = @ExampleObject(value = GenericResponses.NOT_FOUND_EXAMPLE))),
-            /*@ApiResponse(responseCode = "409", description = "Conflict",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Error.class),
-                            examples = @ExampleObject(value = GenericResponses.CONFLICT))),*/
             @ApiResponse(responseCode = "422", description = "Unprocessable Entity",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
@@ -286,14 +270,16 @@ public class TicketController
                             schema = @Schema(implementation = Error.class),
                             examples = @ExampleObject(value = GenericResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
     public ResponseEntity<?> changeTicketStatus(@PathVariable String ticketCode,
-                                                @PathVariable String statusCode)
+                                                @PathVariable String statusName)
     {
-        Result.TicketResult inProgress = service.changeTicketStatus(ticketCode, statusCode);
+        Result.TicketResult statusChanged = service.changeTicketStatus(ticketCode, statusName);
 
-        if(inProgress.getStatus().equals(TicketOperations.OK))
-            return ResponseEntity.ok(inProgress.getResponse());
-        else if(inProgress.getStatus().equals(TicketOperations.BAD_REQUEST))
+        if(statusChanged.getStatus().equals(TicketOperations.OK))
+            return ResponseEntity.ok(statusChanged.getResponse());
+        else if(statusChanged.getStatus().equals(TicketOperations.BAD_REQUEST))
             return ResponseEntity.status(400).body(TicketResponses.BAD_REQUEST);
+        else if(statusChanged.getStatus().equals(TicketOperations.INVALID_STATUS))
+            return ResponseEntity.status(422).body(TicketResponses.INVALID_STATUS);
         else // TICKET_NOT_FOUND
             return ResponseEntity.status(404).body(TicketResponses.TICKET_NOT_FOUND);
     }
@@ -341,6 +327,8 @@ public class TicketController
             return ResponseEntity.ok(inProgress.getResponse());
         else if(inProgress.getStatus().equals(TicketOperations.BAD_REQUEST))
             return ResponseEntity.status(400).body(TicketResponses.BAD_REQUEST);
+        else if(inProgress.getStatus().equals(TicketOperations.CANNOT_INTERACT_WITH))
+            return ResponseEntity.status(423).body(TicketResponses.CANNOT_INTERACT_WITH);
         else // TICKET_NOT_FOUND
             return ResponseEntity.status(404).body(TicketResponses.TICKET_NOT_FOUND);
     }

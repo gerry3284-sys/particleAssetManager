@@ -10,5 +10,6 @@ public class AssetResponseDto
     private String brand, model, serialNumber, note, storage,
             businessUnitCode, assetTypeCode, assetStatusTypeCode;
     private Short ram;
+    private boolean inProgress;
     private LocalDate endMaintenance;
 }

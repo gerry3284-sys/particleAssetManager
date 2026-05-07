@@ -43,6 +43,9 @@ public class User
     @Column(nullable = false, unique = true)
     private String oid; // Id del login attraverso Microsoft (Object ID)
 
+    @Column(nullable = false)
+    private boolean darkTheme = false;
+
     // "mappedBy = *nome*" --> nome del lato di chi passa la chiave
     // "cascade = CascadeType.ALL" --> salva/aggiorna/cancella anche i figli
     // "orphanRemoval = true" --> se rimuovo una bu, cancella anche il record ad esso collegato
