@@ -29,4 +29,6 @@ public class TicketResponses
             new Error("403", "You're not allowed to reply to another user's Ticket");
     public static final Error INVALID_STATUS =
             new Error("422", "Invalid Ticket Status Transition");
+    public static final Error LONG_MESSAGE =
+            new Error("400", "Message exceeds the characters limit (500)");
 }

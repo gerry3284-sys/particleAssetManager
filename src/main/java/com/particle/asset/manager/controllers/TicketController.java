@@ -118,6 +118,8 @@ public class TicketController
             return ResponseEntity.status(400).body(TicketResponses.INVALID_USER_TYPE);
         else if(createdTicket.getStatus().equals(TicketOperations.ASSET_NOT_FOUND))
             return ResponseEntity.status(404).body(TicketResponses.ASSET_NOT_FOUND);
+        else if(createdTicket.getStatus().equals(TicketOperations.LONG_MESSAGE))
+            return ResponseEntity.status(400).body(TicketResponses.LONG_MESSAGE);
         else // BAD_REQUEST
             return ResponseEntity.status(404).body(TicketResponses.BAD_REQUEST);
     }
@@ -201,6 +203,8 @@ public class TicketController
             return ResponseEntity.status(403).body(TicketResponses.CANNOT_CLOSE);
         else if(replied.getStatus().equals(TicketOperations.DIFFERENT_USER))
             return ResponseEntity.status(403).body(TicketResponses.DIFFERENT_USER);
+        else if(replied.getStatus().equals(TicketOperations.LONG_MESSAGE))
+            return ResponseEntity.status(400).body(TicketResponses.LONG_MESSAGE);
         else // BAD_REQUEST
             return ResponseEntity.status(400).body(TicketResponses.BAD_REQUEST);
     }

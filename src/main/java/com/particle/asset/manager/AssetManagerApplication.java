@@ -47,21 +47,14 @@ public class AssetManagerApplication
 	// TODO: Aggiungere un altro ResponseDto per quando si cambia lo status del asset manutenzione
 	// TODO: Mettere la possibilità di "inProgress" di passare da 1 a 0 dopo un tot. di tempo per i Ticket
 	// TODO: I ticket reply devono essere gestiti con i socket (facoltativo)
-	// TODO: Inserire la priorità dei ticket alla creazione di essi
 	// TODO: Cancellare il valore di default per priority in Ticket
 
 	// Cambiamenti Effettuati
-	// TODO: Creare un "Operations" in "enums" anche per "User" {OK}
-	// TODO: Assegnare un livello di priorità per i ticket {OK}
-	// TODO: Creare la PUT per il cambio di stato per il ticket (OPEN → WORKING → CLOSED, OPEN → CLOSED) {OK}
-	// TODO: Togliere il cambio di stato automatico per i ticket dopo che l'admin risponde.Rispondere ai messaggi
-	//  	 non vale più per passare da OPEN a Working/OPEN a CLOSED/OPEN a WORKING A CLOSED (In altre parole
-	//		 è possibile avere una conversazione con lo stato del ticket aperto) {OK}
-	// TODO: Inserire un controllo che permetta di far si che "inProgress" non possa essere impostato
-	//		 a 1 a meno che non sia in MA4 {OK}
-	// TODO: Inserire un attributo per il tema scuro nella tabella degli utenti {OK}
-	// TODO: Far si che la priorità di un ticket non possa essere modificata quando viene chiuso {OK}
-	// TODO: Aggiungere un altro ResponseDto per quando si cambia lo status del ticket/asset manutenzione {OK - per T}
+	// Inserita la priorità nell'aggiornamento dello Status dell'Asset
+	// Inserita la priorità nel movimento di Riconsegna
+	// Inserito il controllo per il limite dei caratteri quando si apre un ticket o invia una risposta
+	// Modificati i valori di base di application-insert-data.sql
+	// Inserita la priorità alla creazione del ticket
 
 	public static void main(String[] args) {
 		SpringApplication.run(AssetManagerApplication.class, args);

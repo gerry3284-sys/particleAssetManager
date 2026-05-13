@@ -106,8 +106,11 @@ public class TicketService
         if(ticket.getUserCode() == null || ticket.getOperation() == null ||
                 (ticket.getAssetTypeCode() == null && ticket.getAssetCode() == null) ||
                 (ticket.getAssetTypeCode() != null && ticket.getAssetCode() != null) ||
-                ticket.getMessage() == null)
+                ticket.getMessage() == null || ticket.getPriority() == null)
             return new Result.TicketResult(TicketOperations.BAD_REQUEST, null);
+
+        if(ticket.getMessage().length() > 500)
+            return new Result.TicketResult(TicketOperations.LONG_MESSAGE, null);
 
         if(ticket.getOperation().name().equals(MovementTypes.ASSIGNED.name()) && ticket.getAssetCode() != null ||
             ticket.getOperation().name().equals(MovementTypes.RETURNED.name()) && ticket.getAssetTypeCode() != null ||
@@ -133,6 +136,7 @@ public class TicketService
         createdTicket.setAssetType(assetTypeOpt.orElse(null));
         createdTicket.setAsset(assetOpt.orElse(null));
         createdTicket.setOperation(ticket.getOperation());
+        createdTicket.setPriority(ticket.getPriority());
         //createdTicket.setMessage(ticket.getMessage());
         //createdTicket.setStatus(ticket.getStatus());
         String userName = userOpt.get().getName().toUpperCase().substring(0, Math.min(2, userOpt.get().getName().length()));
@@ -192,6 +196,7 @@ public class TicketService
         dto.setStatus(ticket.getStatus());
         dto.setPriority(ticket.getPriority());
         dto.setDate(ticket.getDate());
+        dto.setPriority(ticket.getPriority());
         return dto;
     }
 
@@ -232,6 +237,9 @@ public class TicketService
         if(reply.getMessage() == null || reply.getMessage().isEmpty() ||
             reply.getOid() == null || reply.getOid().isEmpty())
             return new Result.TicketReplyResult(TicketOperations.BAD_REQUEST, null);
+
+        if(reply.getMessage().length() > 500)
+            return new Result.TicketReplyResult(TicketOperations.LONG_MESSAGE, null);
 
         Optional<Ticket> ticketOpt = ticketRepository.findByCode(ticketCode);
         if(ticketOpt.isEmpty())
@@ -295,6 +303,10 @@ public class TicketService
         return dto;
     }
 
+    @Caching(evict = {
+            @CacheEvict(value = "tickets", allEntries = true),
+            @CacheEvict(value = "ticketReplies", allEntries = true)
+    })
     public Result.TicketResult putInProgress(String ticketCode)
     {
         if(ticketCode == null || ticketCode.isEmpty())
@@ -311,6 +323,10 @@ public class TicketService
         return new Result.TicketResult(TicketOperations.OK, toResponseDto(inProgress, ""));
     }
 
+    @Caching(evict = {
+            @CacheEvict(value = "tickets", allEntries = true),
+            @CacheEvict(value = "ticketReplies", allEntries = true)
+    })
     public Result.TicketResult changeTicketStatus(String ticketCode, String statusCode)
     {
         if(ticketCode == null || ticketCode.isEmpty() || statusCode == null || statusCode.isEmpty())

@@ -63,6 +63,7 @@ public class Asset
     @Column(nullable = false)
     private boolean inProgress;
 
+    @Enumerated(EnumType.STRING)
     private TicketsAssetsPriorities priority;
 
     // "mappedBy = *nome*" --> nome del lato di chi passa la chiave

@@ -3,6 +3,7 @@ package com.particle.asset.manager.controllers;
 import com.particle.asset.manager.DTO.*;
 import com.particle.asset.manager.enums.AssetOperations;
 import com.particle.asset.manager.enums.MovementOperations;
+import com.particle.asset.manager.enums.TicketsAssetsPriorities;
 import com.particle.asset.manager.models.Asset;
 import com.particle.asset.manager.models.Error;
 import com.particle.asset.manager.results.Result;
@@ -208,7 +209,7 @@ public class AssetController
     }
 
     // Aggiorna lo stato dell'asset attraverso il code
-    @PutMapping("/updateAssetStatus/{assetCode}")
+    @PutMapping("/updateAssetStatus/{assetCode}/{priority}")
     @Operation(summary = "Update the Status of a specific Asset through its code")
     @ApiResponses({
             @ApiResponse(responseCode = "200",
@@ -234,10 +235,10 @@ public class AssetController
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
                             examples = @ExampleObject(value = GenericResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
-    public ResponseEntity<?> updateAssetStatusByCode(@PathVariable String assetCode/*,
-                                                     @PathVariable String statusCode*/)
+    public ResponseEntity<?> updateAssetStatusByCode(@PathVariable String assetCode,
+                                                     @PathVariable (required = false) String priority)
     {
-        Result.AssetDtoResult updatedStatus = service.updateStatusByCode(assetCode /*, statusCode*/);
+        Result.AssetDtoResult updatedStatus = service.updateStatusByCode(assetCode, priority);
 
         if(updatedStatus.getStatus() == AssetOperations.OK)
             return ResponseEntity.ok(updatedStatus.getPutResponse());
@@ -247,8 +248,10 @@ public class AssetController
             return ResponseEntity.status(400).body(AssetResponses.INVALID_ASSET_OR_TYPE_VALUE);
         else if(updatedStatus.getStatus() == AssetOperations.NO_ASSET_OR_TYPE_FOUND)
             return ResponseEntity.status(404).body(AssetResponses.NO_ASSET_OR_TYPE_FOUND);
-        else // STATUS_ERROR
+        else if(updatedStatus.getStatus() == AssetOperations.STATUS_ERROR)
             return  ResponseEntity.status(409).body(AssetResponses.STATUS_ERROR);
+        else // BAD_REQUEST (temporaneo)
+            return ResponseEntity.status(400).body(AssetResponses.BAD_REQUEST);
     }
 
     @GetMapping("/underMaintenanceAssets")

@@ -1,5 +1,6 @@
 package com.particle.asset.manager.DTO;
 
+import com.particle.asset.manager.enums.TicketsAssetsPriorities;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -11,5 +12,6 @@ public class AssetResponseDto
             businessUnitCode, assetTypeCode, assetStatusTypeCode;
     private Short ram;
     private boolean inProgress;
+    private TicketsAssetsPriorities priority;
     private LocalDate endMaintenance;
 }

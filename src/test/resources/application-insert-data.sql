@@ -60,13 +60,13 @@ INSERT INTO ticket (user_code, operation, type_code, asset_code, status, date, c
 ('a72d4c10-3f55-4b8e-bc9f-0c1e2d44f7b3', 'ASSIGNED', 'LA1', NULL, 'OPEN', NOW(), 'MAPA1', 0, 'MEDIUM'),
 
 -- Luca Bianchi vuole restituire il suo laptop (SN2 che aveva assegnato)
-('c9e1a4f7-2b88-4f0d-8d11-5a6c9e2f3b44', 'RETURNED', NULL, 'SN2', 'WORKING', '2024-02-01 10:00:00', 'LUVA2', 0, 'HIGH'),
+('c9e1a4f7-2b88-4f0d-8d11-5a6c9e2f3b44', 'RETURNED', NULL, 'SN2', 'CLOSED', '2024-02-01 10:00:00', 'LUVA2', 0, 'HIGH'),
 
 -- Giulia Neri chiede assegnazione di uno smartphone
 ('f0a8c3d1-6e22-4b9a-9a33-7c4e1f2b8d90', 'ASSIGNED', 'SM4', NULL, 'OPEN', '2024-03-01 09:00:00', 'GIKI3', 0, 'HIGH'),
 
 -- Marco Rossi segnala dismissione del suo laptop (SN1)
-('a72d4c10-3f55-4b8e-bc9f-0c1e2d44f7b3', 'DISMISSED', NULL, 'SN1', 'CLOSED', '2024-03-10 11:00:00', 'LEAD4', 0, 'LOW'),
+('a72d4c10-3f55-4b8e-bc9f-0c1e2d44f7b3', 'DISMISSED', NULL, 'SN1', 'WORKING', '2024-03-10 11:00:00', 'LEAD4', 0, 'LOW'),
 
 -- Luca Bianchi richiede assegnazione di un monitor
 ('c9e1a4f7-2b88-4f0d-8d11-5a6c9e2f3b44', 'ASSIGNED', 'MO2', NULL, 'WORKING', '2024-03-15 14:00:00', 'GIKI5', 0, 'MEDIUM');
@@ -79,7 +79,8 @@ INSERT INTO ticket_reply (ticket_code, user_code, message, creation_date, code, 
 
 -- LUVA2: Luca vuole restituire il laptop
 ('LUVA2', 'c9e1a4f7-2b88-4f0d-8d11-5a6c9e2f3b44', 'Restituzione laptop HP EliteBook 840, non più necessario.', '2024-02-01 10:00:00', 'LUVA21', 'OPEN'),
-('LUVA2', '1f3c9b82-7a41-4e3d-9c2a-91f4b0d7e8a1', 'Preso in carico, procederemo con il ritiro.', '2024-02-01 10:30:00', 'LUVA22', 'WORKING'),
+('LUVA2', '1f3c9b82-7a41-4e3d-9c2a-91f4b0d7e8a1', 'Preso in carico, procederemo con il ritiro.', '2024-02-01 10:30:00', 'LUVA22', 'OPEN'),
+('LUVA2', '1f3c9b82-7a41-4e3d-9c2a-91f4b0d7e8a1', 'Confermo che la restituzione dell\'asset.', '2024-02-01 10:30:00', 'LUVA23', 'WORKING'),
 
 -- GIKI3: Giulia chiede uno smartphone
 ('GIKI3', 'f0a8c3d1-6e22-4b9a-9a33-7c4e1f2b8d90', 'Richiesta smartphone aziendale per trasferte.', '2024-03-01 09:00:00', 'GIKI31', 'OPEN'),
@@ -87,7 +88,7 @@ INSERT INTO ticket_reply (ticket_code, user_code, message, creation_date, code, 
 
 -- LEAD4: Dismissione laptop SN1, ticket CLOSED
 ('LEAD4', 'a72d4c10-3f55-4b8e-bc9f-0c1e2d44f7b3', 'Laptop Dell Latitude 5420 non funzionante, richiedo dismissione.', '2024-03-10 11:00:00', 'LEAD41', 'OPEN'),
-('LEAD4', 'e54b7d22-91c3-4a0f-8f77-2d9a1c0e5f66', 'Dismissione approvata, ticket chiuso.', '2024-03-10 11:30:00', 'LEAD42', 'WORKING'),
+('LEAD4', 'e54b7d22-91c3-4a0f-8f77-2d9a1c0e5f66', 'Buongiorno, per favore, ci dica la motivazione della dismissione', '2024-03-10 11:30:00', 'LEAD42', 'OPEN'),
 
 -- GIKI5: Luca chiede un monitor
 ('GIKI5', 'c9e1a4f7-2b88-4f0d-8d11-5a6c9e2f3b44', 'Richiesta monitor per postazione fissa.', '2024-03-15 14:00:00', 'GIKI51', 'OPEN'),

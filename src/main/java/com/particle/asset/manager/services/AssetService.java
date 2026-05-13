@@ -283,6 +283,7 @@ public class AssetService
                             asset.getAssetType().getName(),
                             asset.getBusinessUnit().getName(),
                             asset.isInProgress(),
+                            asset.getPriority(),
                             returnedDate,
                             null
                     );
@@ -378,12 +379,13 @@ public class AssetService
         response.setStorage(updatedAsset.getStorage());
         response.setAssetStatusTypeCode(updatedAsset.getAssetStatusType().getCode());
         response.setInProgress(updatedAsset.isInProgress());
+        response.setPriority(updatedAsset.getPriority());
         response.setEndMaintenance(updatedAsset.getEndMaintenanceDate());
         return response;
     }
 
     @CacheEvict(value = "assets", allEntries = true)
-    public Result.AssetDtoResult updateStatusByCode(String assetCode/*, String statusCode*/)
+    public Result.AssetDtoResult updateStatusByCode(String assetCode, String priority)
     {
         if(assetCode == null)
             return new Result.AssetDtoResult(AssetOperations.INVALID_ASSET_OR_TYPE_VALUE, null);
@@ -415,10 +417,23 @@ public class AssetService
         if(updatedAssetStatus.getAssetStatusType().getName().equals(BasicAssetStatuses.MAINTENANCE.name()))
         {
             updatedAssetStatus.setStartMaintenanceDate(null);
+            updatedAssetStatus.setPriority(null);
             updatedAssetStatus.setAssetStatusType(assetStatusTypeRepository.findByCode("AV1").get());
         }
         else
         {
+            if(priority == null)
+                return new Result.AssetDtoResult(AssetOperations.BAD_REQUEST, null);
+
+            if(priority.equals(TicketsAssetsPriorities.LOW.name()))
+                updatedAssetStatus.setPriority(TicketsAssetsPriorities.LOW);
+            else if(priority.equals(TicketsAssetsPriorities.MEDIUM.name()))
+                updatedAssetStatus.setPriority(TicketsAssetsPriorities.MEDIUM);
+            else if(priority.equals(TicketsAssetsPriorities.HIGH.name()))
+                updatedAssetStatus.setPriority(TicketsAssetsPriorities.HIGH);
+            else
+                return new Result.AssetDtoResult(AssetOperations.BAD_REQUEST, null);
+
             updatedAssetStatus.setStartMaintenanceDate(LocalDateTime.now());
             updatedAssetStatus.setAssetStatusType(assetStatusTypeRepository.findByCode("MA4").get());
         }
@@ -636,6 +651,18 @@ public class AssetService
         Asset updatedAssetStatus = assetOpt.get();
         if(movementDTO.getMovementType().name().equals(MovementTypes.RETURNED.name()))
         {
+            if(movementDTO.getPriority() == null)
+                return new Result.MovementDtoResult(MovementOperations.BAD_REQUEST, null);
+
+            if(movementDTO.getPriority().equals(TicketsAssetsPriorities.LOW.name()))
+                updatedAssetStatus.setPriority(TicketsAssetsPriorities.LOW);
+            else if(movementDTO.getPriority().equals(TicketsAssetsPriorities.MEDIUM.name()))
+                updatedAssetStatus.setPriority(TicketsAssetsPriorities.MEDIUM);
+            else if(movementDTO.getPriority().equals(TicketsAssetsPriorities.HIGH.name()))
+                updatedAssetStatus.setPriority(TicketsAssetsPriorities.HIGH);
+            else
+                return new Result.MovementDtoResult(MovementOperations.BAD_REQUEST, null);
+
             updatedAssetStatus.setStartMaintenanceDate(LocalDateTime.now());
             updatedAssetStatus.setAssetStatusType
                     (assetStatusTypeRepository.findByName(BasicAssetStatuses.MAINTENANCE.name()).get());
@@ -660,11 +687,11 @@ public class AssetService
         if(!(movementDTO.getMovementType().name().equals(MovementTypes.DISMISSED.name())))
         return new Result.MovementDtoResult(MovementOperations.OK,
                 new MovementResponseBodyDto(assetCode, movementDTO.getUserCode(),
-                        movementDTO.getMovementType().name(), movementDTO.getNote()));
+                        movementDTO.getMovementType().name(), movementDTO.getPriority() ,movementDTO.getNote()));
         else
             return new Result.MovementDtoResult(MovementOperations.OK,
                     new MovementResponseBodyDto(assetCode, null,
-                        movementDTO.getMovementType().name(), movementDTO.getNote()));
+                        movementDTO.getMovementType().name(), movementDTO.getPriority(), movementDTO.getNote()));
     }
 
     private String saveReceiptFile(String base64Pdf, String fileName)
@@ -768,6 +795,7 @@ public class AssetService
         }
     }
 
+    @CacheEvict(value = "assets", allEntries = true)
     public Result.AssetDtoResult putInProgress(String assetCode)
     {
         if(assetCode == null || assetCode.isEmpty())
