@@ -26,9 +26,12 @@ public class TicketResponses
     public static final Error CANNOT_CLOSE =
             new Error("403", "Only Admins can Close Tickets");
     public static final Error DIFFERENT_USER =
-            new Error("403", "You're not allowed to reply to another user's Ticket");
+            new Error("403", "You're not allowed to interact with a ticket of another user");
     public static final Error INVALID_STATUS =
             new Error("422", "Invalid Ticket Status Transition");
     public static final Error LONG_MESSAGE =
             new Error("400", "Message exceeds the characters limit (500)");
+    public static final Error CANNOT_CONFIRM_CLOSURE =
+            new Error("423", "Can't Confirm the Closure because the Ticket is not CLOSED " +
+                    "or the user is not a User or the last reply doesn't come from an Admin or the user is different.");
 }

@@ -181,6 +181,8 @@ public class TicketService
         dto.setStatus(ticket.getStatus());
         dto.setPriority(ticket.getPriority());
         dto.setDate(ticket.getDate());
+        dto.setUserCheckReply(ticket.isUserCheckReply());
+        dto.setAdminCheckReply(ticket.isAdminCheckReply());
         return dto;
     }
 
@@ -231,7 +233,7 @@ public class TicketService
         return dtos;
     }
 
-    @CacheEvict(value = "ticketReplies", allEntries = true)
+    @CacheEvict(value = {"ticketReplies", "tickets"}, allEntries = true)
     public Result.TicketReplyResult reply(String ticketCode, TicketReplyRequestDto reply)
     {
         if(reply.getMessage() == null || reply.getMessage().isEmpty() ||
@@ -248,7 +250,7 @@ public class TicketService
         if(ticketOpt.get().getStatus() == TicketStatuses.CLOSED)
             return new Result.TicketReplyResult(TicketOperations.CANNOT_INTERACT_WITH, null);
 
-        Optional<TicketReply> checkRepliability = ticketReplyRepository.findFirstByTicketsCodeOrderByCreationDateDesc(ticketCode);
+        //Optional<TicketReply> checkRepliability = ticketReplyRepository.findFirstByTicketsCodeOrderByCreationDateDesc(ticketCode);
 
         /*if(checkRepliability.isPresent() && checkRepliability.get().getUsers().getOid().equals(reply.getOid()))
             return new Result.TicketReplyResult(TicketOperations.ALREADY_REPLIED, null);*/
@@ -263,6 +265,16 @@ public class TicketService
 
         /*if(reply.isClosed() && userOpt.get().getUserType().equals(UserTypes.USER))
             return new Result.TicketReplyResult(TicketOperations.CANNOT_CLOSE, null);*/
+        if(userOpt.get().getUserType().equals(UserTypes.USER))
+        {
+            ticketOpt.get().setAdminCheckReply(false);
+            ticketRepository.save(ticketOpt.get());
+        }
+        else
+        {
+            ticketOpt.get().setUserCheckReply(false);
+            ticketRepository.save(ticketOpt.get());
+        }
 
         TicketReply ticketReply = new TicketReply();
         ticketReply.setTickets(ticketOpt.get());
@@ -307,34 +319,14 @@ public class TicketService
             @CacheEvict(value = "tickets", allEntries = true),
             @CacheEvict(value = "ticketReplies", allEntries = true)
     })
-    public Result.TicketResult putInProgress(String ticketCode)
-    {
-        if(ticketCode == null || ticketCode.isEmpty())
-            return new Result.TicketResult(TicketOperations.BAD_REQUEST, null);
-
-        Optional<Ticket> ticketOpt = ticketRepository.findByCode(ticketCode);
-        if(ticketOpt.isEmpty())
-            return new Result.TicketResult(TicketOperations.TICKET_NOT_FOUND, null);
-
-        Ticket inProgress = ticketOpt.get();
-        inProgress.setInProgress(true);
-        ticketRepository.save(inProgress);
-
-        return new Result.TicketResult(TicketOperations.OK, toResponseDto(inProgress, ""));
-    }
-
-    @Caching(evict = {
-            @CacheEvict(value = "tickets", allEntries = true),
-            @CacheEvict(value = "ticketReplies", allEntries = true)
-    })
-    public Result.TicketResult changeTicketStatus(String ticketCode, String statusCode)
+    public Result.FetchTicket changeTicketStatus(String ticketCode, String statusCode)
     {
         if(ticketCode == null || ticketCode.isEmpty() || statusCode == null || statusCode.isEmpty())
-            return new Result.TicketResult(TicketOperations.BAD_REQUEST, null);
+            return new Result.FetchTicket(TicketOperations.BAD_REQUEST, null);
 
         Optional<Ticket> ticketOpt = ticketRepository.findByCode(ticketCode);
         if(ticketOpt.isEmpty())
-            return new Result.TicketResult(TicketOperations.TICKET_NOT_FOUND, null);
+            return new Result.FetchTicket(TicketOperations.TICKET_NOT_FOUND, null);
 
         Ticket changedStatus = ticketOpt.get();
         if(statusCode.equals(TicketStatuses.WORKING.name()) &&
@@ -345,11 +337,28 @@ public class TicketService
                  changedStatus.getStatus().equals(TicketStatuses.OPEN)))
             changedStatus.setStatus(TicketStatuses.CLOSED);
         else
-            return new Result.TicketResult(TicketOperations.INVALID_STATUS, null);
+            return new Result.FetchTicket(TicketOperations.INVALID_STATUS, null);
 
         ticketRepository.save(changedStatus);
 
-        return new Result.TicketResult(TicketOperations.OK, toResponseDto(changedStatus, ""));
+        return new Result.FetchTicket(TicketOperations.OK, toFetchResponseDto(changedStatus));
+    }
+
+    public FetchTicketResponseBodyDto toFetchResponseDto(Ticket ticket)
+    {
+        FetchTicketResponseBodyDto dto = new FetchTicketResponseBodyDto();
+        dto.setTicketCode(ticket.getCode());
+        dto.setUserCode(ticket.getUsers().getOid());
+        dto.setOperation(ticket.getOperation());
+        dto.setAssetTypeCode(ticket.getAssetType() != null ?ticket.getAssetType().getCode() :null);
+        dto.setAssetCode(ticket.getAsset() != null ?ticket.getAsset().getCode() :null);
+        dto.setStatus(ticket.getStatus());
+        dto.setPriority(ticket.getPriority());
+        dto.setDate(ticket.getDate());
+        dto.setUserCheckReply(ticket.isUserCheckReply());
+        dto.setAdminCheckReply(ticket.isAdminCheckReply());
+
+        return dto;
     }
 
     @Caching(evict = {
@@ -373,5 +382,33 @@ public class TicketService
         ticketRepository.save(changedPriority);
 
         return new Result.TicketResult(TicketOperations.OK, toResponseDto(changedPriority, ""));
+    }
+
+    @Caching(evict = {
+            @CacheEvict(value = "tickets", allEntries = true),
+            @CacheEvict(value = "ticketReplies", allEntries = true)
+    })
+    public Result.FetchTicket checkNotification(String ticketCode, String userCode)
+    {
+        Optional<Ticket> ticketOpt = ticketRepository.findByCode(ticketCode);
+        if(ticketOpt.isEmpty())
+            return new Result.FetchTicket(TicketOperations.TICKET_NOT_FOUND, null);
+
+        Optional<User> userOpt = userRepository.findByOid(userCode);
+        if(userOpt.isEmpty())
+            return new Result.FetchTicket(TicketOperations.USER_NOT_FOUND, null);
+
+        Ticket checkedNotification = ticketOpt.get();
+        if(userOpt.get().getUserType().equals(UserTypes.USER))
+            if(!ticketOpt.get().getUsers().getOid().equals(userOpt.get().getOid()))
+                return new Result.FetchTicket(TicketOperations.DIFFERENT_USER, null);
+            else
+                checkedNotification.setUserCheckReply(true);
+        else
+            checkedNotification.setAdminCheckReply(true);
+
+        ticketRepository.save(checkedNotification);
+
+        return new Result.FetchTicket(TicketOperations.OK, toFetchResponseDto(checkedNotification));
     }
 }

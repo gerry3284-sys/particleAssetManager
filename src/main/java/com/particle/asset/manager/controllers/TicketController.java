@@ -209,42 +209,8 @@ public class TicketController
             return ResponseEntity.status(400).body(TicketResponses.BAD_REQUEST);
     }
 
-    @PutMapping("/inProgress/{ticketCode}")
-    @Operation(summary = "Put a Ticket in progress")
-    @ApiResponses({
-            @ApiResponse(responseCode = "201",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = FetchTicketResponseBodyDto.class))),
-            @ApiResponse(responseCode = "400", description = "Business Error",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Error.class),
-                            examples = @ExampleObject(value = GenericResponses.BAD_REQUEST_EXAMPLE))),
-            @ApiResponse(responseCode = "401", description = "Not Authorized",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Error.class),
-                            examples = @ExampleObject(value = GenericResponses.UNAUTHORIZED_ACCESS_EXAMPLE))),
-            @ApiResponse(responseCode = "404", description = "Not Found",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Error.class),
-                            examples = @ExampleObject(value = GenericResponses.NOT_FOUND_EXAMPLE))),
-            @ApiResponse(responseCode = "500", description = "Internal Server Error",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Error.class),
-                            examples = @ExampleObject(value = GenericResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
-    public ResponseEntity<?> putInProgress(@PathVariable String ticketCode)
-    {
-        Result.TicketResult inProgress = service.putInProgress(ticketCode);
-
-        if(inProgress.getStatus().equals(TicketOperations.OK))
-            return ResponseEntity.ok(inProgress.getResponse());
-        else if(inProgress.getStatus().equals(TicketOperations.BAD_REQUEST))
-            return ResponseEntity.status(400).body(TicketResponses.BAD_REQUEST);
-        else // TICKET_NOT_FOUND
-            return ResponseEntity.status(404).body(TicketResponses.TICKET_NOT_FOUND);
-    }
-
     @PutMapping("/changeStatus/{ticketCode}/{statusName}")
-    @Operation(summary = "Reply to a ticket")
+    @Operation(summary = "Change Ticket Status through its Code and Status Name")
     @ApiResponses({
             @ApiResponse(responseCode = "201",
                     content = @Content(mediaType = "application/json",
@@ -276,7 +242,7 @@ public class TicketController
     public ResponseEntity<?> changeTicketStatus(@PathVariable String ticketCode,
                                                 @PathVariable String statusName)
     {
-        Result.TicketResult statusChanged = service.changeTicketStatus(ticketCode, statusName);
+        Result.FetchTicket statusChanged = service.changeTicketStatus(ticketCode, statusName);
 
         if(statusChanged.getStatus().equals(TicketOperations.OK))
             return ResponseEntity.ok(statusChanged.getResponse());
@@ -289,7 +255,7 @@ public class TicketController
     }
 
     @PutMapping("/changePriority/{ticketCode}/{priority}")
-    @Operation(summary = "Reply to a ticket")
+    @Operation(summary = "Change Ticket Priority through its code and Priority name")
     @ApiResponses({
             @ApiResponse(responseCode = "201",
                     content = @Content(mediaType = "application/json",
@@ -333,6 +299,55 @@ public class TicketController
             return ResponseEntity.status(400).body(TicketResponses.BAD_REQUEST);
         else if(inProgress.getStatus().equals(TicketOperations.CANNOT_INTERACT_WITH))
             return ResponseEntity.status(423).body(TicketResponses.CANNOT_INTERACT_WITH);
+        else // TICKET_NOT_FOUND
+            return ResponseEntity.status(404).body(TicketResponses.TICKET_NOT_FOUND);
+    }
+
+    @PutMapping("/checkReply/{ticketCode}/{userCode}")
+    @Operation(summary = "Checks a Ticket through its code")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = FetchTicketResponseBodyDto.class))),
+            @ApiResponse(responseCode = "400", description = "Business Error",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Error.class),
+                            examples = @ExampleObject(value = GenericResponses.BAD_REQUEST_EXAMPLE))),
+            @ApiResponse(responseCode = "401", description = "Not Authorized",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Error.class),
+                            examples = @ExampleObject(value = GenericResponses.UNAUTHORIZED_ACCESS_EXAMPLE))),
+            @ApiResponse(responseCode = "403", description = "Forbidden Access",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Error.class),
+                            examples = @ExampleObject(value = GenericResponses.FORBIDDEN_ACCESS_EXAMPLE))),
+            @ApiResponse(responseCode = "404", description = "Not Found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Error.class),
+                            examples = @ExampleObject(value = GenericResponses.NOT_FOUND_EXAMPLE))),
+            /*@ApiResponse(responseCode = "409", description = "Conflict",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Error.class),
+                            examples = @ExampleObject(value = GenericResponses.CONFLICT))),*/
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Error.class),
+                            examples = @ExampleObject(value = GenericResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
+    public ResponseEntity<?> checkTicketReplyNotification(@PathVariable String ticketCode,
+                                                            @PathVariable String userCode)
+    {
+        Result.FetchTicket checkNotification = service.checkNotification(ticketCode, userCode);
+
+        if(checkNotification.getStatus().equals(TicketOperations.OK))
+            return ResponseEntity.ok(checkNotification.getResponse());
+        else if(checkNotification.getStatus().equals(TicketOperations.BAD_REQUEST))
+            return ResponseEntity.status(400).body(TicketResponses.BAD_REQUEST);
+        else if(checkNotification.getStatus().equals(TicketOperations.CANNOT_INTERACT_WITH))
+            return ResponseEntity.status(423).body(TicketResponses.CANNOT_INTERACT_WITH);
+        else if(checkNotification.getStatus().equals(TicketOperations.USER_NOT_FOUND))
+            return ResponseEntity.status(404).body(TicketResponses.USER_NOT_FOUND);
+        else if(checkNotification.getStatus().equals(TicketOperations.DIFFERENT_USER))
+            return ResponseEntity.status(403).body(TicketResponses.DIFFERENT_USER);
         else // TICKET_NOT_FOUND
             return ResponseEntity.status(404).body(TicketResponses.TICKET_NOT_FOUND);
     }

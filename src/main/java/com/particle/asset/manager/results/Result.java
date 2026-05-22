@@ -93,6 +93,14 @@ public class Result
 
     @AllArgsConstructor
     @Getter
+    public static class FetchTicket
+    {
+        private TicketOperations status;
+        private FetchTicketResponseBodyDto response;
+    }
+
+    @AllArgsConstructor
+    @Getter
     public static class TicketReplyResult
     {
         private TicketOperations status;

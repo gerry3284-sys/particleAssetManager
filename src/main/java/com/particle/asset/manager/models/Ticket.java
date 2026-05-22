@@ -47,10 +47,9 @@ public class Ticket
     private String code;
 
     @Column(nullable = false)
-    private boolean inProgress = false;
+    private boolean userCheckReply = true, adminCheckReply = false;
 
-    // Valore di default temporaneo
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private TicketsAssetsPriorities priority = TicketsAssetsPriorities.LOW;
+    private TicketsAssetsPriorities priority;
 }

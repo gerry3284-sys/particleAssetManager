@@ -23,4 +23,5 @@ public class FetchTicketResponseBodyDto
     private TicketStatuses status;
     private TicketsAssetsPriorities priority;
     private LocalDateTime date;
+    private boolean userCheckReply, adminCheckReply;
 }

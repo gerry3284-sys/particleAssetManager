@@ -1,11 +1,11 @@
 package com.particle.asset.manager.DTO;
 
 import com.particle.asset.manager.enums.MovementTypes;
+import com.particle.asset.manager.enums.TicketsAssetsPriorities;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.Data;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -15,5 +15,7 @@ public class TicketSummaryResponseDto
     @Enumerated(EnumType.STRING)
     private MovementTypes operation;
     private String assetTypeCode, assetCode, status;
-    private LocalDate date;
+    private LocalDateTime date;
+    private boolean userCheckReply;
+    private TicketsAssetsPriorities priority;
 }

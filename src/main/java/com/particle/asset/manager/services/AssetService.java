@@ -265,15 +265,6 @@ public class AssetService
 
         return assets.stream()
                 .map(asset -> {
-                    Optional<Movement> lastMovement =
-                            movementRepository.findFirstByAssetCodeOrderByDateDesc(asset.getCode());
-
-                    LocalDateTime returnedDate = null;
-
-                    if (lastMovement.isPresent()
-                            && lastMovement.get().getAsset().getAssetStatusType().getCode().equals("MA4"))
-                        returnedDate = lastMovement.get().getDate();
-
                     return new AssetMaintenanceListRowResponseDto(
                             asset.getCode(),
                             asset.getBrand(),
@@ -284,7 +275,7 @@ public class AssetService
                             asset.getBusinessUnit().getName(),
                             asset.isInProgress(),
                             asset.getPriority(),
-                            returnedDate,
+                            asset.getStartMaintenanceDate(),
                             null
                     );
                 })
@@ -346,6 +337,7 @@ public class AssetService
         return new Result.AssetDtoResult(AssetOperations.OK, response);
     }
 
+    @CacheEvict(value = "assets", allEntries = true)
     public Result.AssetDtoResult updateEndMaintenance(String code, EndMaintenanceRequestDto date)
     {
         if(code == null || (date != null && date.getEndMaintenance() != null &&

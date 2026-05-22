@@ -25,6 +25,7 @@ public class AssetManagerApplication
 	// Esempio "OID" → 550e8400-e29b-41d4-a716-446655440000 → 32 caratteri esadecimali (0-9 e a-f) →
 	// Divisi in 5 gruppi separati da trattini → Formato: 8-4-4-4-12 (36 caratteri totali per via del separatore)
 	// TODO: Concludere di Risolvere - scritto il 20/04/2026 da Gerry (Nome Segreto: Geremia)
+	// 422 → Unprocessable Entity, 423 → Table State is Blocked
 
 	// Operazioni da Effettuare
 	// TODO: Implementare la creazione del token attraverso l'Office 365 (token SDK) - TBA
@@ -47,14 +48,18 @@ public class AssetManagerApplication
 	// TODO: Aggiungere un altro ResponseDto per quando si cambia lo status del asset manutenzione
 	// TODO: Mettere la possibilità di "inProgress" di passare da 1 a 0 dopo un tot. di tempo per i Ticket
 	// TODO: I ticket reply devono essere gestiti con i socket (facoltativo)
-	// TODO: Cancellare il valore di default per priority in Ticket
+	// TODO: La Data di Fine Manutenzione può essere uguale alla data odierna ?
+	// TODO: Dopo l'implementazione del login controllare se è necessario tenere "userCode" nelle varie chiamate
 
 	// Cambiamenti Effettuati
-	// Inserita la priorità nell'aggiornamento dello Status dell'Asset
-	// Inserita la priorità nel movimento di Riconsegna
-	// Inserito il controllo per il limite dei caratteri quando si apre un ticket o invia una risposta
-	// Modificati i valori di base di application-insert-data.sql
-	// Inserita la priorità alla creazione del ticket
+	/// La GET per tutti gli asset in Manutenzione adesso restituisce la data di inizio manutenzione
+	/// invece di quella di ritorno.
+	/// Modificata la descrizione del cambio di stato del ticket e della sua priorità
+	/// Tolto inProgress per Ticket
+	/// Aggiunti "adminCheckReply" e "userCheckReply" in Ticket
+	/// Aggiunto l'orario alla Response di /user/{oid}/ticket
+	/// Aggiunto reply alla Response di /user/{oid}/ticket
+	/// Aggiunta priority alla Response di /user/{oid}/ticket
 
 	public static void main(String[] args) {
 		SpringApplication.run(AssetManagerApplication.class, args);
