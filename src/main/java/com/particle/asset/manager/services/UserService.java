@@ -110,20 +110,4 @@ public class UserService
 
         return dto;
     }
-
-    public Result.UserResult darkThemeOnOff(String oid)
-    {
-        if(oid == null || oid.isEmpty())
-            return new Result.UserResult(UserOperations.BAD_REQUEST, null);
-
-        Optional<User> userOpt = userRepository.findByOid(oid);
-        if(userOpt.isEmpty())
-            return new Result.UserResult(UserOperations.USER_NOT_FOUND, null);
-
-        User changedTheme = userOpt.get();
-        changedTheme.setDarkTheme(!changedTheme.isDarkTheme());
-        userRepository.save(changedTheme);
-
-        return new Result.UserResult(UserOperations.OK, changedTheme);
-    }
 }

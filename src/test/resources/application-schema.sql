@@ -61,7 +61,6 @@ CREATE TABLE users (
     user_type ENUM('ADMIN', 'USER') NOT NULL,
     business_unit_code VARCHAR(255),
     oid VARCHAR(36) NOT NULL,
-    dark_theme BIT(1) NOT NULL,
     PRIMARY KEY (id),
     KEY (business_unit_code),
     UNIQUE KEY(oid),

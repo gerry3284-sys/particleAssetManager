@@ -33,12 +33,12 @@ INSERT INTO asset (brand, model, note, serial_number, type_code, business_unit_c
 ('Samsung', 'Galaxy S23', NULL, 'IMEI123456', 'SM4', 'PA1', NOW(), NULL, 'DI3', 'IM4', 0);
 
 -- Users (rimane con business_unit_id)
-INSERT INTO users (name, surname, email, phone_number, user_type, business_unit_code, oid, dark_theme) VALUES
-('Leon', 'Kennedy', 'leon.kennedy@example.it', '19982004', 'ADMIN', NULL, "1f3c9b82-7a41-4e3d-9c2a-91f4b0d7e8a1", 0),
-('Marco', 'Rossi', 'marco.rossi@example.com', '3331112222', 'USER', 'PA1', "a72d4c10-3f55-4b8e-bc9f-0c1e2d44f7b3", 0),
-('Luca', 'Bianchi', 'luca.bianchi@example.com', '3332223333', 'USER', 'VA2', "c9e1a4f7-2b88-4f0d-8d11-5a6c9e2f3b44", 0),
-('Sara', 'Verdi', 'sara.verdi@example.com', '3333334444', 'ADMIN', NULL, "e54b7d22-91c3-4a0f-8f77-2d9a1c0e5f66", 0),
-('Giulia', 'Neri', 'giulia.neri@example.com', '3334445555', 'USER', 'KI4', "f0a8c3d1-6e22-4b9a-9a33-7c4e1f2b8d90", 0);
+INSERT INTO users (name, surname, email, phone_number, user_type, business_unit_code, oid) VALUES
+('Leon', 'Kennedy', 'leon.kennedy@example.it', '19982004', 'ADMIN', NULL, "1f3c9b82-7a41-4e3d-9c2a-91f4b0d7e8a1"),
+('Marco', 'Rossi', 'marco.rossi@example.com', '3331112222', 'USER', 'PA1', "a72d4c10-3f55-4b8e-bc9f-0c1e2d44f7b3"),
+('Luca', 'Bianchi', 'luca.bianchi@example.com', '3332223333', 'USER', 'VA2', "c9e1a4f7-2b88-4f0d-8d11-5a6c9e2f3b44"),
+('Sara', 'Verdi', 'sara.verdi@example.com', '3333334444', 'ADMIN', NULL, "e54b7d22-91c3-4a0f-8f77-2d9a1c0e5f66"),
+('Giulia', 'Neri', 'giulia.neri@example.com', '3334445555', 'USER', 'KI4', "f0a8c3d1-6e22-4b9a-9a33-7c4e1f2b8d90");
 
 -- Movement usando asset_code (prime 2 lettere del serial_number + posizione)
 INSERT INTO movement (date, movement_type, note, asset_code, user_code, receipt_file_name, code) VALUES

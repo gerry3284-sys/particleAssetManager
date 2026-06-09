@@ -20,6 +20,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.particle.asset.manager.security.CustomUserDetails;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import java.util.List;
 
@@ -146,37 +148,18 @@ public class UserController
                 :ResponseEntity.status(404).body(UserResponses.USER_NOT_FOUND);
     }
 
-    @PutMapping("/{oid}/darkTheme")
-    @Operation(summary = "Change the Dark Theme for a specific User through their Oid")
+    @GetMapping("/me")
+    @Operation(summary = "Get the currently authenticated User")
     @ApiResponses({
             @ApiResponse(responseCode = "200",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = TicketSummaryResponseDto.class))),
+                            schema = @Schema(implementation = User.class))),
             @ApiResponse(responseCode = "401", description = "Not Authorized",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Error.class),
-                            examples = @ExampleObject(value = GenericResponses.UNAUTHORIZED_ACCESS_EXAMPLE))),
-            @ApiResponse(responseCode = "403", description = "Forbidden",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Error.class),
-                            examples = @ExampleObject(value = GenericResponses.FORBIDDEN_ACCESS_EXAMPLE))),
-            @ApiResponse(responseCode = "404", description = "Not Found",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Error.class),
-                            examples = @ExampleObject(value = GenericResponses.NOT_FOUND_EXAMPLE))),
-            @ApiResponse(responseCode = "500", description = "Internal Server Error",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Error.class),
-                            examples = @ExampleObject(value = GenericResponses.INTERNAL_SERVER_ERROR_EXAMPLE)))})
-    public ResponseEntity<?> changeUserDarkTheme(@PathVariable String oid)
+                            examples = @ExampleObject(value = GenericResponses.UNAUTHORIZED_ACCESS_EXAMPLE)))})
+    public ResponseEntity<?> getMe(@AuthenticationPrincipal CustomUserDetails userDetails)
     {
-        Result.UserResult changedTheme = service.darkThemeOnOff(oid);
-
-        if(changedTheme.getStatus().equals(UserOperations.OK))
-            return ResponseEntity.ok(changedTheme);
-        else if(changedTheme.getStatus().equals(UserOperations.USER_NOT_FOUND))
-            return ResponseEntity.status(404).body(UserResponses.USER_NOT_FOUND);
-        else // BAD_REQUEST
-            return ResponseEntity.status(400).body(UserResponses.BAD_REQUEST);
+        return ResponseEntity.ok(userDetails.getUser());
     }
 }

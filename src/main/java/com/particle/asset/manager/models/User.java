@@ -33,6 +33,7 @@ public class User
 
     //@Column(nullable = false)
     @Enumerated(value = EnumType.STRING)
+    @Column(nullable = false)
     private UserTypes userType;
 
     @ManyToOne
@@ -43,8 +44,8 @@ public class User
     @Column(nullable = false, unique = true)
     private String oid; // Id del login attraverso Microsoft (Object ID)
 
-    @Column(nullable = false)
-    private boolean darkTheme = false;
+//    @Column(nullable = false)
+//    private boolean darkTheme = false;
 
     // "mappedBy = *nome*" --> nome del lato di chi passa la chiave
     // "cascade = CascadeType.ALL" --> salva/aggiorna/cancella anche i figli

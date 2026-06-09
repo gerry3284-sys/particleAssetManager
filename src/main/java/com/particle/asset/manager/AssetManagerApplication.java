@@ -26,6 +26,10 @@ public class AssetManagerApplication
 	// Divisi in 5 gruppi separati da trattini → Formato: 8-4-4-4-12 (36 caratteri totali per via del separatore)
 	// TODO: Concludere di Risolvere - scritto il 20/04/2026 da Gerry (Nome Segreto: Geremia)
 	// 422 → Unprocessable Entity, 423 → Table State is Blocked
+	// TODO: id degli admin → 22e19954-a4df-4a0a-827f-147cf41299ac
+	// TODO: id degli utenti → 8f2da0d5-e088-4e25-b11b-5eb3f7524597
+	// /me/memberOf → Per recuperare ↑ (chiedere ad Alessandro per quanto riguarda il token Graph)
+	// Chiamare sia /me (per dati) e /memberOf (per group)
 
 	// Operazioni da Effettuare
 	// TODO: Implementare la creazione del token attraverso l'Office 365 (token SDK) - TBA
@@ -50,16 +54,11 @@ public class AssetManagerApplication
 	// TODO: I ticket reply devono essere gestiti con i socket (facoltativo)
 	// TODO: La Data di Fine Manutenzione può essere uguale alla data odierna ?
 	// TODO: Dopo l'implementazione del login controllare se è necessario tenere "userCode" nelle varie chiamate
+	// TODO: Cancellare la dipendenza di Nimbus
+	// TODO: userType deve restare nullable ?
 
 	// Cambiamenti Effettuati
-	/// La GET per tutti gli asset in Manutenzione adesso restituisce la data di inizio manutenzione
-	/// invece di quella di ritorno.
-	/// Modificata la descrizione del cambio di stato del ticket e della sua priorità
-	/// Tolto inProgress per Ticket
-	/// Aggiunti "adminCheckReply" e "userCheckReply" in Ticket
-	/// Aggiunto l'orario alla Response di /user/{oid}/ticket
-	/// Aggiunto reply alla Response di /user/{oid}/ticket
-	/// Aggiunta priority alla Response di /user/{oid}/ticket
+	// Cancellato darkTheme nel Database → perchè gestito a livello di FrontEnd
 
 	public static void main(String[] args) {
 		SpringApplication.run(AssetManagerApplication.class, args);
