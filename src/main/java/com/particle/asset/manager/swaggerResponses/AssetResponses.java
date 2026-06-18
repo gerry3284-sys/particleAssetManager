@@ -26,6 +26,12 @@ public class AssetResponses
             new Error("404", "Asset or Asset Type Record Not Found");
     public static final Error INVALID_ASSET_OR_TYPE_VALUE =
             new Error("404", "Invalid Asset or Asset Type Code");
+    public static final Error BU_NOT_FOUND =
+            new Error("404", "No Business Unit Record Was Found");
+    public static final Error ASSET_TYPE_NOT_FOUND =
+            new Error("404", "No Asset Type Record Was Found");
     public static final Error INVALID_OPERATION =
             new Error("422", "Can't put an Asset In Progress if it's not Under Maintenance");
+    public static final Error LONG_NOTE =
+            new Error("400", "The Note has more than 500 characters");
 }

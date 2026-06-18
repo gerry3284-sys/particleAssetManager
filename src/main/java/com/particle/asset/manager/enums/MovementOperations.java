@@ -9,5 +9,6 @@ public enum MovementOperations
     USER_MOVEMENT_NOT_FOUND, INVALID_FILE_NAME,
     BUSINESS_UNIT_MISMATCH, FILE_IS_MISSING,
     INVALID_TARGET_ROLE, INVALID_RETURN_USER,
-    DIFFERENT_ASSET_CODE // codice asset e movement non combaciano
+    DIFFERENT_ASSET_CODE, // codice asset e movement non combaciano
+    LONG_NOTE
 }

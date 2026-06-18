@@ -12,6 +12,7 @@ public class MovementSummaryResponseDto
     private String movementType, note;
     private AssetSummaryDto asset;
     private UserSummaryDto user;
+    private boolean outdated;
 
     public MovementSummaryResponseDto(LocalDateTime date, String movementType, String note,
                                       AssetSummaryDto asset, UserSummaryDto user, String code) {

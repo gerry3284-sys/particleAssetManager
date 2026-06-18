@@ -32,15 +32,8 @@ public class AssetManagerApplication
 	// Chiamare sia /me (per dati) e /memberOf (per group)
 
 	// Operazioni da Effettuare
-	// TODO: Implementare la creazione del token attraverso l'Office 365 (token SDK) - TBA
-	// TODO: Modificare da "boolean" a "Boolean" (per avere "NULL") ?
-	//		 Potrebbe avere senso per far si che serva obbligatoriamente il valore
 	// TODO: Modificare il salvataggio del file rendendolo obbligatorio in un'operazione POST del Movement
-	// TODO: Se si dovesse togliere Hard Disk e Ram di un Tipo di Asset deve azzerarsi a DB ?
-	// TODO: Restituire il nome dello statusCode per "GET user/{code}/movement" ?
 	// TODO: Modificare la PUT per lo status dell'asset {OK} - La modifica è temporanea. Da cambiare con gli enum
-	// TODO: Aggiungere la cache dove serve
-	// TODO: Modificare gli "schema" delle varie ApiResponse {OK} - dare un'altra occhiata per sicurezza
 	// TODO: Quando si aggiorna un dato senza cambiare i dati, effettua il salvataggio
 	//		 dei dati quando non cambia nulla.
 	// TODO: Inserire un commento (obbligatorio da FE) per quando si entra all'interno di un asset in manutenzione
@@ -51,14 +44,28 @@ public class AssetManagerApplication
 	// TODO: Inserire un attributo per avere lo stato "in lavorazione" per un asset in manutenzione {OK} - Momentaneo
 	// TODO: Aggiungere un altro ResponseDto per quando si cambia lo status del asset manutenzione
 	// TODO: Mettere la possibilità di "inProgress" di passare da 1 a 0 dopo un tot. di tempo per i Ticket
-	// TODO: I ticket reply devono essere gestiti con i socket (facoltativo)
 	// TODO: La Data di Fine Manutenzione può essere uguale alla data odierna ?
-	// TODO: Dopo l'implementazione del login controllare se è necessario tenere "userCode" nelle varie chiamate
-	// TODO: Cancellare la dipendenza di Nimbus
-	// TODO: userType deve restare nullable ?
+	// TODO: Fixare la riconsegna di un asset {Fix temporaneo per via del fatto che è stata semplicemente tolta
+	//		 la priorità, dato che non si sa come usarla per bene in questo caso}
+	// TODO: Far si che il pdf venga creato solo se l'operazione di movimento va a buon fine
+	// TODO: Inserire l'obbligo di autorizzarsi quando si usa Swagger
+	// TODO: Dare la possibilità di modificare le Note di un movimento
 
 	// Cambiamenti Effettuati
-	// Cancellato darkTheme nel Database → perchè gestito a livello di FrontEnd
+	// 1)	Fixata la riconsegna di un asset {Temporaneo per via del fatto che è stata semplicemente tolta
+	// 		la priorità, dato che non si sa come usarla per bene in questo caso}
+	// 2)	Inserito un attributo "outdated" che viene messo a true quando viene modificato un asset (tranne le note)
+	// 3)	La priorità di un ticket è stata messa nullable perchè solo l'admin la può modificare
+	// 4)	Il tipo del "tipo di richiesta" è stato modificato da "MovementType" a "String"
+	// 5)	Aggiunti gli errori per l'aggiornamento di un asset se la BU o l'Asset Type non vengono trovati
+	// 6)	Inserito un controllo per vedere se il ticket è per un progetto interno o esterno.
+	//		In quest'ultimo caso, viene inserita la priorità HIGH
+	// 7)	Modificata la creazione del ticket per far si che non sia più necessario avere un assetCode o
+	//		assetTypeCode != null per funzionare (adesso possono essere entrambi null)
+	// 8)	Modificato il limite massimo di caratteri inseribili in una nota per gli Asset da 255 a 500
+	// 9)	Modificato il limite massimo di caratteri inseribili in una nota per i movimenti da 255 a 250
+	// 10)	Modificato il tipo per "operation" di della tabella ticket da ENUM in VARCHAR
+	// 11) 	Aggiunti i controlli per le note dei punti 8 e 9
 
 	public static void main(String[] args) {
 		SpringApplication.run(AssetManagerApplication.class, args);

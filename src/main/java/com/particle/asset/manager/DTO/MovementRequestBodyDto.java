@@ -9,5 +9,5 @@ public class MovementRequestBodyDto
 {
     private String note;
     private MovementTypes movementType;
-    private String userCode, receiptBase64, priority;
+    private String userCode, receiptBase64/*, priority*/;
 }

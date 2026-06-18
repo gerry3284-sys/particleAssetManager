@@ -12,8 +12,7 @@ import java.time.LocalDateTime;
 public class TicketSummaryResponseDto
 {
     private String ticketCode, user;
-    @Enumerated(EnumType.STRING)
-    private MovementTypes operation;
+    private String operation;
     private String assetTypeCode, assetCode, status;
     private LocalDateTime date;
     private boolean userCheckReply;

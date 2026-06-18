@@ -47,4 +47,6 @@ public class Movement
 
     @Column(nullable = false, unique = true)
     private String code;
+
+    private boolean outdated;
 }

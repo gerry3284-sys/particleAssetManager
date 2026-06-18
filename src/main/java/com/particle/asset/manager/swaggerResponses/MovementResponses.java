@@ -32,4 +32,6 @@ public class MovementResponses
             new Error("409", "Asset and User don't belong to the same Business Unit");
     public static final Error INVALID_RETURN_USER =
             new Error("409", "The Selected Return User is different from the User who the Asset is assigned to");
+    public static final Error LONG_NOTE =
+            new Error("400", "The Note has more than 250 characters");
 }

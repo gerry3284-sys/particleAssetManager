@@ -13,8 +13,7 @@ import java.time.LocalDateTime;
 public class CreateTicketResponseBodyDto
 {
     private String ticketCode, userCode;
-    @Enumerated(EnumType.STRING)
-    private MovementTypes operation;
+    private String operation;
     private String assetTypeCode, assetCode, message;
     @Enumerated(EnumType.STRING)
     private TicketStatuses status;

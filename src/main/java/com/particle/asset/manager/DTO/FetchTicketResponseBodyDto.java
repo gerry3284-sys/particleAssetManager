@@ -16,8 +16,7 @@ public class FetchTicketResponseBodyDto
     //private Long id;
 
     private String ticketCode, userCode;
-    @Enumerated(EnumType.STRING)
-    private MovementTypes operation;
+    private String operation;
     private String assetTypeCode, assetCode;
     @Enumerated(EnumType.STRING)
     private TicketStatuses status;

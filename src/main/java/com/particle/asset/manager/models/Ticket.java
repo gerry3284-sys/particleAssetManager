@@ -21,8 +21,7 @@ public class Ticket
     private User users;
 
     @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private MovementTypes operation;
+    private String operation;
 
     @ManyToOne
     @JoinColumn(name = "type_code", referencedColumnName = "code")
@@ -49,7 +48,6 @@ public class Ticket
     @Column(nullable = false)
     private boolean userCheckReply = true, adminCheckReply = false;
 
-    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private TicketsAssetsPriorities priority;
 }

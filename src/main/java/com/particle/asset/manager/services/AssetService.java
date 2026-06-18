@@ -159,6 +159,9 @@ public class AssetService
                 assetRepository.existsBySerialNumber(assetDTO.getSerialNumber().trim())*/)
             return new Result.AssetDtoResult(AssetOperations.BAD_REQUEST, null);
 
+        if(assetDTO.getNote().length() > 500)
+            return new Result.AssetDtoResult(AssetOperations.LONG_NOTE, null);
+
         if(assetRepository.existsBySerialNumber(assetDTO.getSerialNumber().trim()))
             return new Result.AssetDtoResult(AssetOperations.ALREADY_EXISTS, null);
 
@@ -290,9 +293,13 @@ public class AssetService
                 assetDTO.getBusinessUnitCode() == null || assetDTO.getSerialNumber() == null)
             return new Result.AssetDtoResult(AssetOperations.BAD_REQUEST, null);
 
+        if(assetDTO.getNote().length() > 500)
+            return new Result.AssetDtoResult(AssetOperations.LONG_NOTE, null);
+
         Optional<Asset> assetByCode = assetRepository.findByCode(code);
         Optional<AssetType> assetTypeByCode = assetTypeRepository.findByCode(assetDTO.getAssetTypeCode());
         Optional<BusinessUnit> businessUnitByCode = businessUnitRepository.findByCode(assetDTO.getBusinessUnitCode());
+        List<Movement> movementByAssetCode = movementRepository.findByAssetCode(code);
 
         if(assetTypeByCode.isPresent())
         {
@@ -304,10 +311,13 @@ public class AssetService
                 return new Result.AssetDtoResult(AssetOperations.INVALID_STORAGE, null);
         }
         else
-            return new Result.AssetDtoResult(AssetOperations.BAD_REQUEST, null);
+            return new Result.AssetDtoResult(AssetOperations.ASSET_TYPE_NOT_FOUND, null);
 
         if(assetByCode.isEmpty())
             return new Result.AssetDtoResult(AssetOperations.NOT_FOUND, null);
+
+        if(businessUnitByCode.isEmpty())
+            return new Result.AssetDtoResult(AssetOperations.BU_NOT_FOUND, null);
 
         Asset updatedAsset = assetByCode.get();
 
@@ -318,6 +328,16 @@ public class AssetService
         if(!(updatedAsset.getSerialNumber().trim().equals(assetDTO.getSerialNumber().trim())) &&
                 assetRepository.existsBySerialNumber(assetDTO.getSerialNumber().trim()))
             return new Result.AssetDtoResult(AssetOperations.ALREADY_EXISTS, null);
+
+        boolean onlyNotesChanged =
+                        !Objects.equals(updatedAsset.getNote(), assetDTO.getNote()) &&
+                        Objects.equals(updatedAsset.getModel(), assetDTO.getModel()) &&
+                        Objects.equals(updatedAsset.getBrand(), assetDTO.getBrand()) &&
+                        Objects.equals(updatedAsset.getSerialNumber(), assetDTO.getSerialNumber()) &&
+                        Objects.equals(updatedAsset.getAssetType().getCode(), assetDTO.getAssetTypeCode()) &&
+                        Objects.equals(updatedAsset.getBusinessUnit().getCode(), assetDTO.getBusinessUnitCode()) &&
+                        Objects.equals(updatedAsset.getRam(), assetDTO.getRam()) &&
+                        Objects.equals(updatedAsset.getStorage(), assetDTO.getStorage());
 
         updatedAsset.setModel(assetDTO.getModel().trim());
         updatedAsset.setBrand(assetDTO.getBrand().trim());
@@ -331,6 +351,13 @@ public class AssetService
                 :null);
         updatedAsset.setUpdateDate(LocalDateTime.now());
         assetRepository.save(updatedAsset);
+
+        if(!movementByAssetCode.isEmpty() && !onlyNotesChanged)
+            for(Movement movement : movementByAssetCode)
+            {
+                movement.setOutdated(true);
+                movementRepository.save(movement);
+            }
 
         AssetResponseDto response = getAssetResponseDto(updatedAsset);
 
@@ -485,6 +512,7 @@ public class AssetService
         dto.setDate(movement.getDate());
         dto.setMovementType(String.valueOf(movement.getMovementType()));
         dto.setNote(movement.getNote());
+        dto.setOutdated(movement.isOutdated());
 
         AssetSummaryDto assetSummaryDTO = new AssetSummaryDto();
         assetSummaryDTO.setBrand(movement.getAsset().getBrand());
@@ -521,6 +549,8 @@ public class AssetService
                 !movementDTO.getMovementType().name().equals(MovementTypes.DISMISSED.name())))
             return new Result.MovementDtoResult(MovementOperations.BAD_REQUEST, null);
 
+        if(movementDTO.getNote().length() > 250)
+            return new Result.MovementDtoResult(MovementOperations.LONG_NOTE, null);
         // Controllo base per assetCode e corretto MovementType
         if (!(assetRepository.existsByCode(assetCode)) ||
                 !(movementDTO.getMovementType().name().equals(MovementTypes.RETURNED.name()) ||
@@ -643,7 +673,7 @@ public class AssetService
         Asset updatedAssetStatus = assetOpt.get();
         if(movementDTO.getMovementType().name().equals(MovementTypes.RETURNED.name()))
         {
-            if(movementDTO.getPriority() == null)
+            /*if(movementDTO.getPriority() == null)
                 return new Result.MovementDtoResult(MovementOperations.BAD_REQUEST, null);
 
             if(movementDTO.getPriority().equals(TicketsAssetsPriorities.LOW.name()))
@@ -653,7 +683,7 @@ public class AssetService
             else if(movementDTO.getPriority().equals(TicketsAssetsPriorities.HIGH.name()))
                 updatedAssetStatus.setPriority(TicketsAssetsPriorities.HIGH);
             else
-                return new Result.MovementDtoResult(MovementOperations.BAD_REQUEST, null);
+                return new Result.MovementDtoResult(MovementOperations.BAD_REQUEST, null);*/
 
             updatedAssetStatus.setStartMaintenanceDate(LocalDateTime.now());
             updatedAssetStatus.setAssetStatusType
@@ -679,11 +709,11 @@ public class AssetService
         if(!(movementDTO.getMovementType().name().equals(MovementTypes.DISMISSED.name())))
         return new Result.MovementDtoResult(MovementOperations.OK,
                 new MovementResponseBodyDto(assetCode, movementDTO.getUserCode(),
-                        movementDTO.getMovementType().name(), movementDTO.getPriority() ,movementDTO.getNote()));
+                        movementDTO.getMovementType().name(), /*movementDTO.getPriority() ,*/movementDTO.getNote()));
         else
             return new Result.MovementDtoResult(MovementOperations.OK,
                     new MovementResponseBodyDto(assetCode, null,
-                        movementDTO.getMovementType().name(), movementDTO.getPriority(), movementDTO.getNote()));
+                        movementDTO.getMovementType().name(), /*movementDTO.getPriority(),*/ movementDTO.getNote()));
     }
 
     private String saveReceiptFile(String base64Pdf, String fileName)

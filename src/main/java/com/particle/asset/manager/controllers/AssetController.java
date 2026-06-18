@@ -3,8 +3,6 @@ package com.particle.asset.manager.controllers;
 import com.particle.asset.manager.DTO.*;
 import com.particle.asset.manager.enums.AssetOperations;
 import com.particle.asset.manager.enums.MovementOperations;
-import com.particle.asset.manager.enums.TicketsAssetsPriorities;
-import com.particle.asset.manager.models.Asset;
 import com.particle.asset.manager.models.Error;
 import com.particle.asset.manager.results.Result;
 import com.particle.asset.manager.services.AssetService;
@@ -23,9 +21,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 
-import javax.print.attribute.standard.Media;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -118,6 +113,8 @@ public class AssetController
             return ResponseEntity.status(400).body(AssetResponses.INVALID_STORAGE);
         else if(createdAsset.getStatus() == AssetOperations.INVALID_RAM)
             return ResponseEntity.status(400).body(AssetResponses.INVALID_RAM);
+        else if(createdAsset.getStatus() == AssetOperations.LONG_NOTE)
+            return ResponseEntity.status(400).body(AssetResponses.LONG_NOTE);
         else // ALREADY_EXISTS
             return ResponseEntity.status(400).body(AssetResponses.ALREADY_EXISTS);
     }
@@ -165,6 +162,12 @@ public class AssetController
             return ResponseEntity.status(400).body(AssetResponses.INVALID_STORAGE);
         else if(updatedAsset.getStatus() == AssetOperations.INVALID_RAM)
             return ResponseEntity.status(400).body(AssetResponses.INVALID_RAM);
+        else if(updatedAsset.getStatus() == AssetOperations.ASSET_TYPE_NOT_FOUND)
+            return ResponseEntity.status(404).body(AssetResponses.ASSET_TYPE_NOT_FOUND);
+        else if(updatedAsset.getStatus() == AssetOperations.BU_NOT_FOUND)
+            return ResponseEntity.status(404).body(AssetResponses.BU_NOT_FOUND);
+        else if(updatedAsset.getStatus() == AssetOperations.LONG_NOTE)
+            return ResponseEntity.status(400).body(AssetResponses.LONG_NOTE);
         else // ALREADY_EXISTS
             return ResponseEntity.status(400).body(AssetResponses.ALREADY_EXISTS);
     }
@@ -386,6 +389,8 @@ public class AssetController
             return ResponseEntity.status(409).body(MovementResponses.BUSINESS_UNIT_MISMATCH);
         else if(movementOperation.getStatus() == MovementOperations.INVALID_RETURN_USER)
             return ResponseEntity.status(409).body(MovementResponses.INVALID_RETURN_USER);
+        else if(movementOperation.getStatus() == MovementOperations.LONG_NOTE)
+            return ResponseEntity.status(400).body(MovementResponses.LONG_NOTE);
         else // ASSET_STATE_BLOCKS_OPERATION
             return ResponseEntity.status(423).body(MovementResponses.ASSET_STATE_BLOCKS_OPERATION);
     }

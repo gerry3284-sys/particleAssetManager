@@ -110,8 +110,8 @@ public class TicketController
             return ResponseEntity.ok(createdTicket.getResponse());
         else if(createdTicket.getStatus().equals(TicketOperations.ASSET_TYPE_NOT_FOUND))
             return ResponseEntity.status(400).body(TicketResponses.ASSET_TYPE_NOT_FOUND);
-        else if(createdTicket.getStatus().equals(TicketOperations.OPERATION_ERROR))
-            return ResponseEntity.status(422).body(TicketResponses.OPERATION_ERROR);
+        /*else if(createdTicket.getStatus().equals(TicketOperations.OPERATION_ERROR))
+            return ResponseEntity.status(422).body(TicketResponses.OPERATION_ERROR);*/
         else if(createdTicket.getStatus().equals(TicketOperations.USER_NOT_FOUND))
             return ResponseEntity.status(404).body(TicketResponses.USER_NOT_FOUND);
         else if(createdTicket.getStatus().equals(TicketOperations.INVALID_USER_TYPE))

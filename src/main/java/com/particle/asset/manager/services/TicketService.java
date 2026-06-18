@@ -104,18 +104,13 @@ public class TicketService
     public Result.TicketResult createTicket(TicketRequestDto ticket)
     {
         if(ticket.getUserCode() == null || ticket.getOperation() == null ||
-                (ticket.getAssetTypeCode() == null && ticket.getAssetCode() == null) ||
-                (ticket.getAssetTypeCode() != null && ticket.getAssetCode() != null) ||
-                ticket.getMessage() == null || ticket.getPriority() == null)
+//                (ticket.getAssetTypeCode() == null && ticket.getAssetCode() == null) ||
+//                (ticket.getAssetTypeCode() != null && ticket.getAssetCode() != null) ||
+                ticket.getMessage() == null /*|| ticket.getPriority() == null*/)
             return new Result.TicketResult(TicketOperations.BAD_REQUEST, null);
 
         if(ticket.getMessage().length() > 500)
             return new Result.TicketResult(TicketOperations.LONG_MESSAGE, null);
-
-        if(ticket.getOperation().name().equals(MovementTypes.ASSIGNED.name()) && ticket.getAssetCode() != null ||
-            ticket.getOperation().name().equals(MovementTypes.RETURNED.name()) && ticket.getAssetTypeCode() != null ||
-                ticket.getOperation().name().equals(MovementTypes.DISMISSED.name()) && ticket.getAssetTypeCode() != null)
-            return new Result.TicketResult(TicketOperations.OPERATION_ERROR, null);
 
         Optional<User> userOpt = userRepository.findByOid(ticket.getUserCode());
         Optional<AssetType> assetTypeOpt = assetTypeRepository.findByCode(ticket.getAssetTypeCode());
@@ -136,7 +131,9 @@ public class TicketService
         createdTicket.setAssetType(assetTypeOpt.orElse(null));
         createdTicket.setAsset(assetOpt.orElse(null));
         createdTicket.setOperation(ticket.getOperation());
-        createdTicket.setPriority(ticket.getPriority());
+        if(ticket.isClientProject())
+            createdTicket.setPriority(TicketsAssetsPriorities.HIGH);
+        //createdTicket.setPriority(ticket.getPriority());
         //createdTicket.setMessage(ticket.getMessage());
         //createdTicket.setStatus(ticket.getStatus());
         String userName = userOpt.get().getName().toUpperCase().substring(0, Math.min(2, userOpt.get().getName().length()));
